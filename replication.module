@@ -1,0 +1,246 @@
+<?php
+/* $Id$ */
+
+/**
+ * Replication plugin for multi-master Mysql Replication
+ * Author: Michael Heath
+ * Date: 2007-06-13 17:46 GMT
+ * Developed for use at eServGlobal Ltd.
+ * http://www.eservglobal.com
+ */
+
+function replication_help($section='') {
+
+  $output = '';
+
+  switch ($section) {
+    case "admin/help#replication":
+      $output = '<p>'.  t("Database Replication Tool"). '</p>';
+      break;
+  }
+
+  return $output;
+} // function replication_help
+
+
+function replication_perm() {
+
+  return array('administer replication');
+
+} // function replication_perm
+
+
+function replication_menu() {
+
+  $items = array();
+
+  // Administration Options
+  $items[] = array(
+    'path' => 'admin/settings/replication',
+    'title' => t('Replication settings'),
+    'callback' => 'drupal_get_form',
+    'callback arguments' => 'replication_admin',
+    'access' => user_access('administer replication'),
+    'description' => ('Configure database replication'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+  $items[] = array(
+    'path' => 'admin/settings/replication/refresh',
+    'title' => t('Refresh replication'),
+    'callback' => 'drupal_get_form',
+    'callback arguments' => 'replication_adminrefresh',
+    'access' => user_access('administer replication'),
+    'description' => ('Configure database replication'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+  $items[] = array(
+    'path' => 'admin/settings/replication/adminmysql',
+    'title' => t('Mysql access'),
+    'callback' => 'drupal_get_form',
+    'callback arguments' => 'replication_adminmysql',
+    'access' => user_access('administer replication'),
+    'description' => ('Configure database replication'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+
+  return $items;
+} // function replication_menu
+
+function replication_adminmysql() {
+
+  $form['replication_mysqladmin_item_title'] = array(
+    '#type' => 'item',
+    '#title' => t('Note'),
+    '#value' => t('Providing this information enables drupal to switch masters via the web interface.  This is potentially dangerous.  Please ensure you know what you are doing and backup your database before proceding!'),
+  );
+  $form['replication_mysqladmin_host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mysql server host'),
+    '#default_value' => local_variable_get('replication_mysqladmin_host', 'localhost'),
+    '#size' => 64,
+    '#maxlength' => 64,
+    '#required' => 'TRUE',
+    '#description' => t("The value of mysql master host.")
+  );
+  $form['replication_mysqladmin_port'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mysql listening port'),
+    '#default_value' => local_variable_get('replication_mysqladmin_port', '3306'),
+    '#size' => 5,
+    '#maxlength' => 5,
+    '#required' => 'TRUE',
+    '#description' => t("The port number that the specified server is listening on.")
+  );
+  $form['replication_mysqladmin_user'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mysql username'),
+    '#default_value' => local_variable_get('replication_mysqladmin_user', 'root'),
+    '#size' => 64,
+    '#maxlength' => 64,
+    '#required' => 'TRUE',
+    '#description' => t("Enter the replication username required for this master.")
+  );
+  $form['replication_mysqladmin_pass'] = array(
+    '#type' => 'password',
+    '#title' => t('Mysql superuser password'),
+    '#size' => 64,
+    '#maxlength' => 64,
+    '#description' => t("Enter the superuser password.  This field is optional - only specify the password if you really mean to.")
+  );
+
+  return local_system_settings_form($form);
+} //function replication_adminmysql
+
+
+function replication_admin() {
+
+  $form['master'] = array (
+    '#type' => 'fieldset', 
+    '#title' => t('Master configuration'), 
+    '#weight' => 0, 
+    '#collapsible' => TRUE, 
+    '#collapsed' => FALSE,
+  );
+  $form['sequences'] = array (
+    '#type' => 'fieldset', 
+    '#title' => t('Sequence settings'), 
+    '#weight' => 0, 
+    '#collapsible' => TRUE, 
+    '#collapsed' => TRUE,
+  );
+  $form['master']['replication_admin_masterhost'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mysql master host'),
+    '#default_value' => local_variable_get('replication_admin_masterhost', 'somehost.somedomain'),
+    '#size' => 64,
+    '#maxlength' => 64,
+    '#required' => 'TRUE',
+    '#description' => t("The value of mysql master host.")
+  );
+  $form['master']['replication_admin_masterport'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mysql master listening port'),
+    '#default_value' => local_variable_get('replication_admin_masterport', '3306'),
+    '#size' => 5,
+    '#maxlength' => 5,
+    '#required' => 'TRUE',
+    '#description' => t("The port number that the master specified is listening on.")
+  );
+  $form['master']['replication_admin_masteruser'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mysql master username'),
+    '#default_value' => local_variable_get('replication_admin_masteruser', 'someuser'),
+    '#size' => 64,
+    '#maxlength' => 64,
+    '#required' => 'TRUE',
+    '#description' => t("Enter the replication username required for this master.")
+  );
+  $form['master']['replication_admin_masterpass'] = array(
+    '#type' => 'password',
+    '#title' => t('Mysql master password'),
+    '#size' => 64,
+    '#maxlength' => 64,
+    '#required' => 'TRUE',
+    '#description' => t("Enter the replication password required for this master.")
+  );
+  $form['sequences']['replication_admin_item_title'] = array(
+    '#type' => 'item',
+    '#title' => t('Note'),
+    '#value' => t('Playing with sequence numbers is dangerous.  Please ensure you know what you are doing and backup your database before proceding!'),
+  );
+  $form['sequences']['replication_admin_increment'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mysql increment value'),
+    '#default_value' => local_variable_get('replication_admin_increment', '1'),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#required' => 'TRUE',
+    '#description' => t("The value of mysql auto_increment_increment.")
+  );
+  $form['sequences']['replication_admin_offset'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mysql increment offset value'),
+    '#default_value' => local_variable_get('replication_admin_offset', '1'),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#required' => 'TRUE',
+    '#description' => t("The value of mysql auto_increment_offset.")
+  );
+  return local_system_settings_form($form);
+} //function replication_admin
+
+
+function replication_adminrefresh() {
+  
+  $form['replication_adminrefresh_text'] = array(
+    '#type' => 'item',
+    '#value' => t('Submitting this form will cause sequence numbers to be re-aligned and activate any changes you have made to the replication settings.')
+  );
+  $form['replication_adminrefresh_dbrefresh'] = array(
+    '#type' => 'submit',
+    '#default_value' => 'Refresh replication.'
+  );
+
+  return ($form);
+} //function replication_adminreset
+
+function replication_adminrefresh_submit($form_id, $form_values) {
+  /* select from the sequences table */
+  $sql = db_rewrite_sql ('SELECT name,id FROM {sequences}');
+  $queryResult = db_query($sql);
+    
+  while ($links = db_fetch_object($queryResult)) {
+    // VAL + increment-1 intdivide 10 * 10 +offset
+    $newid =  ((intval (($links->id + ( local_variable_get('replication_admin_increment', '1') -1 ) ) / 10) * 10 ) + local_variable_get('replication_admin_offset', '1') -1 );
+    msg_r ($links->id.' -> '.$newid);
+    db_query ("UPDATE {sequences} set id=%d where name='%s'", $newid, $links->name);
+  }
+
+  // db_query ("LOAD data from MASTER");
+
+  if ($dbconnection = mysql_connect ( local_variable_get('replication_mysqladmin_host','localhost'), local_variable_get('replication_mysqladmin_user','root'), local_variable_get('replication_mysqladmin_pass','pass'))) {
+    drupal_set_message('Superuser connection: OK');
+    $sqlQuery[0] = ("STOP slave;");
+    $sqlQuery[1] = ("grant replication slave on *.* to '".local_variable_get('replication_admin_masteruser', 'someuser')."'@".gethostbyname(local_variable_get('replication_admin_masterhost', 'somehost.somedomain'))." identified by '".local_variable_get('replication_admin_masterpass', 'somepass')."'");
+    $sqlQuery[2] = ("grant reload,process,super,replication client on *.* to '".local_variable_get('replication_admin_masteruser', 'someuser')."'@".gethostbyname(local_variable_get('replication_admin_masterhost', 'somehost.somedomain'))." identified by '".local_variable_get('replication_admin_masterpass', 'somepass')."'");
+    $sqlQuery[3] = ("CHANGE MASTER TO MASTER_HOST='". local_variable_get('replication_admin_masterhost', 'somehost.somedomain') ."', MASTER_PORT=". local_variable_get('replication_admin_masterport', '3306') .", MASTER_USER='". local_variable_get('replication_admin_masteruser', 'someuser') ."', MASTER_PASSWORD='". local_variable_get('replication_admin_masterpass', 'somepass') ."';");
+    $sqlQuery[4] = ("LOAD data from MASTER;");
+    $sqlQuery[5] = ("START slave;");
+    $loopCounter = 0;
+    while ($loopCounter < 5) {
+      //$result = mysql_query ($sqlQuery[$loopCounter]);
+      $drupalmessage .= ($sqlQuery[$loopCounter]);
+      if (!$result) $drupalmessage .= mysql_error();
+      $loopCounter++;
+    }
+    $drupalmessage .= "<li>Database updated.";
+  } else {
+    $drupalmessage .= ('Unable to connect as superuser!');
+  }
+
+  $drupalmessage .= ('<li>Sequence numbers have been re-aligned.');
+
+  drupal_set_message($drupalmessage);
+
+  drupal_get_form('replication_admin');
+} //function replication_adminrefresh_submit

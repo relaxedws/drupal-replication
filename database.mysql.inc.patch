@@ -1,0 +1,11 @@
+--- database.mysql.inc	2007-06-13 19:06:24.850690999 +0200
++++ ../../includes/database.mysql.inc	2007-06-13 19:06:40.491668498 +0200
+@@ -261,7 +261,7 @@ function db_error() {
+ function db_next_id($name) {
+   $name = db_prefix_tables($name);
+   db_query('LOCK TABLES {sequences} WRITE');
+-  $id = db_result(db_query("SELECT id FROM {sequences} WHERE name = '%s'", $name)) + 1;
++  $id = (db_result(db_query("SELECT id FROM {sequences} WHERE name = '%s'", $name)) + local_variable_get('replication_admin_increment', '10'));
+   db_query("REPLACE INTO {sequences} VALUES ('%s', %d)", $name, $id);
+   db_query('UNLOCK TABLES');
+ 

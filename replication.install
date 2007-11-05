@@ -1,0 +1,48 @@
+<?php
+//$Id$
+/**
+ * Implementation of hook_install().
+ */
+function replication_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      db_query("CREATE TABLE {local_variable} (
+                `name` varchar(48) NOT NULL DEFAULT '',
+                `value` longtext NOT NULL,
+         PRIMARY KEY (`name`)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+        drupal_set_message("Please ensure that you correctly patch your mysql/mysqli.inc and bootstrap files!");
+        variable_set('localvars','true');
+      break;
+      case 'pgsql':
+        drupal_set_message("Your database is not supported by this module");
+      break;      
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function replication_uninstall() {
+  db_query('DROP TABLE {local_variable}');
+  variable_del('localvars');
+  
+}
+
+/** 
+ * Implementation of hook_update_N()
+ */
+
+/**
+ * function replication_update_1() {
+ *   $ret = array();
+ *   switch ($GLOBALS['db_type']) {
+ *     case 'mysql':
+ *     case 'mysqli':
+ *       $ret[] = update_sql("ALTER TABLE {replication} ADD ldapdata_binddn VARCHAR(255) NOT NULL default '' ");
+ *       break;
+ *     case 'pgsql':
+ *   break;
+ * }
+ */

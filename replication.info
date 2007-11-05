@@ -1,0 +1,4 @@
+; $Id$
+name = Replication
+description = "Database Replication"
+package = Database Replication
