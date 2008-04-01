@@ -31,6 +31,11 @@ function replication_uninstall() {
   variable_del('replication_admin_warning_theme');
   variable_del('replication_admin_max_recheck');
   variable_del('replication_admin_wait_recheck');
+  variable_del('replication_server_mode');
+  variable_del('replication_server_url');
+  variable_del('replication_timeout');
+  variable_del('replication_speedlimit');
+  variable_del('replication_retries');
   
 }
 
