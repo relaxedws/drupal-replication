@@ -1,0 +1,164 @@
+--- /usr/share/drupal/includes/database.inc	2008-03-19 10:56:46.809282714 +0000
++++ database.inc	2008-03-19 10:56:26.660023463 +0000
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id$
++// $Id$
+ 
+ /**
+  * @file
+@@ -177,7 +177,7 @@ define('DB_QUERY_REGEXP', '/(%d|%s|%%|%f
+  *   A variable number of arguments which are substituted into the query
+  *   using printf() syntax. Instead of a variable number of query arguments,
+  *   you may also pass a single array containing the query arguments.
+- *
++
+  *   Valid %-modifiers are: %s, %d, %f, %b (binary data, do not enclose
+  *   in '') and %%.
+  *
+@@ -189,6 +189,14 @@ define('DB_QUERY_REGEXP', '/(%d|%s|%%|%f
+  *   executed correctly.
+  */
+ function db_query($query) {
++
++  //only run any of this if we're a slave - this code works out whether the query should be executed on the master or the local
++  //database 
++  if (variable_get('replication_server_mode','0') == 2) {
++    //call a function to adjust which server we're connecting to for the query
++    which_server($query);
++  }
++
+   $args = func_get_args();
+   array_shift($args);
+   $query = db_prefix_tables($query);
+@@ -196,14 +204,109 @@ function db_query($query) {
+     $args = $args[0];
+   }
+   _db_query_callback($args, TRUE);
++
+   $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
++
+   return _db_query($query);
+ }
+ 
++
++
++/**
++ * simply sets which database we should connect to for the query
++ * @param string $query - the query statement (doesn't need to be lower case because regex allows the "i" (case insensitive) flag
++ */
++function which_server($query) {
++  global $active_db;
++
++  //first we test whether this is an unlock action - an unlock will never switch database from the previous query so just return
++  $pattern = "/(^UNLOCK)/i";
++  if (preg_match($pattern, $query)) {
++    return;
++  }
++
++  //now check for commands that will only ever run locally (usually as part of an install or when removing a module)
++  $pattern = "/(^DROP |^CREATE |^ALTER )/i";
++  if (preg_match($pattern, $query)) {
++    db_set_active('default');
++    return;
++  }
++
++  //moving the select code here has a HUGE advantage - we know that anything within {} brackets is a table name
++  $pattern = "/(?<=\{)[a-z_]{3,30}(?=\})/";
++
++  //regex hogs a fair bit of processor power and I'd have preferred to stop looking through the string as soon as I hit a WHERE
++  //or ORDER etc BUT statement can be somewhat complex - you can have a statement with a SELECT after a WHERE so I'm having to 
++  //check through the whole string
++  $res = preg_match_all($pattern, $query, $match);
++
++  //now I'm quite keen to know whether we get any multiple table queries so I'm putting these in the watchdog
++  //ZZZZZZZZZthis should be taken out later
++  if ($res > 1) {
++    //watchdog('which_server', 'INFO: multiple query - ' . $query);
++    //carry on though
++  }
++  else if ($res == 0) {
++    //there are some queries that won't contain a table name e.g SHOW TABLES or DESC TABLES I've made the decision that these
++    //ALWAYS refer to the local table 
++    db_set_active('default');
++    return;
++  }
++  //the list of tables that should always be written to or read from on the local host is read from the array below:
++  $tables_local = array('history','cache','cache_filter','cache_menu','cache_page','cache_views','system','variable','watchdog','dbfm_data','dbfm_cronlist','sessions','ldapauth');
+
++
++  //the list of tables that should always be written to or read from on the master is read from the array below:
++  $tables_master = array('sequences');
++
++  //At this point, $tables[0] now contains an array of table names found in the query
++  $master = FALSE;
++  $local = FALSE;
++  //see whether each table requested is in the master list or the local list
++  for ($i = 0; $i < count($match[0]); $i++) {
++    if (in_array($match[0][$i], $tables_master)) {
++      //there's a match so connect to the master database
++      $master = TRUE;
++    }
++    if (in_array($match[0][$i], $tables_local)) {
++      //there's a match so connect to the local database
++      $local = TRUE;
++    }
++  }
++  //should NEVER happen but if the query specifies both a local and a master then we'll log the query
++  //and default to master
++  if ($master) {
++    if ($local) {
++      watchdog('which_server', 'ERROR: master and local table - ' . $query);
++    }
++    db_set_active('master');
++    return;
++  }
++  if ($local) {
++    db_set_active('default');
++    return;
++  }
++
++  //what we've got left now are unspecified tables which should be written to the master but read locally
++
++  //ARE THERE ANY MORE??
++  //see whether it's a write statement -this looks to see whether the query statement starts with any of the key words
++  $pattern = "/(^INSERT|^UPDATE|^DELETE|^REPLACE|^LOCK)/i";
++  if (preg_match($pattern, $query)) {
++    db_set_active('master');
++    return;
++  }
++  //if it's not a write statement it must be done locally
++  db_set_active('default');
++  return;
++} 
++
++
++
++
+ /**
+  * Helper function for db_rewrite_sql.
+  *
+- * Collects JOIN and WHERE statements via hook_db_rewrite_sql().
++ * Collects JOIN and WHERE statements via hook_sql.
+  * Decides whether to select primary_key or DISTINCT(primary_key)
+  *
+  * @param $query
+@@ -252,7 +355,7 @@ function _db_rewrite_sql($query = '', $p
+  * @param $query
+  *   Query to be rewritten.
+  * @param $primary_table
+- *   Name or alias of the table which has the primary key field for this query. Possible values are: {comments}, {forum}, {node}, {menu}, {term_data}, {vocabulary}.
++ *   Name or alias of the table which has the primary key field for this query. Possible values are: comments, forum, node, menu, term_data, vocabulary.
+  * @param $primary_field
+  *   Name of the primary field.
+  * @param $args
+@@ -282,9 +385,6 @@ function db_rewrite_sql($query, $primary
+     if (strpos($query, 'GROUP')) {
+       $replace = 'GROUP';
+     }
+-    elseif (strpos($query, 'HAVING')) {
+-      $replace = 'HAVING';
+-    }
+     elseif (strpos($query, 'ORDER')) {
+       $replace = 'ORDER';
+     }

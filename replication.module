@@ -18,7 +18,6 @@ function replication_help($section='') {
       $output = '<p>'.  t("Database Replication Tool"). '</p>';
       break;
   }
-
   return $output;
 } // function replication_help
 
@@ -44,203 +43,188 @@ function replication_menu() {
     'description' => ('Configure database replication'),
     'type' => MENU_NORMAL_ITEM,
    );
-  $items[] = array(
-    'path' => 'admin/settings/replication/refresh',
-    'title' => t('Refresh replication'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => 'replication_adminrefresh',
-    'access' => user_access('administer replication'),
-    'description' => ('Configure database replication'),
-    'type' => MENU_NORMAL_ITEM,
-   );
-  $items[] = array(
-    'path' => 'admin/settings/replication/adminmysql',
-    'title' => t('Mysql access'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => 'replication_adminmysql',
-    'access' => user_access('administer replication'),
-    'description' => ('Configure database replication'),
-    'type' => MENU_NORMAL_ITEM,
-   );
 
   return $items;
 } // function replication_menu
 
-function replication_adminmysql() {
-
-  $form['replication_mysqladmin_item_title'] = array(
-    '#type' => 'item',
-    '#title' => t('Note'),
-    '#value' => t('Providing this information enables drupal to switch masters via the web interface.  This is potentially dangerous.  Please ensure you know what you are doing and backup your database before proceding!'),
-  );
-  $form['replication_mysqladmin_host'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Mysql server host'),
-    '#default_value' => local_variable_get('replication_mysqladmin_host', 'localhost'),
-    '#size' => 64,
-    '#maxlength' => 64,
-    '#required' => 'TRUE',
-    '#description' => t("The value of mysql master host.")
-  );
-  $form['replication_mysqladmin_port'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Mysql listening port'),
-    '#default_value' => local_variable_get('replication_mysqladmin_port', '3306'),
-    '#size' => 5,
-    '#maxlength' => 5,
-    '#required' => 'TRUE',
-    '#description' => t("The port number that the specified server is listening on.")
-  );
-  $form['replication_mysqladmin_user'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Mysql username'),
-    '#default_value' => local_variable_get('replication_mysqladmin_user', 'root'),
-    '#size' => 64,
-    '#maxlength' => 64,
-    '#required' => 'TRUE',
-    '#description' => t("Enter the replication username required for this master.")
-  );
-  $form['replication_mysqladmin_pass'] = array(
-    '#type' => 'password',
-    '#title' => t('Mysql superuser password'),
-    '#size' => 64,
-    '#maxlength' => 64,
-    '#description' => t("Enter the superuser password.  This field is optional - only specify the password if you really mean to.")
-  );
-
-  return local_system_settings_form($form);
-} //function replication_adminmysql
-
-
 function replication_admin() {
 
-  $form['master'] = array (
-    '#type' => 'fieldset', 
-    '#title' => t('Master configuration'), 
-    '#weight' => 0, 
-    '#collapsible' => TRUE, 
+  $options = array();
+
+  $i = 0;
+  $themes = system_theme_data();
+  foreach( $themes as $key => $values) {
+    $options[$key] = $key;
+    $i++;
+  }
+  //general replication settings
+  $form['replication'] = array (
+    '#type' => 'fieldset',
+    '#title' => t('General Settings'),
+    '#weight' => 0,
+    '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['sequences'] = array (
-    '#type' => 'fieldset', 
-    '#title' => t('Sequence settings'), 
-    '#weight' => 0, 
-    '#collapsible' => TRUE, 
+  //define whether we are:
+  //0 - free-standing (no replication takes place)
+  //1 - the master server
+  //2 - a slave server
+  //NOTE that if the replication module has not been installed then any application testing this 
+  //variable should assume the default 0 - that the server is not part of replication
+  //note also that if a server is being used as a 'distributor' its setting should be as a slave
+  //since writes will still be made to the overall master server
+  $form['replication']['replication_server_mode'] = array (
+    '#type' => 'select',
+    '#title' => 'Server mode',
+    '#required' => 'TRUE',
+    '#options' => array('0'=>'Single server', '1'=>'Master mode', '2'=>'Replication slave'),
+    '#default_value' => variable_get('replication_server_mode', '0'),
+    '#description' => t('If you are not running a multi-server system, you should leave this set to "Single Server" mode')
+  );
+
+  //where is this used????
+  $form['replication']['replication_admin_identifier'] = array(
+    '#type' => 'textfield',
+    '#default_value' => variable_get('replication_admin_identifier', ''),
+    '#title' => t('Slave Server identifier'),
+    '#required' => 'TRUE',
+    '#maxlength' => '10',
+    '#size' => '10',
+    '#description' => t("Enter a unique identifier - only required for slaves. e.g 'slaveid001'")
+  );
+  $form['replication']['replication_admin_max_recheck'] = array(
+    '#type' => 'textfield',
+    '#default_value' => variable_get('replication_admin_max_recheck', '10'),
+    '#title' => t('Maximum re-tests'),
+    '#required' => 'TRUE',
+    '#maxlength' => '2',
+    '#size' => '2',
+    '#description' => t("Enter a value for the maximum number of times the slave will retry during a replication check.")
+  );
+  $form['replication']['replication_admin_wait_recheck'] = array(
+    '#type' => 'textfield',
+    '#default_value' => variable_get('replication_admin_wait_recheck', '1'),
+    '#title' => t('Re-test delay.'),
+    '#required' => 'TRUE',
+    '#maxlength' => '2',
+    '#size' => '2',
+    '#description' => t("Enter a value in seconds to wait between re-checking on fail. Note that higher numbers may cause the cron to fail.")
+  );
+
+  //theme settings
+  $form['replication_theme'] = array (
+    '#type' => 'fieldset',
+    '#title' => t('Theme configuration'),
+    '#weight' => 0,
+    '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
-  $form['master']['replication_admin_masterhost'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Mysql master host'),
-    '#default_value' => local_variable_get('replication_admin_masterhost', 'somehost.somedomain'),
-    '#size' => 64,
-    '#maxlength' => 64,
+  $form['replication_theme']['replication_admin_normal_theme'] = array(
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => variable_get('replication_admin_normal_theme', NULL),
+    '#title' => t('Regular theme'),
     '#required' => 'TRUE',
-    '#description' => t("The value of mysql master host.")
+    '#description' => t("The theme to be used when the mysql master is available.")
   );
-  $form['master']['replication_admin_masterport'] = array(
+  $form['replication_theme']['replication_admin_warning_theme'] = array(
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => variable_get('replication_admin_warning_theme', NULL),
+    '#title' => t('Recovery theme'),
+    '#required' => 'TRUE',
+    '#description' => t("The theme to be used when the mysql master is unavailable.")
+  );
+  
+  // extended configuration settings - for applications doing additional replication using http
+  $form['replication_http'] = array (
+    '#type' => 'fieldset',
+    '#title' => 'HTTP replication settings',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  //this should only be available if we're a slave, need some inline js to deal with it ZZZZZZZZZZZZ
+  $form['replication_http']['replication_server_url'] = array (
     '#type' => 'textfield',
-    '#title' => t('Mysql master listening port'),
-    '#default_value' => local_variable_get('replication_admin_masterport', '3306'),
-    '#size' => 5,
+    '#title' => 'Master URL',
+    '#maxlength' => 255,
+    '#default_value' => variable_get('replication_server_url', ''),
+    '#description' => t('If this node is a replication slave, you should specify the master server url here - including the leading http:// or https:// etc. Otherwise, leave this field blank')
+  );
+  $form['replication_http']['replication_http_timeout'] = array (
+    '#type' => 'textfield',
+    '#title' => 'Replication timeout (Miliseconds per Kilobyte)',
     '#maxlength' => 5,
-    '#required' => 'TRUE',
-    '#description' => t("The port number that the master specified is listening on.")
+    '#default_value' => variable_get('replication_http_timeout', '500'),
+    '#description' => t('Enter a value in miliseconds.')
   );
-  $form['master']['replication_admin_masteruser'] = array(
+  $form['replication_http']['replication_http_speedlimit'] = array (
     '#type' => 'textfield',
-    '#title' => t('Mysql master username'),
-    '#default_value' => local_variable_get('replication_admin_masteruser', 'someuser'),
-    '#size' => 64,
-    '#maxlength' => 64,
-    '#required' => 'TRUE',
-    '#description' => t("Enter the replication username required for this master.")
+    '#title' => 'Maximum speed (Kilobits per second)',
+    '#maxlength' => 10,
+    '#default_value' => variable_get('replication_http_speedlimit', '16384'),
+    '#description' => t('Enter a value in Kilobits.')
   );
-  $form['master']['replication_admin_masterpass'] = array(
-    '#type' => 'password',
-    '#title' => t('Mysql master password'),
-    '#size' => 64,
-    '#maxlength' => 64,
-    '#required' => 'TRUE',
-    '#description' => t("Enter the replication password required for this master.")
-  );
-  $form['sequences']['replication_admin_item_title'] = array(
-    '#type' => 'item',
-    '#title' => t('Note'),
-    '#value' => t('Playing with sequence numbers is dangerous.  Please ensure you know what you are doing and backup your database before proceding!'),
-  );
-  $form['sequences']['replication_admin_increment'] = array(
+  $form['replication_http']['replication_http_retries'] = array (
     '#type' => 'textfield',
-    '#title' => t('Mysql increment value'),
-    '#default_value' => local_variable_get('replication_admin_increment', '1'),
-    '#size' => 4,
-    '#maxlength' => 4,
-    '#required' => 'TRUE',
-    '#description' => t("The value of mysql auto_increment_increment.")
+    '#title' => 'Maximum number of retries',
+    '#maxlength' => 3,
+    '#default_value' => variable_get('replication_http_retries', '5'),
+    '#description' => t('Enter a number for the maximum number of attempts.')
   );
-  $form['sequences']['replication_admin_offset'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Mysql increment offset value'),
-    '#default_value' => local_variable_get('replication_admin_offset', '1'),
-    '#size' => 4,
-    '#maxlength' => 4,
-    '#required' => 'TRUE',
-    '#description' => t("The value of mysql auto_increment_offset.")
+  //this should only be available if we're a slave, need some inline js to deal with it ZZZZZZZZZZZZ
+  $form['replication_http']['replication_http_cron_enabled'] = array (
+    '#type' => 'checkbox',
+    '#title' => 'Enable file replication using cron',
+    '#default_value' => variable_get('replication_http_cron_enabled', 0),
+    '#description' => t('Unless checked no attempt will be made to replicate files from master server')
   );
-  return local_system_settings_form($form);
+
+  return system_settings_form($form);
 } //function replication_admin
 
 
-function replication_adminrefresh() {
-  
-  $form['replication_adminrefresh_text'] = array(
-    '#type' => 'item',
-    '#value' => t('Submitting this form will cause sequence numbers to be re-aligned and activate any changes you have made to the replication settings.')
-  );
-  $form['replication_adminrefresh_dbrefresh'] = array(
-    '#type' => 'submit',
-    '#default_value' => 'Refresh replication.'
-  );
+// Implementation of hook_cron
 
-  return ($form);
-} //function replication_adminreset
-
-function replication_adminrefresh_submit($form_id, $form_values) {
-  /* select from the sequences table */
-  $sql = db_rewrite_sql ('SELECT name,id FROM {sequences}');
-  $queryResult = db_query($sql);
-    
-  while ($links = db_fetch_object($queryResult)) {
-    // VAL + increment-1 intdivide 10 * 10 +offset
-    $newid =  ((intval (($links->id + ( local_variable_get('replication_admin_increment', '1') -1 ) ) / 10) * 10 ) + local_variable_get('replication_admin_offset', '1') -1 );
-    msg_r ($links->id.' -> '.$newid);
-    db_query ("UPDATE {sequences} set id=%d where name='%s'", $newid, $links->name);
+function replication_cron() {
+  if (variable_get('replication_server_mode', '0') != 2) {
+    return;
   }
 
-  // db_query ("LOAD data from MASTER");
+  // Check the timestamp from the last run
+  $previoustimestamp = variable_get('replication_timestamp', 0);
+  $recoverytheme = variable_get('replication_admin_warning_theme', 'garland');
+  $normaltheme = variable_get('replication_admin_normal_theme', 'garland');
 
-  if ($dbconnection = mysql_connect ( local_variable_get('replication_mysqladmin_host','localhost'), local_variable_get('replication_mysqladmin_user','root'), local_variable_get('replication_mysqladmin_pass','pass'))) {
-    drupal_set_message('Superuser connection: OK');
-    $sqlQuery[0] = ("STOP slave;");
-    $sqlQuery[1] = ("grant replication slave on *.* to '".local_variable_get('replication_admin_masteruser', 'someuser')."'@".gethostbyname(local_variable_get('replication_admin_masterhost', 'somehost.somedomain'))." identified by '".local_variable_get('replication_admin_masterpass', 'somepass')."'");
-    $sqlQuery[2] = ("grant reload,process,super,replication client on *.* to '".local_variable_get('replication_admin_masteruser', 'someuser')."'@".gethostbyname(local_variable_get('replication_admin_masterhost', 'somehost.somedomain'))." identified by '".local_variable_get('replication_admin_masterpass', 'somepass')."'");
-    $sqlQuery[3] = ("CHANGE MASTER TO MASTER_HOST='". local_variable_get('replication_admin_masterhost', 'somehost.somedomain') ."', MASTER_PORT=". local_variable_get('replication_admin_masterport', '3306') .", MASTER_USER='". local_variable_get('replication_admin_masteruser', 'someuser') ."', MASTER_PASSWORD='". local_variable_get('replication_admin_masterpass', 'somepass') ."';");
-    $sqlQuery[4] = ("LOAD data from MASTER;");
-    $sqlQuery[5] = ("START slave;");
-    $loopCounter = 0;
-    while ($loopCounter < 5) {
-      //$result = mysql_query ($sqlQuery[$loopCounter]);
-      $drupalmessage .= ($sqlQuery[$loopCounter]);
-      if (!$result) $drupalmessage .= mysql_error();
-      $loopCounter++;
+  // Here are the queries we run to check if replication is working
+  $deletequery = sprintf("DELETE from {replication} where slaveid='%s'", variable_get('replication_admin_identifier',''));
+  $insertquery = sprintf("INSERT into {replication} (slaveid) VALUES ('%s')", variable_get('replication_admin_identifier',''));
+  $selectquery = sprintf("SELECT timestamp FROM {replication} WHERE slaveid='%s'", variable_get('replication_admin_identifier','slaveid001'));
+  $delresult = db_query($deletequery);
+  $insresult = db_query($insertquery);
+  $retries=0;
+
+  // if we havne't tried more than the defined max times then...
+  while ($retries < variable_get('replication_admin_max_recheck', '10')) {
+    $selresult = db_query($selectquery);
+    $links = db_fetch_object($selresult);
+
+    // If the current timestamp is different then it's a success and we can stop
+    if ($links->timestamp != $previoustimestamp) {
+      variable_set('replication_online', '1');
+      variable_set('replication_timestamp', $links->timestamp);
+      variable_set('theme_default', $normaltheme);
+      $retries=variable_get('replication_admin_max_recheck', '10');
     }
-    $drupalmessage .= "<li>Database updated.";
-  } else {
-    $drupalmessage .= ('Unable to connect as superuser!');
+
+    // If the current timestamp is the same, we'll wait a defined period and check again
+    else {
+      sleep(variable_get('replication_admin_wait_recheck', '1'));
+    }
+    $retries++;
   }
-
-  $drupalmessage .= ('<li>Sequence numbers have been re-aligned.');
-
-  drupal_set_message($drupalmessage);
-
-  drupal_get_form('replication_admin');
-} //function replication_adminrefresh_submit
+  if ($links->timestamp == $previoustimestamp) {
+    variable_set('replication_online', '0');
+    variable_set('theme_default', $recoverytheme);
+  }
+}

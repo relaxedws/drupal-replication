@@ -2,3 +2,8 @@
 name = Replication
 description = "Database Replication"
 package = Database Replication
+
+; Information added by drupal.org packaging script on 2007-01-27
+version = "HEAD"
+project = "replication"
+

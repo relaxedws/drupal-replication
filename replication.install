@@ -7,13 +7,12 @@ function replication_install() {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      db_query("CREATE TABLE {local_variable} (
-                `name` varchar(48) NOT NULL DEFAULT '',
-                `value` longtext NOT NULL,
-         PRIMARY KEY (`name`)
-      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
-        drupal_set_message("Please ensure that you correctly patch your mysql/mysqli.inc and bootstrap files!");
-        variable_set('localvars','true');
+      db_query("CREATE TABLE {replication} (
+        `slaveid` varchar(10) NOT NULL,
+        `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+        PRIMARY KEY  (`slaveid`)
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */");
+        drupal_set_message("Please ensure that you correctly patch your includes/database.mysql.inc files!");
       break;
       case 'pgsql':
         drupal_set_message("Your database is not supported by this module");
@@ -25,24 +24,35 @@ function replication_install() {
  * Implementation of hook_uninstall().
  */
 function replication_uninstall() {
-  db_query('DROP TABLE {local_variable}');
-  variable_del('localvars');
+  db_query("DROP TABLE {replication}");
+  variable_del('replication_online');
+  variable_del('replication_admin_identifier');
+  variable_del('replication_admin_normal_theme');
+  variable_del('replication_admin_warning_theme');
+  variable_del('replication_admin_max_recheck');
+  variable_del('replication_admin_wait_recheck');
   
 }
 
-/** 
- * Implementation of hook_update_N()
- */
-
 /**
- * function replication_update_1() {
- *   $ret = array();
- *   switch ($GLOBALS['db_type']) {
- *     case 'mysql':
- *     case 'mysqli':
- *       $ret[] = update_sql("ALTER TABLE {replication} ADD ldapdata_binddn VARCHAR(255) NOT NULL default '' ");
- *       break;
- *     case 'pgsql':
- *   break;
- * }
- */
+ * Implementation of hook_update
+ **/
+
+function replication_update_1() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("CREATE TABLE {replication} (
+        `slaveid` varchar(10) NOT NULL,
+        `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+        PRIMARY KEY  (`slaveid`)
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */");
+        drupal_set_message("Please ensure that you correctly patch your includes/database.mysql.inc files!");
+      break;
+      case 'pgsql':
+        drupal_set_message("Your database is not supported by this module");
+      break;      
+  }
+
+  return $ret;
+}
