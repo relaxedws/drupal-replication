@@ -1,28 +1,12 @@
---- /usr/share/drupal/includes/database.inc	2008-03-19 10:56:46.809282714 +0000
-+++ database.inc	2008-03-19 10:56:26.660023463 +0000
-@@ -1,5 +1,5 @@
- <?php
--// $Id$
-+// $Id$
- 
- /**
-  * @file
-@@ -177,7 +177,7 @@ define('DB_QUERY_REGEXP', '/(%d|%s|%%|%f
-  *   A variable number of arguments which are substituted into the query
-  *   using printf() syntax. Instead of a variable number of query arguments,
-  *   you may also pass a single array containing the query arguments.
-- *
-+
-  *   Valid %-modifiers are: %s, %d, %f, %b (binary data, do not enclose
-  *   in '') and %%.
-  *
+--- /usr/share/drupal/includes/database.inc	2007-11-07 05:55:46.000000000 +0000
++++ database.inc	2008-04-02 15:26:43.000000000 +0100
 @@ -189,6 +189,14 @@ define('DB_QUERY_REGEXP', '/(%d|%s|%%|%f
   *   executed correctly.
   */
  function db_query($query) {
 +
 +  //only run any of this if we're a slave - this code works out whether the query should be executed on the master or the local
-+  //database 
++  //database
 +  if (variable_get('replication_server_mode','0') == 2) {
 +    //call a function to adjust which server we're connecting to for the query
 +    which_server($query);
@@ -31,19 +15,10 @@
    $args = func_get_args();
    array_shift($args);
    $query = db_prefix_tables($query);
-@@ -196,14 +204,109 @@ function db_query($query) {
-     $args = $args[0];
-   }
-   _db_query_callback($args, TRUE);
-+
-   $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
-+
-   return _db_query($query);
+@@ -201,6 +209,95 @@ function db_query($query) {
  }
  
-+
-+
-+/**
+ /**
 + * simply sets which database we should connect to for the query
 + * @param string $query - the query statement (doesn't need to be lower case because regex allows the "i" (case insensitive) flag
 + */
@@ -85,7 +60,7 @@
 +  }
 +  //the list of tables that should always be written to or read from on the local host is read from the array below:
 +  $tables_local = array('history','cache','cache_filter','cache_menu','cache_page','cache_views','system','variable','watchdog','dbfm_data','dbfm_cronlist','sessions','ldapauth');
-
++
 +
 +  //the list of tables that should always be written to or read from on the master is read from the array below:
 +  $tables_master = array('sequences');
@@ -132,33 +107,13 @@
 +  return;
 +} 
 +
-+
-+
-+
- /**
++/**
   * Helper function for db_rewrite_sql.
   *
-- * Collects JOIN and WHERE statements via hook_db_rewrite_sql().
-+ * Collects JOIN and WHERE statements via hook_sql.
-  * Decides whether to select primary_key or DISTINCT(primary_key)
-  *
-  * @param $query
-@@ -252,7 +355,7 @@ function _db_rewrite_sql($query = '', $p
-  * @param $query
-  *   Query to be rewritten.
-  * @param $primary_table
-- *   Name or alias of the table which has the primary key field for this query. Possible values are: {comments}, {forum}, {node}, {menu}, {term_data}, {vocabulary}.
-+ *   Name or alias of the table which has the primary key field for this query. Possible values are: comments, forum, node, menu, term_data, vocabulary.
-  * @param $primary_field
-  *   Name of the primary field.
-  * @param $args
-@@ -282,9 +385,6 @@ function db_rewrite_sql($query, $primary
-     if (strpos($query, 'GROUP')) {
-       $replace = 'GROUP';
-     }
--    elseif (strpos($query, 'HAVING')) {
--      $replace = 'HAVING';
--    }
-     elseif (strpos($query, 'ORDER')) {
-       $replace = 'ORDER';
-     }
+  * Collects JOIN and WHERE statements via hook_db_rewrite_sql().
+@@ -314,5 +411,3 @@ function db_escape_table($string) {
+ /**
+  * @} End of "defgroup database".
+  */
+-
+-
