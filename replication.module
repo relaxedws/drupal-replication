@@ -23,9 +23,7 @@ function replication_help($section='') {
 
 
 function replication_perm() {
-
   return array('administer replication');
-
 } // function replication_perm
 
 
@@ -65,6 +63,7 @@ function replication_admin() {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
+
   //define whether we are:
   //0 - free-standing (no replication takes place)
   //1 - the master server
@@ -82,7 +81,6 @@ function replication_admin() {
     '#description' => t('If you are not running a multi-server system, you should leave this set to "Single Server" mode')
   );
 
-  //where is this used????
   $form['replication']['replication_admin_identifier'] = array(
     '#type' => 'textfield',
     '#default_value' => variable_get('replication_admin_identifier', ''),
@@ -92,6 +90,7 @@ function replication_admin() {
     '#size' => '10',
     '#description' => t("Enter a unique identifier - only required for slaves. e.g 'slaveid001'")
   );
+
   $form['replication']['replication_admin_max_recheck'] = array(
     '#type' => 'textfield',
     '#default_value' => variable_get('replication_admin_max_recheck', '10'),
@@ -101,6 +100,7 @@ function replication_admin() {
     '#size' => '2',
     '#description' => t("Enter a value for the maximum number of times the slave will retry during a replication check.")
   );
+
   $form['replication']['replication_admin_wait_recheck'] = array(
     '#type' => 'textfield',
     '#default_value' => variable_get('replication_admin_wait_recheck', '1'),
@@ -119,23 +119,25 @@ function replication_admin() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
+
   $form['replication_theme']['replication_admin_normal_theme'] = array(
     '#type' => 'select',
     '#options' => $options,
-    '#default_value' => variable_get('replication_admin_normal_theme', NULL),
+    '#default_value' => variable_get('replication_admin_normal_theme', 'garland'),
     '#title' => t('Regular theme'),
     '#required' => 'TRUE',
     '#description' => t("The theme to be used when the mysql master is available.")
   );
+
   $form['replication_theme']['replication_admin_warning_theme'] = array(
     '#type' => 'select',
     '#options' => $options,
-    '#default_value' => variable_get('replication_admin_warning_theme', NULL),
+    '#default_value' => variable_get('replication_admin_warning_theme', 'garland'),
     '#title' => t('Recovery theme'),
     '#required' => 'TRUE',
     '#description' => t("The theme to be used when the mysql master is unavailable.")
   );
-  
+
   // extended configuration settings - for applications doing additional replication using http
   $form['replication_http'] = array (
     '#type' => 'fieldset',
@@ -143,20 +145,30 @@ function replication_admin() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
+
   //this should only be available if we're a slave, need some inline js to deal with it ZZZZZZZZZZZZ
   $form['replication_http']['replication_server_url'] = array (
     '#type' => 'textfield',
     '#title' => 'Master URL',
     '#maxlength' => 255,
     '#default_value' => variable_get('replication_server_url', ''),
-    '#description' => t('If this node is a replication slave, you should specify the master server url here - including the leading http:// or https:// etc. Otherwise, leave this field blank')
+    '#description' => t('If this node is a replication slave, you should specify the master server url here - including the leading http:// or https:// etc. Otherwise, leave this field blank. DO NOT include a trailing slash')
   );
+
+  $form['replication_http']['replication_http_port'] = array (
+    '#type' => 'textfield',
+    '#title' => 'Replication Port',
+    '#maxlength' => 5,
+    '#default_value' => variable_get('replication_http_port', ''),
+    '#description' => t('By default the port used for http transfers is 80 for http and 443 for https. If you wish to use a different port you should specify it here. Otherwise, leave this field blank')
+  );
+
   $form['replication_http']['replication_http_timeout'] = array (
     '#type' => 'textfield',
-    '#title' => 'Replication timeout (Miliseconds per Kilobyte)',
+    '#title' => 'Replication timeout (Milliseconds per Kilobyte)',
     '#maxlength' => 5,
     '#default_value' => variable_get('replication_http_timeout', '500'),
-    '#description' => t('Enter a value in miliseconds.')
+    '#description' => t('Enter a value in milliseconds.')
   );
   $form['replication_http']['replication_http_speedlimit'] = array (
     '#type' => 'textfield',
@@ -165,6 +177,7 @@ function replication_admin() {
     '#default_value' => variable_get('replication_http_speedlimit', '16384'),
     '#description' => t('Enter a value in Kilobits.')
   );
+
   $form['replication_http']['replication_http_retries'] = array (
     '#type' => 'textfield',
     '#title' => 'Maximum number of retries',
@@ -172,6 +185,7 @@ function replication_admin() {
     '#default_value' => variable_get('replication_http_retries', '5'),
     '#description' => t('Enter a number for the maximum number of attempts.')
   );
+/*  Now replaced by application specific switches
   //this should only be available if we're a slave, need some inline js to deal with it ZZZZZZZZZZZZ
   $form['replication_http']['replication_http_cron_enabled'] = array (
     '#type' => 'checkbox',
@@ -179,13 +193,18 @@ function replication_admin() {
     '#default_value' => variable_get('replication_http_cron_enabled', 0),
     '#description' => t('Unless checked no attempt will be made to replicate files from master server')
   );
+*/
 
   return system_settings_form($form);
 } //function replication_admin
 
 
-// Implementation of hook_cron
-
+/**
+ * Implementation of hook_cron
+ * note that the variable 'replication_online' is an internal variable - there is no admin option to set it
+ * in the long term it will also be switched off when any db_query fails in database.inc
+ *
+ */
 function replication_cron() {
   if (variable_get('replication_server_mode', '0') != 2) {
     return;
