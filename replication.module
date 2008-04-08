@@ -159,29 +159,43 @@ function replication_admin() {
     '#type' => 'textfield',
     '#title' => 'Replication Port',
     '#maxlength' => 5,
+    '#size' => 5,
     '#default_value' => variable_get('replication_http_port', ''),
     '#description' => t('By default the port used for http transfers is 80 for http and 443 for https. If you wish to use a different port you should specify it here. Otherwise, leave this field blank')
+  );
+
+  $form['replication_http']['replication_http_connect'] = array (
+    '#type' => 'textfield',
+    '#title' => 'Replication connection timeout (in Seconds)',
+    '#maxlength' => 5,
+    '#size' => 5,
+    '#default_value' => variable_get('replication_http_connect', '5'),
+    '#description' => t('This is the time allowed to establish the http connection - Enter a value in seconds.')
   );
 
   $form['replication_http']['replication_http_timeout'] = array (
     '#type' => 'textfield',
     '#title' => 'Replication timeout (Milliseconds per Kilobyte)',
-    '#maxlength' => 5,
+    '#maxlength' => 6,
+    '#size' => 6,
     '#default_value' => variable_get('replication_http_timeout', '500'),
     '#description' => t('Enter a value in milliseconds.')
   );
+
   $form['replication_http']['replication_http_speedlimit'] = array (
     '#type' => 'textfield',
     '#title' => 'Maximum speed (Kilobits per second)',
     '#maxlength' => 10,
-    '#default_value' => variable_get('replication_http_speedlimit', '16384'),
-    '#description' => t('Enter a value in Kilobits.')
+    '#size' => 10,
+    '#default_value' => variable_get('replication_http_speedlimit', '128'),
+    '#description' => t('Enter a value in kilobits.')
   );
 
   $form['replication_http']['replication_http_retries'] = array (
     '#type' => 'textfield',
     '#title' => 'Maximum number of retries',
     '#maxlength' => 3,
+    '#size' => 3,
     '#default_value' => variable_get('replication_http_retries', '5'),
     '#description' => t('Enter a number for the maximum number of attempts.')
   );

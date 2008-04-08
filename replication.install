@@ -37,6 +37,7 @@ function replication_uninstall() {
   variable_del('replication_http_speedlimit');
   variable_del('replication_http_retries');
   variable_del('replication_http_port');
+  variable_del('replication_http_connect');
   variable_del('replication_timestamp');
 }
 
