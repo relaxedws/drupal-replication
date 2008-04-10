@@ -85,10 +85,9 @@ function replication_admin() {
     '#type' => 'textfield',
     '#default_value' => variable_get('replication_admin_identifier', ''),
     '#title' => t('Slave Server identifier'),
-    '#required' => 'TRUE',
     '#maxlength' => '10',
     '#size' => '10',
-    '#description' => t("Enter a unique identifier - only required for slaves. e.g 'slaveid001'")
+    '#description' => t("Enter a unique server identifier - e.g 'slaveid001'")
   );
 
   $form['replication']['replication_admin_max_recheck'] = array(
@@ -98,7 +97,7 @@ function replication_admin() {
     '#required' => 'TRUE',
     '#maxlength' => '2',
     '#size' => '2',
-    '#description' => t("Enter a value for the maximum number of times the slave will retry during a replication check.")
+    '#description' => t("To test connectivity with the master server a slave writes data to the master then reads locally. Enter a value for the maximum number of times the slave will repeat this test during a replication check.")
   );
 
   $form['replication']['replication_admin_wait_recheck'] = array(
@@ -108,7 +107,7 @@ function replication_admin() {
     '#required' => 'TRUE',
     '#maxlength' => '2',
     '#size' => '2',
-    '#description' => t("Enter a value in seconds to wait between re-checking on fail. Note that higher numbers may cause the cron to fail.")
+    '#description' => t("Enter a value in seconds to wait before re-checking connectivity after a failed test. Note that a longer delay may cause cron to fail.")
   );
 
   //theme settings
@@ -179,7 +178,7 @@ function replication_admin() {
     '#maxlength' => 6,
     '#size' => 6,
     '#default_value' => variable_get('replication_http_timeout', '500'),
-    '#description' => t('Enter a value in milliseconds.')
+    '#description' => t('This controls the MINIMUM data speed. Enter a value in milliseconds.')
   );
 
   $form['replication_http']['replication_http_speedlimit'] = array (
@@ -200,7 +199,6 @@ function replication_admin() {
     '#description' => t('Enter a number for the maximum number of attempts.')
   );
 /*  Now replaced by application specific switches
-  //this should only be available if we're a slave, need some inline js to deal with it ZZZZZZZZZZZZ
   $form['replication_http']['replication_http_cron_enabled'] = array (
     '#type' => 'checkbox',
     '#title' => 'Enable file replication using cron',
