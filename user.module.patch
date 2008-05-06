@@ -1,0 +1,26 @@
+--- /usr/share/drupal/modules/user/user.module	2007-12-06 19:49:14.000000000 +0000
++++ user.module	2008-05-06 09:25:37.000000000 +0000
+@@ -167,6 +167,7 @@ function user_save($account, $array = ar
+     }
+ 
+     // Refresh user object
++
+     $user = user_load(array('uid' => $account->uid));
+     user_module_invoke('after_update', $array, $user, $category);
+   }
+@@ -209,6 +210,7 @@ function user_save($account, $array = ar
+       }
+     }
+     db_query('INSERT INTO {users} ('. implode(', ', $fields) .') VALUES ('. implode(', ', $s) .')', $values);
++    sleep(5);
+ 
+     // Build the initial user object.
+     $user = user_load(array('uid' => $array['uid']));
+@@ -235,6 +237,7 @@ function user_save($account, $array = ar
+     }
+ 
+     // Build the finished user object.
++    sleep(5);
+     $user = user_load(array('uid' => $array['uid']));
+   }
+ 
