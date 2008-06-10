@@ -39,7 +39,7 @@
 +  }
 +
 +  //moving the select code here has a HUGE advantage - we know that anything within {} brackets is a table name
-+  $pattern = "/(?<=\{)[a-z_]{3,30}(?=\})/";
++  $pattern = "/(?<=\{)[a-z_]{2,30}(?=\})/";
 +
 +  //regex hogs a fair bit of processor power and I'd have preferred to stop looking through the string as soon as I hit a WHERE
 +  //or ORDER etc BUT statement can be somewhat complex - you can have a statement with a SELECT after a WHERE so I'm having to 
