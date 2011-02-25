@@ -1,5 +1,4 @@
 <?php
-/* $Id$ */
 
 /**
  * Replication plugin for multi-master Mysql Replication
