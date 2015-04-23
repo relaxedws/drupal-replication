@@ -1,0 +1,6 @@
+name: 'Replication'
+type: module
+description: 'Provides Drush commands for CouchDB replication manipulation.'
+package: Database Replication
+version: VERSION
+core: 8.x
