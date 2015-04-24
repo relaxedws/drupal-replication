@@ -1,0 +1,11 @@
+{
+  "name": "drupal/replication",
+  "description": "Provides Drush commands for CouchDB replication manipulation.",
+  "type": "drupal-module",
+  "homepage": "http://drupal.org/project/replication",
+  "require": {
+    "doctrine/couchdb": "@dev"
+  },
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev"
+}
