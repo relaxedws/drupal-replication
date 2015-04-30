@@ -12,7 +12,8 @@ use Doctrine\CouchDB\CouchDBClient;
 function replication_drush_command() {
   $items = array();
 
-  $items['start-replication'] = array(
+  $default_replicator = 'http://localhost:5984';
+  $items['replication-start'] = array(
     'description' => 'Start a replication.',
     'arguments' => array(
       'source' => dt('Source database.'),
@@ -25,6 +26,7 @@ function replication_drush_command() {
       ),
       'replicator' => array(
         'description' => dt('The used replicator.'),
+        'default' => $default_replicator,
       ),
     ),
     'outputformat' => array(
@@ -40,15 +42,20 @@ function replication_drush_command() {
       'output-data-type' => 'format-list',
     ),
   );
-  $items['stop-replication'] = array(
+  $items['replication-stop'] = array(
     'description' => 'Stop a replication.',
     'arguments' => array(
       'source' => dt('Source database.'),
       'target' => dt('Target database.'),
     ),
     'options' => array(
+      'continuous' => array(
+        'description' => dt('Continuous replication.'),
+        'default' => FALSE,
+      ),
       'replicator' => array(
         'description' => dt('The used replicator.'),
+        'default' => $default_replicator,
       ),
     ),
     'outputformat' => array(
@@ -64,7 +71,7 @@ function replication_drush_command() {
       'output-data-type' => 'format-list',
     ),
   );
-  $items['active-replication'] = array(
+  $items['replication-active'] = array(
     'description' => 'Prints information about the specific active replication between target and source databases.',
     'arguments' => array(
       'source' => dt('Source database.'),
@@ -73,6 +80,7 @@ function replication_drush_command() {
     'options' => array(
       'replicator' => array(
         'description' => dt('The used replicator.'),
+        'default' => $default_replicator,
       ),
     ),
     'outputformat' => array(
@@ -98,43 +106,38 @@ function replication_drush_command() {
 /**
  * Implements drush_hook_COMMAND_validate().
  */
-function drush_replication_start_replication_validate() {
+function drush_replication_start_validate() {
   // Array of "Callback arguments" and "command line args".
   $params = func_get_args();
-  _replication_command_validate($params);
+  replication_command_validate($params);
 }
 
 /**
  * Implements drush_hook_COMMAND_validate().
  */
-function drush_replication_stop_replication_validate() {
+function drush_replication_stop_validate() {
   // Array of "Callback arguments" and "command line args".
   $params = func_get_args();
-  _replication_command_validate($params);
+  replication_command_validate($params);
 }
 
 /**
  * Implements drush_hook_COMMAND_validate().
  */
-function drush_replication_active_replication_validate() {
+function drush_replication_active_validate() {
   // Array of "Callback arguments" and "command line args".
   $params = func_get_args();
   if (isset($params[0]) || isset($params[1])) {
-    _replication_command_validate($params);
+    replication_command_validate($params);
   }
 }
 
 /**
  * Implements drush_hook_COMMAND().
  */
-function drush_replication_start_replication($source, $target) {
+function drush_replication_start($source, $target) {
   try {
-    $options = array('dbname' => '');
-    if ($replicator = drush_get_option('replicator')) {
-      $url_parts = _get_url_parts($replicator, TRUE);
-      $options = array_merge($options, $url_parts);
-    }
-    $client = CouchDBClient::create($options);
+    $client = replication_client_factory();
     $continuous = drush_get_option('continuous');
     return $client->replicate($source, $target, NULL, $continuous);
   }
@@ -146,15 +149,11 @@ function drush_replication_start_replication($source, $target) {
 /**
  * Implements drush_hook_COMMAND().
  */
-function drush_replication_stop_replication($source, $target) {
+function drush_replication_stop($source, $target) {
   try {
-    $options = array('dbname' => '');
-    if ($replicator = drush_get_option('replicator')) {
-      $url_parts = _get_url_parts($replicator, TRUE);
-      $options = array_merge($options, $url_parts);
-    }
-    $client = CouchDBClient::create($options);
-    return $client->replicate($source, $target, TRUE, TRUE);
+    $client = replication_client_factory();
+    $continuous = drush_get_option('continuous');
+    return $client->replicate($source, $target, TRUE, $continuous);
   }
   catch (\Exception $e) {
     drush_set_error($e->getMessage());
@@ -167,20 +166,15 @@ function drush_replication_stop_replication($source, $target) {
  * Prints information about the specific active replication between target and
  * source databases.
  */
-function drush_replication_active_replication($source = NULL, $target = NULL) {
+function drush_replication_active($source = NULL, $target = NULL) {
   try {
-    $options = array('dbname' => '');
-    if ($replicator = drush_get_option('replicator')) {
-      $url_parts = _get_url_parts($replicator, TRUE);
-      $options = array_merge($options, $url_parts);
-    }
-    $client = CouchDBClient::create($options);
+    $client = replication_client_factory();
     $results = $client->getActiveTasks();
     foreach ($results as $key => $result) {
       $results[$key]['started_on'] = date('D, j M Y, H:i:s e', $result['started_on']);
       if ($source && $target && is_array($results)) {
-        $source_diff = array_diff(_get_url_parts($result['source']), _get_url_parts($source));
-        $target_diff = array_diff(_get_url_parts($result['target']), _get_url_parts($target));
+        $source_diff = array_diff(replication_get_url_parts($result['source']), replication_get_url_parts($source));
+        $target_diff = array_diff(replication_get_url_parts($result['target']), replication_get_url_parts($target));
         if (empty($source_diff) && empty($target_diff)) {
           // Return information about one active replication.
           return array($results[$key]);
@@ -209,16 +203,28 @@ function drush_replication_active_replication($source = NULL, $target = NULL) {
  *
  * @param $params
  */
-function _replication_command_validate($params) {
-  if (_get_http_response_code('http://localhost:5984') != 200) {
-    drush_set_error(dt('CouchDB not found. Please install CouchDB.'));
+function replication_command_validate($params) {
+  $replicator = drush_get_option('replicator');
+  if ($replicator && replication_get_http_response_code($replicator) != 200) {
+    drush_set_error(dt('Replicator not found.'));
   }
-  if (_get_http_response_code($params['0']) != 200) {
+  if (replication_get_http_response_code($params['0']) != 200) {
     drush_set_error(dt('Source database not found.'));
   }
-  if (_get_http_response_code($params['1']) != 200) {
+  if (replication_get_http_response_code($params['1']) != 200) {
     drush_set_error(dt('Target database not found.'));
   }
+}
+
+/**
+ * Returns the CouchDBClient() object.
+ */
+function replication_client_factory() {
+  $options = array('dbname' => '');
+  $replicator = drush_get_option('replicator');
+  $url_parts = replication_get_url_parts($replicator, TRUE);
+  $options = array_merge($options, $url_parts);
+  return CouchDBClient::create($options);
 }
 
 /**
@@ -228,7 +234,7 @@ function _replication_command_validate($params) {
  *
  * @return string
  */
-function _get_http_response_code($url) {
+function replication_get_http_response_code($url) {
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
   curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
@@ -246,7 +252,7 @@ function _get_http_response_code($url) {
  *
  * @return array
  */
-function _get_url_parts($replicator, $credentials = FALSE) {
+function replication_get_url_parts($replicator, $credentials = FALSE) {
   $url_parts = parse_url($replicator);
   $options = array(
     'host' => $url_parts['host'],
