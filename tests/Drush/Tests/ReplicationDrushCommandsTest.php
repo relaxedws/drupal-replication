@@ -11,27 +11,47 @@ if (class_exists('Unish\CommandUnishTestCase')) {
    */
   class ReplicationDrushCommandsTest extends CommandUnishTestCase {
 
-    public function testStartReplicationCommands() {
-      // Specify '8' just in case user has not set UNISH_DRUPAL_MAJOR_VERSION env variable.
-      $sites = $this->setUpDrupal(1, TRUE, '8');
+    /**
+     * Default idle timeout for commands.
+     *
+     * @var int
+     */
+    private $defaultIdleTimeout = 120;
 
-      // Symlink this module into the Site Under test so it can be enabled.
+    /**
+     * Idle timeouts for commands.
+     *
+     * Reset to $defaultIdleTimeout after executing a command.
+     *
+     * @var int
+     */
+    protected $idleTimeout = 120;
+
+    public function testReplicationCommands() {
+      // Specify '8' just in case user has not set UNISH_DRUPAL_MAJOR_VERSION env variable.
+      $sites = $this->setUpDrupal(1, TRUE, '8', 'standard');
       $target = dirname(__DIR__);
-      \symlink($target, $this->webroot() . '/modules/devel');
+      \symlink($target, $this->webroot() . '/modules/replication');
+      \symlink($target . '/../../replication.drush.inc', UNISH_SANDBOX . '/share/drush/commands/replication.drush.inc');
       $options = array(
+        'yes' => NULL,
+        'pipe' => NULL,
         'root' => $this->webroot(),
         'uri' => key($sites),
+        'cache' => NULL,
+        'strict' => 0,
       );
 
-      $this->drush('start-replication', array('drush_main'), $options);
-      $output = $this->getOutput();
-      $this->assertContains('@return', $output, 'Output contain @return Doxygen.');
-      $this->assertContains('function drush_main() {', $output, 'Output contains function drush_main() declaration');
+      $modules = array('key_value', 'multiversion', 'relaxed');
+      $this->drush('pm-download', $modules, $options);
+      $this->drush('pm-enable', $modules, $options);
+      $this->drush('updb', $modules, $options);
+      $this->drush('updb', $modules, $options);
+      $this->drush('updb', $modules, $options);
 
-      //    $this->drush('fn-hook', array('cron'), $options);
-      //    $output = $this->getOutputAsList();
-      //    $expected = array('dblog', 'file', 'field', 'system', 'update');
-      //    $this->assertSame($expected, $output);
+      $this->drush('replication-start', array('', ''), array('replicator' => ''));
+      $output = $this->getOutput();
+      $this->assertContains('status', $output, 'Message.');
     }
   }
 
