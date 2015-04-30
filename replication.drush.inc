@@ -14,6 +14,7 @@ function replication_drush_command() {
 
   $default_replicator = 'http://localhost:5984';
   $items['replication-start'] = array(
+    'bootstrap' => DRUSH_BOOTSTRAP_NONE,
     'description' => 'Start a replication.',
     'arguments' => array(
       'source' => dt('Source database.'),
@@ -43,6 +44,7 @@ function replication_drush_command() {
     ),
   );
   $items['replication-stop'] = array(
+    'bootstrap' => DRUSH_BOOTSTRAP_NONE,
     'description' => 'Stop a replication.',
     'arguments' => array(
       'source' => dt('Source database.'),
@@ -72,6 +74,7 @@ function replication_drush_command() {
     ),
   );
   $items['replication-active'] = array(
+    'bootstrap' => DRUSH_BOOTSTRAP_NONE,
     'description' => 'Prints information about the specific active replication between target and source databases.',
     'arguments' => array(
       'source' => dt('Source database.'),
