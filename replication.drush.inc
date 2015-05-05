@@ -20,6 +20,7 @@ function replication_drush_command() {
       'source' => dt('Source database.'),
       'target' => dt('Target database.'),
     ),
+    'required-arguments' => TRUE,
     'options' => array(
       'continuous' => array(
         'description' => dt('Continuous replication.'),
@@ -50,6 +51,7 @@ function replication_drush_command() {
       'source' => dt('Source database.'),
       'target' => dt('Target database.'),
     ),
+    'required-arguments' => TRUE,
     'options' => array(
       'continuous' => array(
         'description' => dt('Continuous replication.'),
@@ -240,7 +242,7 @@ function replication_client_factory() {
 function replication_get_http_response_code($url) {
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-  curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_exec($ch);
   $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
   curl_close($ch);
