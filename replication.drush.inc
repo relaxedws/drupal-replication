@@ -182,7 +182,7 @@ function drush_replication_active($source = NULL, $target = NULL) {
           return array($results[$key]);
         }
         else {
-          drupal_set_message('No active replication.', 'status');
+          drush_print('No active replication.');
           return;
         }
       }
@@ -192,7 +192,7 @@ function drush_replication_active($source = NULL, $target = NULL) {
       return $results;
     }
     else {
-      drupal_set_message('No active replications.', 'status');
+      drush_print('No active replications.');
     }
   }
   catch (\Exception $e) {
