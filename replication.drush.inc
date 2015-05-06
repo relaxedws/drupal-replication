@@ -4,6 +4,7 @@
  * @file
  * Drush integration for the replication module.
  */
+
 use Doctrine\CouchDB\CouchDBClient;
 
 /**
@@ -12,7 +13,6 @@ use Doctrine\CouchDB\CouchDBClient;
 function replication_drush_command() {
   $items = array();
 
-  $default_replicator = 'http://localhost:5984';
   $items['replication-start'] = array(
     'bootstrap' => DRUSH_BOOTSTRAP_NONE,
     'description' => 'Start a replication.',
@@ -28,7 +28,6 @@ function replication_drush_command() {
       ),
       'replicator' => array(
         'description' => dt('The used replicator.'),
-        'default' => $default_replicator,
       ),
     ),
     'outputformat' => array(
@@ -59,7 +58,6 @@ function replication_drush_command() {
       ),
       'replicator' => array(
         'description' => dt('The used replicator.'),
-        'default' => $default_replicator,
       ),
     ),
     'outputformat' => array(
@@ -85,7 +83,6 @@ function replication_drush_command() {
     'options' => array(
       'replicator' => array(
         'description' => dt('The used replicator.'),
-        'default' => $default_replicator,
       ),
     ),
     'outputformat' => array(
@@ -209,7 +206,7 @@ function drush_replication_active($source = NULL, $target = NULL) {
  * @param $params
  */
 function replication_command_validate($params) {
-  $replicator = drush_get_option('replicator');
+  $replicator = replication_get_replicator();
   if ($replicator && replication_get_http_response_code($replicator) != 200) {
     drush_set_error(dt('Replicator not found.'));
   }
@@ -226,8 +223,7 @@ function replication_command_validate($params) {
  */
 function replication_client_factory() {
   $options = array('dbname' => '');
-  $replicator = drush_get_option('replicator');
-  $url_parts = replication_get_url_parts($replicator, TRUE);
+  $url_parts = replication_get_url_parts(replication_get_replicator(), TRUE);
   $options = array_merge($options, $url_parts);
   return CouchDBClient::create($options);
 }
@@ -252,21 +248,35 @@ function replication_get_http_response_code($url) {
 /**
  * Returns url parts (host, port, path, user and pass).
  *
- * @param $replicator
+ * @param $url
  * @param bool $credentials
  *
  * @return array
  */
-function replication_get_url_parts($replicator, $credentials = FALSE) {
-  $url_parts = parse_url($replicator);
+function replication_get_url_parts($url, $credentials = FALSE) {
+  $url_parts = parse_url($url);
   $options = array(
     'host' => $url_parts['host'],
     'port' => $url_parts['port'],
-    'path' => trim($url_parts['path'], '/'),
   );
+  $path = trim($url_parts['path'], '/');
+  if ($path != '') {
+    $options['path'] = $path;
+  }
   if ($credentials) {
-    $options['user'] = $url_parts['user'];
-    $options['password'] = $url_parts['pass'];
+    $options['user'] = $url_parts['user'] ? $url_parts['user'] : NULL;
+    $options['password'] = $url_parts['pass'] ? $url_parts['pass'] : NULL;
   }
   return $options;
+}
+
+/**
+ * Returns the replicator.
+ *
+ * @return string
+ */
+function replication_get_replicator() {
+  $default_replicator = 'http://localhost:5984';
+  $option_replicator = drush_get_option('replicator');
+  return $option_replicator ? $option_replicator : $default_replicator;
 }
