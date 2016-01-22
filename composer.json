@@ -1,17 +1,18 @@
 {
   "name": "relaxedws/replication",
   "description": "Provides Drush commands for CouchDB replication manipulation.",
-  "type": "package",
+  "type": "drupal-drush",
   "homepage": "http://drupal.org/project/replication",
   "require": {
     "php": ">=5.5.9",
-    "doctrine/couchdb": "dev-master",
-    "drush/drush": "dev-master"
+    "drush/drush": "dev-master",
+    "relaxedws/replicator": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.3",
     "symfony/process": "2.4.5"
   },
   "minimum-stability": "dev",
+  "prefer-stable": true,
   "license": "GPL-2.0+"
 }
