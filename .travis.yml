@@ -1,92 +1,51 @@
+sudo: false
+
 language: php
 
 php:
   - 5.5
   - 5.6
-
-mysql:
-  database: drupal
-  username: root
-  encoding: utf8
-
-services:
-  - couchdb
+  - 7.0
 
 env:
-  - UNISH_NO_TIMEOUTS=y UNISH_DRUPAL_MAJOR_VERSION=8 UNISH_DB_URL=mysql://root:@127.0.0.1
+  - MAKE_FILE=drupal-8.0.x.make.yml
+  - MAKE_FILE=drupal-8.1.x.make.yml
+
+services:
+  - mysql
+  - couchdb
+
+addons:
+  apt:
+    packages:
+    - nginx
+
+cache:
+  directories:
+  - $HOME/.drush/cache/download
 
 before_install:
-  - mysql -e "create database IF NOT EXISTS drupal2;" -uroot
+  - HOME=~
+  - composer self-update
+  - cp $TRAVIS_BUILD_DIR/.travis/php.ini $HOME/.phpenv/versions/$(phpenv version-name)/etc/conf.d/
+  - cp $TRAVIS_BUILD_DIR/.travis/php-fpm.conf $HOME/.phpenv/versions/$(phpenv version-name)/etc/
+  - $HOME/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+  - nginx -c $TRAVIS_BUILD_DIR/.travis/nginx.conf
+  - wget -P $HOME/ https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar && chmod +x $HOME/drush.phar
+  - php $HOME/drush.phar make $TRAVIS_BUILD_DIR/.travis/$MAKE_FILE $HOME/www
 
 install:
-  - sudo apt-get update
-  # Install Apache.
-  - sudo apt-get install apache2 libapache2-mod-fastcgi apache2-utils
-
-  # Set up PHP-FPM.
-  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
-  - sudo a2enmod rewrite actions fastcgi alias
-  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
-
-  # Set up the Apache vhost for the first Drupal instance.
-  - sudo cp -f $TRAVIS_BUILD_DIR/.travis/apache-vhost.conf /etc/apache2/sites-available/default
-  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$TRAVIS_BUILD_DIR/../drupal?g" --in-place /etc/apache2/sites-available/default
-  - sudo sed -e "s?%TRAVIS_BUILD_SERVERNAME%?drupal.loc?g" --in-place /etc/apache2/sites-available/default
-  - echo "127.0.0.1 drupal.loc" | sudo tee -a /etc/hosts
-
-  # Set up the Apache vhost for the second Drupal instance.
-  - sudo cp -f $TRAVIS_BUILD_DIR/.travis/apache-vhost.conf /etc/apache2/sites-available/drupal2
-  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$TRAVIS_BUILD_DIR/../drupal2?g" --in-place /etc/apache2/sites-available/drupal2
-  - sudo sed -e "s?%TRAVIS_BUILD_SERVERNAME%?drupal2.loc?g" --in-place /etc/apache2/sites-available/drupal2
-  - sudo sed -i "/FastCgiExternalServer/d" --in-place /etc/apache2/sites-available/drupal2
-  - echo "127.0.0.1 drupal2.loc" | sudo tee -a /etc/hosts
-
-  - sudo a2ensite drupal2
-  - sudo service apache2 restart
-
-  # Install Drush.
-  - export PATH=$PATH:/home/travis/.composer/vendor/bin
-  - composer global require drush/drush:dev-master
-
-before_script:
-  - ln -s $TRAVIS_BUILD_DIR /home/travis/.drush
-  - composer self-update
-  - composer install --no-interaction --prefer-source --dev
-
-  # Checkout a directory structure.
-  - git clone --depth 1 --branch 8.0.x http://git.drupal.org/project/drupal.git $TRAVIS_BUILD_DIR/../drupal
-
-  # Install the site that will host our tests.
-  - cd $TRAVIS_BUILD_DIR/../drupal
-  - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes site-install --account-name=admin --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal standard
-
-  # Checkout second directory structure.
-  - git clone --depth 1 --branch 8.0.x http://git.drupal.org/project/drupal.git $TRAVIS_BUILD_DIR/../drupal2
-
-  # Install the site that will be used for Drupal-to-Drupal replication.
-  - cd $TRAVIS_BUILD_DIR/../drupal2
-  - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes site-install --account-name=admin --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal2 standard
+  - php $HOME/drush.phar --root=$HOME/www --yes site-install --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal0 standard
+  - php $HOME/drush.phar --root=$HOME/www --yes site-install --sites-subdir=8081.localhost --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal1 standard
+  - mv $HOME/www/core/modules/system/tests/modules/entity_test $HOME/www/modules/entity_test
+  - mv $HOME/www/modules/relaxed/tests/modules/relaxed_test $HOME/www/modules/relaxed_test
+  - cd $HOME/www
+  - php $HOME/drush.phar --yes --uri=http://localhost:8080 pm-enable entity_test, relaxed_test
+  - php $HOME/drush.phar --yes --uri=http://localhost:8081 pm-enable entity_test, relaxed_test
+  - composer --working-dir=$HOME/www require relaxedws/replicator:dev-master
+  - composer --working-dir=$HOME/www require drush/drush
+  - mkdir $HOME/www/drush
+  - ln -s $TRAVIS_BUILD_DIR $HOME/www/drush/replication
 
 script:
-  - cd $TRAVIS_BUILD_DIR/../drupal
-  - drush dl --yes key_value, multiversion, relaxed || true
-  - drush en --yes key_value, multiversion, relaxed || true
-  - cd $TRAVIS_BUILD_DIR/../drupal2
-  - drush dl --yes key_value, multiversion, relaxed || true
-  - drush en --yes key_value, multiversion, relaxed || true
-
-  - composer global require doctrine/couchdb:dev-master
-  - drush replication-start http://admin:admin@drupal.loc/relaxed/default http://admin:admin@drupal2.loc/relaxed/default
-  - drush replication-start http://admin:admin@drupal.loc/relaxed/default http://admin:admin@drupal2.loc/relaxed/default --format=json
-  - drush replication-start http://admin:admin@drupal.loc/relaxed/default http://admin:admin@drupal2.loc/relaxed/default --continuous
-  - drush replication-start http://admin:admin@drupal.loc/relaxed/default http://admin:admin@drupal2.loc/relaxed/default --continuous --format=json
-#  - drush replication-active
-#  - drush replication-active --format=json
-#  - drush replication-active http://admin:admin@drupal.loc/relaxed/default http://admin:admin@drupal2.loc/relaxed/default --format=json
-#  - drush replication-stop http://admin:admin@drupal.loc/relaxed/default http://admin:admin@drupal2.loc/relaxed/default  --continuous
-#  - drush replication-active
-
-  - cd $TRAVIS_BUILD_DIR
-  - ~/.nvm/nvm.sh install v0.6.14
-  - ~/.nvm/nvm.sh run v0.6.14
+  - $HOME/www/vendor/bin/drush -vvv --root=$HOME/www --uri=http://localhost:8080 replication-start http://admin:admin@localhost:8080/relaxed/default http://admin:admin@localhost:8081/relaxed/default
