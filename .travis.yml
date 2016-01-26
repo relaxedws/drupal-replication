@@ -13,7 +13,6 @@ env:
 
 services:
   - mysql
-  - couchdb
 
 addons:
   apt:
