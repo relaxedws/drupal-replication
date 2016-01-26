@@ -6,6 +6,8 @@
  */
 
 use Doctrine\CouchDB\CouchDBClient;
+use Relaxed\Replicator\ReplicationTask;
+use Relaxed\Replicator\Replication;
 
 /**
  * Implements of hook_drush_command().
@@ -139,9 +141,21 @@ function drush_replication_active_validate() {
  */
 function drush_replication_start($source, $target) {
   try {
-    $client = replication_client_factory();
-    $continuous = drush_get_option('continuous');
-    return $client->replicate($source, $target, NULL, $continuous);
+    $source_client = replication_client_factory($source);
+    $target_client = replication_client_factory($target);
+    // Create the replication task.
+    $task = new ReplicationTask();
+    // Create the replication.
+    $replication = new Replication($source_client, $target_client, $task);
+    // Generate and set a replication ID.
+    $replication->task->setRepId($replication->generateReplicationId());
+    // Filter by document IDs if set.
+    if (!empty($this->docIds)) {
+      $replication->task->setDocIds($this->docIds);
+    }
+    // Start the replication.
+    $replicationResult = $replication->start();
+    return $replicationResult;
   }
   catch (\Exception $e) {
     drush_set_error($e->getMessage());
@@ -206,10 +220,6 @@ function drush_replication_active($source = NULL, $target = NULL) {
  * @param $params
  */
 function replication_command_validate($params) {
-  $replicator = replication_get_replicator();
-  if ($replicator && replication_get_http_response_code($replicator) != 200) {
-    drush_set_error(dt('Replicator not found.'));
-  }
   if (replication_get_http_response_code($params['0']) != 200) {
     drush_set_error(dt('Source database not found.'));
   }
@@ -221,11 +231,11 @@ function replication_command_validate($params) {
 /**
  * Returns the CouchDBClient() object.
  */
-function replication_client_factory() {
-  $options = array('dbname' => '');
-  $url_parts = replication_get_url_parts(replication_get_replicator(), TRUE);
-  $options = array_merge($options, $url_parts);
-  return CouchDBClient::create($options);
+function replication_client_factory($url) {
+  return CouchDBClient::create([
+    'url' => (string) $url,
+    'timeout' => 10
+  ]);
 }
 
 /**
@@ -268,15 +278,4 @@ function replication_get_url_parts($url, $credentials = FALSE) {
     $options['password'] = $url_parts['pass'] ? $url_parts['pass'] : NULL;
   }
   return $options;
-}
-
-/**
- * Returns the replicator.
- *
- * @return string
- */
-function replication_get_replicator() {
-  $default_replicator = 'http://localhost:5984';
-  $option_replicator = drush_get_option('replicator');
-  return $option_replicator ? $option_replicator : $default_replicator;
 }
