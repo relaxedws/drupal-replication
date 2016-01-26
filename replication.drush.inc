@@ -149,10 +149,6 @@ function drush_replication_start($source, $target) {
     $replication = new Replication($source_client, $target_client, $task);
     // Generate and set a replication ID.
     $replication->task->setRepId($replication->generateReplicationId());
-    // Filter by document IDs if set.
-    if (!empty($this->docIds)) {
-      $replication->task->setDocIds($this->docIds);
-    }
     // Start the replication.
     $replicationResult = $replication->start();
     return $replicationResult;
