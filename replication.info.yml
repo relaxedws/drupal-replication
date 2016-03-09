@@ -1,0 +1,5 @@
+name: 'Replication'
+type: module
+description: 'Provides services and entities types so assist with and log content replication.'
+version: VERSION
+core: 8.x
