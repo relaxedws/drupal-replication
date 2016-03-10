@@ -11,6 +11,11 @@ env:
   - MAKE_FILE=drupal-8.0.x.make.yml
   - MAKE_FILE=drupal-8.1.x.make.yml
 
+matrix:
+  allow_failures:
+    - php: 7.0
+  fast_finish: true
+
 services:
   - mysql
 
@@ -24,27 +29,16 @@ cache:
   - $HOME/.drush/cache/download
 
 before_install:
-  - HOME=~
-  - composer self-update
-  - cp $TRAVIS_BUILD_DIR/.travis/php.ini $HOME/.phpenv/versions/$(phpenv version-name)/etc/conf.d/
-  - cp $TRAVIS_BUILD_DIR/.travis/php-fpm.conf $HOME/.phpenv/versions/$(phpenv version-name)/etc/
-  - $HOME/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+  - cp $TRAVIS_BUILD_DIR/.travis/php.ini ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/
+  - cp $TRAVIS_BUILD_DIR/.travis/php-fpm.conf ~/.phpenv/versions/$(phpenv version-name)/etc/
+  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
   - nginx -c $TRAVIS_BUILD_DIR/.travis/nginx.conf
-  - wget -P $HOME/ https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar && chmod +x $HOME/drush.phar
-  - php $HOME/drush.phar make $TRAVIS_BUILD_DIR/.travis/$MAKE_FILE $HOME/www
+  - wget -P ~/ https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar && chmod +x ~/drush.phar
+  - php ~/drush.phar make $TRAVIS_BUILD_DIR/.travis/$MAKE_FILE $HOME/www
+  - php ~/drush.phar --root=$HOME/www --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
 
 install:
-  - php $HOME/drush.phar --root=$HOME/www --yes site-install --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal0 standard
-  - php $HOME/drush.phar --root=$HOME/www --yes site-install --sites-subdir=8081.localhost --account-pass=admin --db-url=mysql://root:@127.0.0.1/drupal1 standard
-  - mv $HOME/www/core/modules/system/tests/modules/entity_test $HOME/www/modules/entity_test
-  - mv $HOME/www/modules/relaxed/tests/modules/relaxed_test $HOME/www/modules/relaxed_test
-  - cd $HOME/www
-  - php $HOME/drush.phar --yes --uri=http://localhost:8080 pm-enable entity_test, relaxed_test
-  - php $HOME/drush.phar --yes --uri=http://localhost:8081 pm-enable entity_test, relaxed_test
-  - composer --working-dir=$HOME/www require relaxedws/replicator:dev-master
-  - composer --working-dir=$HOME/www require drush/drush
-  - mkdir $HOME/www/drush
-  - ln -s $TRAVIS_BUILD_DIR $HOME/www/drush/replication
+  - ln -s $TRAVIS_BUILD_DIR ~/www/modules/replication
 
 script:
-  - $HOME/www/vendor/bin/drush -vvv --root=$HOME/www --uri=http://localhost:8080 replication-start http://admin:admin@localhost:8080/relaxed/default http://admin:admin@localhost:8081/relaxed/default
+  - cd ~/www && php ./core/scripts/run-tests.sh --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 --module replication
