@@ -7,11 +7,9 @@
 
 namespace Drupal\replication\Changes;
 
-use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\multiversion\Entity\Index\SequenceIndex;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
@@ -28,9 +26,9 @@ class Changes implements ChangesInterface {
   protected $workspaceId;
 
   /**
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * @var \Symfony\Component\Serializer\SerializerInterface
@@ -48,27 +46,15 @@ class Changes implements ChangesInterface {
   protected $lastSeq = 0;
 
   /**
-   * {@inheritdoc}
-   */
-  static public function createInstance(ContainerInterface $container, SequenceIndexInterface $sequence_index, WorkspaceInterface $workspace) {
-    return new static(
-      $sequence_index,
-      $workspace,
-      $container->get('entity.manager'),
-      $container->get('serializer')
-    );
-  }
-
-  /**
-   * @param \Drupal\multiversion\Entity\Index\SequenceIndex $sequenceIndex
+   * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $sequence_index
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Symfony\Component\Serializer\SerializerInterface $serializer
    */
-  public function __construct(SequenceIndex $sequenceIndex, WorkspaceInterface $workspace, EntityManagerInterface $entity_manager, SerializerInterface $serializer) {
-    $this->sequenceIndex = $sequenceIndex;
+  public function __construct(SequenceIndexInterface $sequence_index, WorkspaceInterface $workspace, EntityTypeManagerInterface $entity_type_manager, SerializerInterface $serializer) {
+    $this->sequenceIndex = $sequence_index;
     $this->workspaceId = $workspace->id();
-    $this->entityManager = $entity_manager;
+    $this->entityTypeManager = $entity_type_manager;
     $this->serializer = $serializer;
   }
 
@@ -115,7 +101,7 @@ class Changes implements ChangesInterface {
       }
       if ($this->includeDocs == TRUE) {
         /** @var \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface $storage */
-        $storage = $this->entityManager->getStorage($sequence['entity_type_id']);
+        $storage = $this->entityTypeManager->getStorage($sequence['entity_type_id']);
         $revision = $storage->loadRevision($sequence['revision_id']);
         $changes[$uuid]['doc'] = $this->serializer->normalize($revision);
       }

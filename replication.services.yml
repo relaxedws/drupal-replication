@@ -1,0 +1,4 @@
+services:
+  replication.changes_factory:
+    class: Drupal\replication\ChangesFactory
+    arguments: ['@entity.index.sequence', '@entity.manager', '@serializer']

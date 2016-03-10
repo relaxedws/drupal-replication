@@ -14,16 +14,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 interface ChangesInterface {
 
   /**
-   * Factory method.
-   *
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $sequence_index
-   * @param \Drupal\multiversion\Entity\WorkspaceInterface
-   * @return \Drupal\replication\Changes\ChangesInterface
-   */
-  static public function createInstance(ContainerInterface $container, SequenceIndexInterface $sequence_index, WorkspaceInterface $workspace);
-
-  /**
    * @param boolean $include_docs
    * @return \Drupal\replication\Changes\ChangesInterface
    */
