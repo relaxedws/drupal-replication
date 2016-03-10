@@ -24,16 +24,6 @@ class RevisionDiff implements RevisionDiffInterface {
   protected $revs;
 
   /**
-   * {@inheritdoc}
-   */
-  static public function createInstance(ContainerInterface $container, RevisionIndexInterface $rev_index, WorkspaceInterface $workspace) {
-    return new static(
-      $rev_index,
-      $workspace
-    );
-  }
-
-  /**
    * @param \Drupal\multiversion\Entity\Index\RevisionIndexInterface $rev_index
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    */

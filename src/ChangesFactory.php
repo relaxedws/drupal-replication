@@ -22,7 +22,12 @@ class ChangesFactory implements ChangesFactoryInterface {
   /** @var Changes []  */
   protected $changes = [];
 
-  function __construct(SequenceIndexInterface $sequence_index, EntityTypeManagerInterface $entity_type_manager, SerializerInterface $serializer) {
+  /**
+   * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $sequence_index
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Symfony\Component\Serializer\SerializerInterface $serializer
+   */
+  public function __construct(SequenceIndexInterface $sequence_index, EntityTypeManagerInterface $entity_type_manager, SerializerInterface $serializer) {
     $this->sequenceIndex = $sequence_index;
     $this->entityTypeManager = $entity_type_manager;
     $this->serializer = $serializer;

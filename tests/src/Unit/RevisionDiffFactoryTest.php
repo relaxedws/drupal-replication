@@ -4,14 +4,14 @@ namespace Drupal\Tests\replication\Unit;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\multiversion\Entity\Workspace;
-use Drupal\replication\Changes\ChangesInterface;
+use Drupal\replication\RevisionDiff\RevisionDiffInterface;
 
 /**
- * Tests the replication_log serialization format.
+ * Tests the revision diff factory.
  *
  * @group replication
  */
-class ChangesFactoryTest extends KernelTestBase {
+class RevisionDiffFactoryTest extends KernelTestBase {
 
   public static $modules = [
     'node',
@@ -39,8 +39,8 @@ class ChangesFactoryTest extends KernelTestBase {
   }
 
   public function testChangesFactory() {
-    $changes = \Drupal::service('replication.changes_factory')->get($this->workspace);
-    $this->assertTrue(($changes instanceof ChangesInterface));
+    $changes = \Drupal::service('replication.revisiondiff_factory')->get($this->workspace);
+    $this->assertTrue(($changes instanceof RevisionDiffInterface));
   }
 
 }

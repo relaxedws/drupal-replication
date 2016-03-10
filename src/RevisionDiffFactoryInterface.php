@@ -4,14 +4,14 @@ namespace Drupal\replication;
 
 use Drupal\multiversion\Entity\WorkspaceInterface;
 
-interface ChangesFactoryInterface {
+interface RevisionDiffFactoryInterface {
 
   /**
-   * Constructs a new Changes instance.
+   * Constructs a new RevisionDiff instance.
    *
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    *
-   * @return \Drupal\replication\Changes\ChangesInterface
+   * @return \Drupal\replication\RevisionDiff\RevisionDiff
    */
   public function get(WorkspaceInterface $workspace);
 
