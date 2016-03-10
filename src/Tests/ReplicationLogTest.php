@@ -20,7 +20,7 @@ class ReplicationLogTest extends MultiversionWebTestBase {
 
   protected $strictConfigSchema = FALSE;
 
-  public static $modules = ['entity_test', 'replication'];
+  public static $modules = ['replication'];
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManager
