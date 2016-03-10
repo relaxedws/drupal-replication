@@ -20,7 +20,7 @@ class ReplicationLogTest extends MultiversionWebTestBase {
 
   protected $strictConfigSchema = FALSE;
 
-  public static $modules = ['entity_test', 'relaxed'];
+  public static $modules = ['entity_test', 'replication'];
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManager
@@ -37,6 +37,7 @@ class ReplicationLogTest extends MultiversionWebTestBase {
     $this->assertTrue($entity instanceof ReplicationLog, 'Replication Log entity was created.');
 
     // Set required fields.
+    /** @var ReplicationLog $entity */
     $entity = $this->entityTypeManager->getStorage('replication_log')->create();
     $seq_id = \Drupal::service('multiversion.manager')->newSequenceId();
     $entity->source_last_seq->value = $seq_id;
