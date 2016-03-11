@@ -60,7 +60,7 @@ class RevisionDiff implements RevisionDiffInterface {
       foreach ($revs as $rev) {
         $keys[] = "$uuid:$rev";
       }
-      $existing = $this->revIndex->getMultiple($keys);
+      $existing = $this->revIndex->useWorkspace($this->workspaceId)->getMultiple($keys);
       foreach ($revs as $rev) {
         if (!isset($existing["$uuid:$rev"])) {
           $missing[$uuid]['missing'][] = $rev;
