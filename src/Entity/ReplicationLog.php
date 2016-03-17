@@ -112,6 +112,12 @@ class ReplicationLog extends ContentEntityBase implements ReplicationLogInterfac
       ->setDescription(t('The last processed checkpoint. Shortcut to the source_last_seq in the last history item.'))
       ->setReadOnly(TRUE);
 
+    $fields['ok'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('ok'))
+      ->setDescription(t('Replication status'))
+      ->setDefaultValue(TRUE)
+      ->setReadOnly(TRUE);
+
     return $fields;
   }
 }
