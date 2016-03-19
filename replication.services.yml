@@ -1,7 +1,7 @@
 services:
   replication.changes_factory:
     class: Drupal\replication\ChangesFactory
-    arguments: ['@entity.index.sequence', '@entity.manager', '@serializer']
+    arguments: ['@multiversion.entity_index.sequence', '@entity.manager', '@serializer']
   replication.revisiondiff_factory:
     class: Drupal\replication\RevisionDiffFactory
-    arguments: ['@entity.index.rev']
+    arguments: ['@multiversion.entity_index.rev']
