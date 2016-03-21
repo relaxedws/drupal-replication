@@ -76,6 +76,22 @@ class ReplicationLog extends ContentEntityBase implements ReplicationLogInterfac
   }
 
   /**
+   * @param $id string
+   * @return \Drupal\replication\Entity\ReplicationLogInterface
+   */
+  public static function loadOrCreate($id) {
+    $entities = \Drupal::entityTypeManager()
+      ->getStorage('replication_log')
+      ->loadByProperties(['uuid' => $id]);
+    if (!empty($entities)) {
+      return reset($entities);
+    }
+    else {
+      return static::create(['uuid' => $id]);
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
