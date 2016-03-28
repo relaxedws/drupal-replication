@@ -11,7 +11,7 @@ interface BulkDocsFactoryInterface {
    *
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    *
-   * @return \Drupal\replication\RevisionDiff\RevisionDiff
+   * @return \Drupal\replication\BulkDocs\BulkDocsInterface
    */
   public function get(WorkspaceInterface $workspace);
 

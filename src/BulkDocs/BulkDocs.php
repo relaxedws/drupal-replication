@@ -156,16 +156,18 @@ class BulkDocs implements BulkDocsInterface {
         // In cases where a stub was created earlier in the same bulk operation
         // it may already exists. This means we need to ensure the local ID
         // mapping is correct.
-        if ($record = $this->uuidIndex->get($entity->uuid())) {
-          $id_key = $this->entityTypeManager
-            ->getDefinition($entity->getEntityTypeId())
-            ->getKey('id');
+        $entity_type = $this->entityTypeManager->getDefinition($entity->getEntityTypeId());
+        $id_key = $entity_type->getKey('id');
+        $revision_id_key = $entity_type->getKey('revision_id');
 
+        if ($record = $this->uuidIndex->get($entity->uuid())) {
           $entity->{$id_key}->value = $record['entity_id'];
           $entity->enforceIsNew(FALSE);
         }
         else {
           $entity->enforceIsNew(TRUE);
+          $entity->{$id_key}->value = NULL;
+          $entity->{$revision_id_key}->value = NULL;
         }
 
         $entity->workspace->target_id = $this->workspace->id();
