@@ -141,7 +141,11 @@ class BulkDocs implements BulkDocsInterface {
 
       try {
         // Check if the revision being posted already exists.
-        if ($record = $this->revIndex->get("$uuid:$rev")) {
+        $record = $this->revIndex
+          ->useWorkspace($this->workspace->id())
+          ->get("$uuid:$rev");
+
+        if ($record) {
           if (!$this->newEdits && !$record['is_stub']) {
             $this->result[] = array(
               'error' => 'conflict',
@@ -158,7 +162,6 @@ class BulkDocs implements BulkDocsInterface {
         // mapping is correct.
         $entity_type = $this->entityTypeManager->getDefinition($entity->getEntityTypeId());
         $id_key = $entity_type->getKey('id');
-        $revision_id_key = $entity_type->getKey('revision_id');
 
         if ($record = $this->uuidIndex->get($entity->uuid())) {
           $entity->{$id_key}->value = $record['entity_id'];
@@ -167,7 +170,6 @@ class BulkDocs implements BulkDocsInterface {
         else {
           $entity->enforceIsNew(TRUE);
           $entity->{$id_key}->value = NULL;
-          $entity->{$revision_id_key}->value = NULL;
         }
 
         $entity->workspace->target_id = $this->workspace->id();
