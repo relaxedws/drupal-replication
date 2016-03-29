@@ -5,3 +5,6 @@ services:
   replication.revisiondiff_factory:
     class: Drupal\replication\RevisionDiffFactory
     arguments: ['@multiversion.entity_index.rev']
+  replication.bulkdocs_factory:
+    class: Drupal\replication\BulkDocsFactory
+    arguments: ['@workspace.manager', '@multiversion.entity_index.uuid', '@multiversion.entity_index.rev', '@entity_type.manager', '@lock', '@logger.factory']

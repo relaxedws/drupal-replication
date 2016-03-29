@@ -8,11 +8,15 @@ use Drupal\replication\RevisionDiff\RevisionDiff;
 
 class RevisionDiffFactory implements RevisionDiffFactoryInterface {
 
-  /** @var \Drupal\multiversion\Entity\Index\RevisionIndexInterface  */
+  /**
+   * @var \Drupal\multiversion\Entity\Index\RevisionIndexInterface
+   */
   protected $revIndex;
 
-  /** @var \Drupal\replication\RevisionDiff\RevisionDiffInterface [] */
-  protected $revision_diffs = [];
+  /**
+   * @var \Drupal\replication\RevisionDiff\RevisionDiffInterface[]
+   */
+  protected $instances = [];
 
   /**
    * @param \Drupal\multiversion\Entity\Index\RevisionIndexInterface $rev_index
@@ -25,13 +29,13 @@ class RevisionDiffFactory implements RevisionDiffFactoryInterface {
    * @inheritDoc
    */
   public function get(WorkspaceInterface $workspace) {
-    if (!isset($this->revision_diffs[$workspace->id()])) {
-      $this->revision_diffs[$workspace->id()] = new RevisionDiff(
+    if (!isset($this->instances[$workspace->id()])) {
+      $this->instances[$workspace->id()] = new RevisionDiff(
         $this->revIndex,
         $workspace
       );
     }
-    return $this->revision_diffs[$workspace->id()];
+    return $this->instances[$workspace->id()];
   }
 
 }

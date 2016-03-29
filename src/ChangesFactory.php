@@ -10,17 +10,25 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class ChangesFactory implements ChangesFactoryInterface {
 
-  /** @var SequenceIndexInterface  */
+  /**
+   * @var \Drupal\multiversion\Entity\Index\SequenceIndexInterface
+   */
   protected $sequenceIndex;
 
-  /** @var  EntityTypeManagerInterface */
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
   protected $entityTypeManager;
 
-  /** @var  SerializerInterface */
+  /**
+   * @var \Symfony\Component\Serializer\SerializerInterface
+   */
   protected $serializer;
 
-  /** @var Changes []  */
-  protected $changes = [];
+  /**
+   * @var \Drupal\replication\Changes\Changes[]
+   */
+  protected $instances = [];
 
   /**
    * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $sequence_index
@@ -37,15 +45,15 @@ class ChangesFactory implements ChangesFactoryInterface {
    * {@inheritdoc}
    */
   public function get(WorkspaceInterface $workspace) {
-    if (!isset($this->changes[$workspace->id()])) {
-      $this->changes[$workspace->id()] = new Changes(
+    if (!isset($this->instances[$workspace->id()])) {
+      $this->instances[$workspace->id()] = new Changes(
         $this->sequenceIndex,
         $workspace,
         $this->entityTypeManager,
         $this->serializer
       );
     }
-    return $this->changes[$workspace->id()];
+    return $this->instances[$workspace->id()];
   }
 
 }
