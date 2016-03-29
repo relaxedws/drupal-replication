@@ -172,6 +172,11 @@ class BulkDocs implements BulkDocsInterface {
           $entity->{$id_key}->value = NULL;
         }
 
+        // @todo: This is a temporary hack for the internal replicator to ensure
+        // that the revisions are calculated based on the initial workspace,
+        // i.e. before switching the workspace.
+        $revisions = $entity->_rev->revisions;
+
         $entity->workspace->target_id = $this->workspace->id();
         $entity->_rev->new_edit = $this->newEdits;
         $entity->save();
