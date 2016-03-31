@@ -1,12 +1,12 @@
 <?php
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\serialization\Normalizer\NormalizerBase;
 
 class AllDocsNormalizer extends NormalizerBase {
 
-  protected $supportedInterfaceOrClass = array('Drupal\relaxed\AllDocs\AllDocsInterface');
+  protected $supportedInterfaceOrClass = array('Drupal\replication\AllDocs\AllDocsInterface');
 
   /**
    * {@inheritdoc}
@@ -17,7 +17,7 @@ class AllDocsNormalizer extends NormalizerBase {
       'rows' => array(),
     );
 
-    /** @var \Drupal\relaxed\AllDocs\AllDocsInterface $all_docs */
+    /** @var \Drupal\replication\AllDocs\AllDocsInterface $all_docs */
     $rows = $all_docs->execute();
 
     foreach ($rows as $key => $value) {

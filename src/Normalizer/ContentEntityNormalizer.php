@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\Component\Utility\Random;
 use Drupal\Core\Cache\Cache;
@@ -34,11 +34,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   protected $revTree;
 
   /**
-   * @var \Drupal\rest\LinkManager\LinkManagerInterface
-   */
-  protected $linkManager;
-
-  /**
    * @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface
    */
   protected $selectionManager;
@@ -52,14 +47,13 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @param \Drupal\multiversion\Entity\Index\UuidIndexInterface $uuid_index
    * @param \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $rev_tree
-   * @param \Drupal\rest\LinkManager\LinkManagerInterface $link_manager
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager
    */
-  public function __construct(EntityManagerInterface $entity_manager, UuidIndexInterface $uuid_index, RevisionTreeIndexInterface $rev_tree, LinkManagerInterface $link_manager, LanguageManagerInterface $language_manager, SelectionPluginManagerInterface $selection_manager = NULL) {
+  public function __construct(EntityManagerInterface $entity_manager, UuidIndexInterface $uuid_index, RevisionTreeIndexInterface $rev_tree, LanguageManagerInterface $language_manager, SelectionPluginManagerInterface $selection_manager = NULL) {
     $this->entityManager = $entity_manager;
     $this->uuidIndex = $uuid_index;
     $this->revTree = $rev_tree;
-    $this->linkManager = $link_manager;
     $this->languageManager = $language_manager;
     $this->selectionManager = $selection_manager;
   }
@@ -83,7 +77,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     $data = array(
       '@context' => array(
         '_id' => '@id',
-        $entity_type_id => $this->linkManager->getTypeUri($entity_type_id, $entity->bundle()),
         '@language' => $entity_default_language->getId(),
       ),
       '@type' => $entity_type_id,

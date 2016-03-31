@@ -2,17 +2,17 @@
 
 /**
  * @file
- * Contains \Drupal\Tests\relaxed\Unit\Normalizer\ReplicationLogNormalizerTest.
+ * Contains \Drupal\Tests\replication\Unit\Normalizer\ReplicationLogNormalizerTest.
  */
 
-namespace Drupal\Tests\relaxed\Unit\Normalizer;
+namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\replication\Entity\ReplicationLog;
 
 /**
  * Tests the replication_log serialization format.
  *
- * @group relaxed
+ * @group replication
  */
 class ReplicationLogNormalizerTest extends NormalizerTestBase {
 
@@ -28,7 +28,7 @@ class ReplicationLogNormalizerTest extends NormalizerTestBase {
     'multiversion',
     'replication',
     'rest',
-    'relaxed'
+    'replication'
   ];
 
   protected $entityClass = 'Drupal\replication\Entity\ReplicationLog';
@@ -43,10 +43,6 @@ class ReplicationLogNormalizerTest extends NormalizerTestBase {
     $expected = [
       '@context' => [
         '_id' => '@id',
-        'replication_log' => \Drupal::service('rest.link_manager')->getTypeUri(
-          'replication_log',
-          $this->entity->bundle()
-        ),
       ],
       '@type' => 'replication_log',
       '_id' => '_local/' . $this->entity->uuid(),

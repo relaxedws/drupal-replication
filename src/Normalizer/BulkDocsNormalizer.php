@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\Serializer\Exception\LogicException;
@@ -45,7 +45,7 @@ class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface
       foreach ($data['docs'] as $doc) {
         if (!empty($doc)) {
           // @todo {@link https://www.drupal.org/node/2599934 Find a more generic way to denormalize.}
-          $entity = \Drupal::service('relaxed.normalizer.content_entity')->denormalize($doc, 'Drupal\Core\Entity\ContentEntityInterface', $format, $context);
+          $entity = \Drupal::service('replication.normalizer.content_entity')->denormalize($doc, 'Drupal\Core\Entity\ContentEntityInterface', $format, $context);
           if ($entity) {
             $entities[] = $entity;
           }

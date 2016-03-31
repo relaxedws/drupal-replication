@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\UuidIndexInterface;
@@ -23,11 +23,6 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
   protected $uuidIndex;
 
   /**
-   * @var \Drupal\rest\LinkManager\LinkManagerInterface
-   */
-  protected $linkManager;
-
-  /**
    * @var string[]
    */
   protected $format = array('json');
@@ -35,12 +30,10 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
   /**
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\multiversion\Entity\Index\UuidIndexInterface $uuid_index
-   * @param \Drupal\rest\LinkManager\LinkManagerInterface $link_manager
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, UuidIndexInterface $uuid_index, LinkManagerInterface $link_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, UuidIndexInterface $uuid_index) {
     $this->entityTypeManager = $entity_type_manager;
     $this->uuidIndex = $uuid_index;
-    $this->linkManager = $link_manager;
   }
 
   /**
@@ -51,10 +44,6 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
     $data = [
       '@context' => [
         '_id' => '@id',
-        'replication_log' => $this->linkManager->getTypeUri(
-          'replication_log',
-          $entity->bundle()
-        ),
       ],
       '@type' => 'replication_log',
       '_id' => '_local/'. $entity->uuid(),
@@ -89,7 +78,7 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
       return $entity;
     }
     catch(\Exception $e) {
-      watchdog_exception('Relaxed', $e);
+      watchdog_exception('Replication', $e);
     }
   }
 

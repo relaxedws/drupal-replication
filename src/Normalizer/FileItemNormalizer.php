@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\relaxed\Normalizer\FileItemNormalizer.
+ * Contains \Drupal\replication\Normalizer\FileItemNormalizer.
  */
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\file\Entity\File;
 use Drupal\serialization\Normalizer\NormalizerBase;

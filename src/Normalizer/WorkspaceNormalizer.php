@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\multiversion\Entity\WorkspaceType;
 use Drupal\multiversion\Entity\WorkspaceTypeInterface;

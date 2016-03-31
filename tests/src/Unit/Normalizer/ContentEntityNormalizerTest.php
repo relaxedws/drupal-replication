@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\Tests\relaxed\Unit\Normalizer\ContentEntityNormalizerTest.
+ * Contains \Drupal\Tests\replication\Unit\Normalizer\ContentEntityNormalizerTest.
  */
 
-namespace Drupal\Tests\relaxed\Unit\Normalizer;
+namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
@@ -13,7 +13,7 @@ use Drupal\entity_test\Entity\EntityTestMulRev;
 /**
  * Tests the content serialization format.
  *
- * @group relaxed
+ * @group replication
  */
 class ContentEntityNormalizerTest extends NormalizerTestBase {
 
@@ -28,7 +28,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
     'key_value',
     'multiversion',
     'rest',
-    'relaxed',
+    'replication',
     'replication'
   ];
 
@@ -58,10 +58,6 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
     $expected = array(
       '@context' => array(
         '_id' => '@id',
-        'entity_test_mulrev' => \Drupal::service('rest.link_manager')->getTypeUri(
-          'entity_test_mulrev',
-          $this->entity->bundle()
-        ),
         '@language' => 'en'
       ),
       '@type' => 'entity_test_mulrev',

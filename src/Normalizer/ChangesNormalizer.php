@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\relaxed\Normalizer\ChangesNormalizer.
+ * Contains \Drupal\replication\Normalizer\ChangesNormalizer.
  */
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\serialization\Normalizer\NormalizerBase;
 

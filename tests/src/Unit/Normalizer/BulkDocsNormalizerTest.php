@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\Tests\relaxed\Unit\Normalizer\BulkDocsNormalizerTest.
+ * Contains \Drupal\Tests\replication\Unit\Normalizer\BulkDocsNormalizerTest.
  */
 
-namespace Drupal\Tests\relaxed\Unit\Normalizer;
+namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
@@ -14,7 +14,7 @@ use Drupal\replication\BulkDocs\BulkDocsInterface;
 /**
  * Tests the content serialization format.
  *
- * @group relaxed
+ * @group replication
  */
 class BulkDocsNormalizerTest extends NormalizerTestBase {
 
@@ -29,7 +29,7 @@ class BulkDocsNormalizerTest extends NormalizerTestBase {
     'key_value',
     'multiversion',
     'rest',
-    'relaxed',
+    'replication',
     'replication'
   ];
 

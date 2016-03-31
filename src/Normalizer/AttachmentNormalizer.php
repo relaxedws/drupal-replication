@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 

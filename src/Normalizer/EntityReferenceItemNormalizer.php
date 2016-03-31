@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\relaxed\Normalizer\EntityReferenceItemNormalizer.
+ * Contains \Drupal\replication\Normalizer\EntityReferenceItemNormalizer.
  */
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Entity\FieldableEntityStorageInterface;
 use Drupal\serialization\Normalizer\NormalizerBase;

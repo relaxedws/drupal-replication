@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\relaxed\Normalizer\TextItemNormalizer.
+ * Contains \Drupal\replication\Normalizer\TextItemNormalizer.
  */
 
-namespace Drupal\relaxed\Normalizer;
+namespace Drupal\replication\Normalizer;
 
 use Drupal\serialization\Normalizer\NormalizerBase;
 

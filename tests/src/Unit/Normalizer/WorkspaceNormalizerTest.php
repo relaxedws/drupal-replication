@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\Tests\relaxed\Unit\Normalizer\WorkspaceNormalizerTest.
+ * Contains \Drupal\Tests\replication\Unit\Normalizer\WorkspaceNormalizerTest.
  */
 
-namespace Drupal\Tests\relaxed\Unit\Normalizer;
+namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\multiversion\Entity\Workspace;
@@ -13,7 +13,7 @@ use Drupal\multiversion\Entity\Workspace;
 /**
  * Tests the workspace serialization format.
  *
- * @group relaxed
+ * @group replication
  */
 class WorkspaceNormalizerTest extends NormalizerTestBase {
 
@@ -28,7 +28,7 @@ class WorkspaceNormalizerTest extends NormalizerTestBase {
     'key_value',
     'multiversion',
     'rest',
-    'relaxed',
+    'replication',
     'replication'
   ];
 

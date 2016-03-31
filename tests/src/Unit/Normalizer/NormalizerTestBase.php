@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\Tests\relaxed\Unit\Normalizer\NormalizerTestBase.
+ * Contains \Drupal\Tests\replication\Unit\Normalizer\NormalizerTestBase.
  */
 
-namespace Drupal\Tests\relaxed\Unit\Normalizer;
+namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
