@@ -237,55 +237,15 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
 
     // Denormalize File and Image field types.
     $files = [];
-    $current_user_id = \Drupal::currentUser()->id();
     if (isset($data['_attachments'])) {
       foreach ($data['_attachments'] as $key => $value) {
-        list($field_name, $delta, $file_uuid, $scheme, $target) = explode('/', $key, 5);
-        $uri = "$scheme://$target";
-        $stream_wrapper_name = 'stream_wrapper.' . $scheme;
-        multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
-        // Check if exists a file entity with this uuid.
-        $file = $this->entityManager->loadEntityByUuid('file', $file_uuid);
-        if ($file && is_file($file->getFileUri())) {
-          $files[$field_name][$delta]['target_id'] = $file->id();
-        }
-        // If the file entity exists but the file is missing then run the
-        // deserializer to create the file.
-        elseif ($file && !is_file($file->getFileUri())) {
-          $file_context = [
-            'uri' => $uri,
-            'uuid' => $file_uuid,
-            'status' => FILE_STATUS_PERMANENT,
-            'uid' => $current_user_id,
-          ];
-          \Drupal::getContainer()->get('serializer')->deserialize($value['data'], '\Drupal\file\FileInterface', 'base64_stream', $file_context);
-          $files[$field_name][$delta] = [
-            'target_id' => $file->id(),
-            'entity' => $file,
-          ];
-        }
-        // Create the new entity file and the file itself.
-        else {
-          // Check if exists a file with this $uri, if it exists then rename
-          // the file.
-          $existing_files = entity_load_multiple_by_properties('file', ['uri' => $uri]);
-          if (count($existing_files)) {
-            $uri = file_destination($uri, FILE_EXISTS_RENAME);
-          }
-          $file_context = [
-            'uri' => $uri,
-            'uuid' => $file_uuid,
-            'status' => FILE_STATUS_PERMANENT,
-            'uid' => $current_user_id,
-          ];
-          $file = \Drupal::getContainer()->get('serializer')->deserialize($value['data'], '\Drupal\file\FileInterface', 'base64_stream', $file_context);
-          if ($file instanceof FileInterface) {
-            $files[$field_name][$delta] = [
-              'target_id' => NULL,
-              'entity' => $file,
-            ];
-          }
-        }
+        /** @var FileInterface $file */
+        $file = replication_process_file_attachment($value['data'], $key, 'base64_stream');
+        list($field_name, $delta, , , ) = explode('/', $key, 5);
+        $files[$field_name][$delta] = [
+          'target_id' => $file->id(),
+          'entity' => $file,
+        ];
       }
     }
 
@@ -364,7 +324,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           unset($translations[$default_langcode][$revision_key]);
         }
         $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
-        $translations[$default_langcode]['uid'][0]['target_id'] = $current_user_id;
+        $translations[$default_langcode]['uid'][0]['target_id'] = \Drupal::currentUser()->id();
         $entity = $storage->create($translations[$default_langcode]);
       }
     }

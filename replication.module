@@ -1,0 +1,63 @@
+<?php
+
+use Drupal\file\FileInterface;
+
+/**
+ * Processes a file attachment.
+ *
+ * Returns the file object or NULL if it can't be created.
+ *
+ * @param string $data
+ * @param string $key
+ * @param string $format
+ *
+ * @return \Drupal\file\FileInterface|NULL
+ */
+function replication_process_file_attachment($data, $key, $format) {
+  $current_user_id = \Drupal::currentUser()->id();
+  list(, , $file_uuid, $scheme, $target) = explode('/', $key, 5);
+  $uri = "$scheme://$target";
+  $stream_wrapper_name = 'stream_wrapper.' . $scheme;
+  multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
+  // Check if exists a file entity with this uuid.
+  /** @var FileInterface $file */
+  $file = \Drupal::service('entity.repository')
+    ->loadEntityByUuid('file', $file_uuid);
+  if ($file && is_file($file->getFileUri())) {
+    // Do nothing.
+  }
+  // If the file entity exists but the file is missing then run the
+  // deserializer to create the file.
+  elseif ($file && !is_file($file->getFileUri())) {
+    $file_context = [
+      'uri' => $uri,
+      'uuid' => $file_uuid,
+      'status' => FILE_STATUS_PERMANENT,
+      'uid' => $current_user_id,
+    ];
+    $file = \Drupal::getContainer()
+      ->get('serializer')
+      ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
+  }
+  // Create the new entity file and the file itself.
+  else {
+    // Check if exists a file with this $uri, if it exists then rename the file.
+    $existing_files = \Drupal::entityTypeManager()
+      ->getStorage('file')
+      ->loadByProperties('file', ['uri' => $uri]);
+    if (count($existing_files)) {
+      $uri = file_destination($uri, FILE_EXISTS_RENAME);
+    }
+    $file_context = [
+      'uri' => $uri,
+      'uuid' => $file_uuid,
+      'status' => FILE_STATUS_PERMANENT,
+      'uid' => $current_user_id,
+    ];
+    $file = \Drupal::getContainer()
+      ->get('serializer')
+      ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
+  }
+
+  return $file;
+}
