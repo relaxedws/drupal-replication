@@ -44,7 +44,7 @@ function replication_process_file_attachment($data, $key, $format) {
     // Check if exists a file with this $uri, if it exists then rename the file.
     $existing_files = \Drupal::entityTypeManager()
       ->getStorage('file')
-      ->loadByProperties('file', ['uri' => $uri]);
+      ->loadByProperties(['uri' => $uri]);
     if (count($existing_files)) {
       $uri = file_destination($uri, FILE_EXISTS_RENAME);
     }
