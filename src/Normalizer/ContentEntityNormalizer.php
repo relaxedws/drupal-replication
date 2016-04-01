@@ -240,7 +240,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     $current_user_id = \Drupal::currentUser()->id();
     if (isset($data['_attachments'])) {
       foreach ($data['_attachments'] as $key => $value) {
-        list($field_name, $delta, $file_uuid, $scheme, $target) = explode(':', $key);
+        list($field_name, $delta, $file_uuid, $scheme, $target) = explode('/', $key, 5);
         $uri = "$scheme://$target";
         $stream_wrapper_name = 'stream_wrapper.' . $scheme;
         multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
