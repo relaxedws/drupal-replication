@@ -10,6 +10,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface;
 use Drupal\multiversion\Entity\Index\UuidIndexInterface;
+use Drupal\replication\ProcessFileAttachment;
 use Drupal\rest\LinkManager\LinkManagerInterface;
 use Drupal\file\FileInterface;
 use Drupal\serialization\Normalizer\NormalizerBase;
@@ -33,6 +34,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    */
   protected $revTree;
 
+  /** @var \Drupal\replication\ProcessFileAttachment  */
+  protected $processFileAttachment;
+
   /**
    * @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface
    */
@@ -48,13 +52,15 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param \Drupal\multiversion\Entity\Index\UuidIndexInterface $uuid_index
    * @param \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $rev_tree
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   * @param \Drupal\replication\ProcessFileAttachment $process_file_attachment
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager
    */
-  public function __construct(EntityManagerInterface $entity_manager, UuidIndexInterface $uuid_index, RevisionTreeIndexInterface $rev_tree, LanguageManagerInterface $language_manager, SelectionPluginManagerInterface $selection_manager = NULL) {
+  public function __construct(EntityManagerInterface $entity_manager, UuidIndexInterface $uuid_index, RevisionTreeIndexInterface $rev_tree, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, SelectionPluginManagerInterface $selection_manager = NULL) {
     $this->entityManager = $entity_manager;
     $this->uuidIndex = $uuid_index;
     $this->revTree = $rev_tree;
     $this->languageManager = $language_manager;
+    $this->processFileAttachment = $process_file_attachment;
     $this->selectionManager = $selection_manager;
   }
 
@@ -240,7 +246,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     if (isset($data['_attachments'])) {
       foreach ($data['_attachments'] as $key => $value) {
         /** @var FileInterface $file */
-        $file = replication_process_file_attachment($value['data'], $key, 'base64_stream');
+        $file = $this->processFileAttachment->process($value['data'], $key, 'base64_stream');
         list($field_name, $delta, , , ) = explode('/', $key, 5);
         $files[$field_name][$delta] = [
           'target_id' => $file->id(),
