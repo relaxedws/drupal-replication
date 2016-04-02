@@ -2,11 +2,10 @@
 
 namespace Drupal\replication;
 
-
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Symfony\Component\Serializer\SerializerInterface;
+use Drupal\file\FileInterface;
 
 class ProcessFileAttachment {
 
@@ -37,6 +36,7 @@ class ProcessFileAttachment {
    * @return \Drupal\file\FileInterface|NULL
    */
   public function process($data, $key, $format) {
+
     $current_user_id = $this->current_user->id();
     list(, , $file_uuid, $scheme, $target) = explode('/', $key, 5);
     $uri = "$scheme://$target";
