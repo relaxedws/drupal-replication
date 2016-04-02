@@ -16,16 +16,12 @@ class ProcessFileAttachment {
   /** @var  \Drupal\Core\Entity\EntityRepositoryInterface */
   protected $entity_repository;
 
-  /** @var  \Symfony\Component\Serializer\SerializerInterface */
-  protected $serializer;
-
   /** @var  \Drupal\Core\Entity\EntityTypeManagerInterface */
   protected $entity_type_manager;
 
-  function __construct(AccountProxyInterface $current_user, EntityRepositoryInterface $entity_repository, SerializerInterface $serializer, EntityTypeManagerInterface $entity_type_manager) {
+  function __construct(AccountProxyInterface $current_user, EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager) {
     $this->current_user = $current_user;
     $this->entity_repository = $entity_repository;
-    $this->serializer = $serializer;
     $this->entity_type_manager = $entity_type_manager;
   }
 
@@ -62,7 +58,8 @@ class ProcessFileAttachment {
         'status' => FILE_STATUS_PERMANENT,
         'uid' => $current_user_id,
       ];
-      $file = $this->serializer
+      $file = \Drupal::getContainer()
+        ->get('serializer')
         ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
     }
     // Create the new entity file and the file itself.
@@ -80,7 +77,8 @@ class ProcessFileAttachment {
         'status' => FILE_STATUS_PERMANENT,
         'uid' => $current_user_id,
       ];
-      $file = $this->serializer
+      $file = \Drupal::getContainer()
+        ->get('serializer')
         ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
     }
 

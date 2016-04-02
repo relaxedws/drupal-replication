@@ -1,7 +1,7 @@
 services:
-replication.process_file_attachment
-  class: Drupal\replication\ProcessFileAttachment
-  arguments: ['@current_user', '@entity.repository', '@serializer', '@entity_type.manager']
+  replication.process_file_attachment:
+    class: Drupal\replication\ProcessFileAttachment
+    arguments: ['@current_user', '@entity.repository', '@entity_type.manager']
 
 #Factories
   replication.changes_factory:
@@ -75,7 +75,7 @@ replication.process_file_attachment
       - { name: normalizer, priority: 30 }
   replication.normalizer.attachment:
     class: Drupal\replication\Normalizer\AttachmentNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.uuid', '@multiversion.entity_index.rev.tree','@language_manager', '@plugin.manager.entity_reference_selection']
+    arguments: ['@entity.manager', '@multiversion.entity_index.uuid', '@multiversion.entity_index.rev.tree','@language_manager', '@replication.process_file_attachment', '@plugin.manager.entity_reference_selection']
     tags:
       - { name: normalizer, priority: 30 }
   replication.normalizer.file_item:
