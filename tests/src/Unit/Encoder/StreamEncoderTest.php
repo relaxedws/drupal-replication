@@ -5,7 +5,7 @@
  * Contains \Drupal\Tests\replication\Unit\Encoder\StreamEncoderTest.
  */
 
-namespace Drupal\Tests\relaxed\Unit\Encoder;
+namespace Drupal\Tests\replication\Unit\Encoder;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\replication\Encoder\StreamEncoder;
