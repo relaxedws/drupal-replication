@@ -163,7 +163,7 @@ class BulkDocs implements BulkDocsInterface {
         $entity_type = $this->entityTypeManager->getDefinition($entity->getEntityTypeId());
         $id_key = $entity_type->getKey('id');
 
-        if ($record = $this->uuidIndex->get($entity->uuid())) {
+        if ($record = $this->uuidIndex->useWorkspace($this->workspace->id())->get($entity->uuid())) {
           $entity->{$id_key}->value = $record['entity_id'];
           $entity->enforceIsNew(FALSE);
         }
