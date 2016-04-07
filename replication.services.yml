@@ -28,6 +28,10 @@ services:
       - { name: encoder, format: base64_stream }
 
 #Normalizers
+  replication.normalizer.link_item:
+    class: Drupal\replication\Normalizer\LinkItemNormalizer
+    tags:
+      - { name: normalizer, priority: 20 }
   replication.normalizer.text_item:
     class: Drupal\replication\Normalizer\TextItemNormalizer
     tags:

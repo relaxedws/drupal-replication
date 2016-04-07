@@ -425,6 +425,14 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           $target_entity_uuid = $item['target_uuid'];
           $target_entity_type_id = $settings['target_type'];
 
+          // Denormalize link field type as an entity reference field if it
+          // has info about 'target_uuid' and 'entity_type_id'. These are used
+          // to denormalize 'uri' in formats like 'entity:ENTITY_TYPE/ID'.
+          $type = $fields[$field_name]->getType();
+          if ($type == 'link' && isset($item['entity_type_id'])) {
+            $target_entity_type_id = $item['entity_type_id'];
+          }
+
           if (isset($settings['handler_settings']['target_bundles'])) {
             $target_bundle_id = reset($settings['handler_settings']['target_bundles']);
           }
@@ -443,7 +451,16 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           }
 
 
-          if ($target_entity) {
+          // This set the correct uri for link field if the target entity
+          // already exists.
+          if ($type == 'link' && $target_entity) {
+            unset($item['entity_type_id']);
+            unset($item['target_uuid']);
+            $translation[$field_name][$delta] = $item;
+            $id = $target_entity->id();
+            $translation[$field_name][$delta]['uri'] = "entity:$target_entity_type_id/$id";
+          }
+          elseif ($target_entity) {
             $translation[$field_name][$delta] = array(
               'target_id' => $target_entity->id(),
             );
