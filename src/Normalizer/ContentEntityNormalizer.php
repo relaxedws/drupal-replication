@@ -423,7 +423,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           // Find the target entity type and target bundle IDs and figure out if
           // the referenced entity exists or not.
           $target_entity_uuid = $item['target_uuid'];
-          $target_entity_type_id = $settings['target_type'];
 
           // Denormalize link field type as an entity reference field if it
           // has info about 'target_uuid' and 'entity_type_id'. These are used
@@ -431,6 +430,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           $type = $fields[$field_name]->getType();
           if ($type == 'link' && isset($item['entity_type_id'])) {
             $target_entity_type_id = $item['entity_type_id'];
+          }
+          else {
+            $target_entity_type_id = $settings['target_type'];
           }
 
           if (isset($settings['handler_settings']['target_bundles'])) {
@@ -487,11 +489,20 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             // Indicate that this revision is a stub.
             $target_entity->_rev->is_stub = TRUE;
 
-            // Populate the data field.
-            $translation[$field_name][$delta] = array(
-              'target_id' => NULL,
-              'entity' => $target_entity,
-            );
+            // Set for the uri value the target entity. This entity will be
+            // replaced with the uri in \Drupal\multiversion\LinkItem::preSve().
+            if ($type == 'link') {
+              unset($item['entity_type_id']);
+              unset($item['target_uuid']);
+              $translation[$field_name][$delta]['uri'] = $target_entity;
+            }
+            else {
+              // Populate the data field.
+              $translation[$field_name][$delta] = array(
+                'target_id' => NULL,
+                'entity' => $target_entity,
+              );
+            }
           }
         }
       }
