@@ -5,40 +5,32 @@
  * Contains \Drupal\replication\Tests\ReplicationLogTest.
  */
 
-namespace Drupal\replication\Tests;
+namespace Drupal\Tests\replication\Kernel;
 
 use Drupal\Core\Entity\EntityStorageException;
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\replication\Entity\ReplicationLog;
-use Drupal\multiversion\Tests\MultiversionWebTestBase;
 
 /**
  * Test the creation and operation of the Replication Log entity.
  *
  * @group replication
  */
-class ReplicationLogTest extends MultiversionWebTestBase {
+class ReplicationLogTest extends KernelTestBase {
 
   protected $strictConfigSchema = FALSE;
 
-  public static $modules = ['replication'];
-
-  /**
-   * @var \Drupal\Core\Entity\EntityTypeManager
-   */
-  protected $entityTypeManager;
-
-  protected function setUp() {
-    parent::setUp();
-    $this->entityTypeManager = $this->container->get('entity_type.manager');
-  }
+  public static $modules = ['user', 'serialization', 'key_value', 'multiversion', 'replication'];
 
   public function testOperations() {
-    $entity = $this->entityTypeManager->getStorage('replication_log')->create();
+    $this->installEntitySchema('replication_log');
+    $entityTypeManager = $this->container->get('entity_type.manager');
+    $entity = $entityTypeManager->getStorage('replication_log')->create();
     $this->assertTrue($entity instanceof ReplicationLog, 'Replication Log entity was created.');
 
     // Set required fields.
     /** @var ReplicationLog $entity */
-    $entity = $this->entityTypeManager->getStorage('replication_log')->create();
+    $entity = $entityTypeManager->getStorage('replication_log')->create();
     $seq_id = \Drupal::service('multiversion.manager')->newSequenceId();
     $entity->source_last_seq->value = $seq_id;
     $entity->history->recorded_seq = $seq_id;
@@ -48,7 +40,7 @@ class ReplicationLogTest extends MultiversionWebTestBase {
       $this->fail('Required history column was enforced.');
     }
     catch(EntityStorageException $e) {
-      $this->pass('Required history column was enforced.');
+      $this->assertTrue($e !== null, 'Required history column was enforced.');
     }
 
     // Try again with the remaining required field set.
@@ -60,7 +52,7 @@ class ReplicationLogTest extends MultiversionWebTestBase {
 
     $max_int = 2147483647;
     $max_bigint = 9223372036854775807;
-    $entity = $this->entityTypeManager->getStorage('replication_log')->create();
+    $entity = $entityTypeManager->getStorage('replication_log')->create();
     $entity->history->start_last_seq = $max_int;
     $entity->history->missing_found = $max_int;
     $entity->history->docs_read = $max_int;
@@ -75,8 +67,8 @@ class ReplicationLogTest extends MultiversionWebTestBase {
     $entity->history->session_id = \Drupal::service('uuid')->generate();
 
     try {
-      $entity->save();
-      $this->pass('Entity was saved.');
+      $saved = (bool) $entity->save();
+      $this->assertTrue($saved, 'Entity was saved.');
     }
     catch(EntityStorageException $e) {
       $this->fail('Fail, trying to save entity with incorrect data format or length for history fields.');
