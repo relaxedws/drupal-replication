@@ -8,10 +8,9 @@ use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
-use Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface;
-use Drupal\multiversion\Entity\Index\UuidIndexInterface;
+use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
+use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\ProcessFileAttachment;
-use Drupal\rest\LinkManager\LinkManagerInterface;
 use Drupal\file\FileInterface;
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
@@ -25,14 +24,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   protected $supportedInterfaceOrClass = array('Drupal\Core\Entity\ContentEntityInterface');
 
   /**
-   * @var \Drupal\multiversion\Entity\Index\UuidIndexInterface
+   * @var \Drupal\multiversion\Entity\Index\MultiversionIndexFactory
    */
-  protected $uuidIndex;
-
-  /**
-   * @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface
-   */
-  protected $revTree;
+  protected $indexFactory;
 
   /** @var \Drupal\replication\ProcessFileAttachment  */
   protected $processFileAttachment;
@@ -49,16 +43,14 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
 
   /**
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   * @param \Drupal\multiversion\Entity\Index\UuidIndexInterface $uuid_index
-   * @param \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $rev_tree
+   * @param \Drupal\multiversion\Entity\Index\MultiversionIndexFactory $index_factory
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    * @param \Drupal\replication\ProcessFileAttachment $process_file_attachment
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager
    */
-  public function __construct(EntityManagerInterface $entity_manager, UuidIndexInterface $uuid_index, RevisionTreeIndexInterface $rev_tree, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, SelectionPluginManagerInterface $selection_manager = NULL) {
+  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, SelectionPluginManagerInterface $selection_manager = NULL) {
     $this->entityManager = $entity_manager;
-    $this->uuidIndex = $uuid_index;
-    $this->revTree = $rev_tree;
+    $this->indexFactory = $index_factory;
     $this->languageManager = $language_manager;
     $this->processFileAttachment = $process_file_attachment;
     $this->selectionManager = $selection_manager;
@@ -68,6 +60,8 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * {@inheritdoc}
    */
   public function normalize($entity, $format = NULL, array $context = array()) {
+    $rev_tree_index = $this->indexFactory->get('multiversion.entity_index.rev.tree', $entity->workspace->entity);
+
     $entity_type_id = $context['entity_type'] = $entity->getEntityTypeId();
     $entity_type = $this->entityManager->getDefinition($entity_type_id);
 
@@ -142,7 +136,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
 
     // @todo: {@link https://www.drupal.org/node/2599938 Needs test.}
     if (!empty($context['query']['revs']) || !empty($context['query']['revs_info'])) {
-      $default_branch = $this->revTree->getDefaultBranch($entity_uuid);
+      $default_branch = $rev_tree_index->getDefaultBranch($entity_uuid);
 
       $i = 0;
       foreach (array_reverse($default_branch) as $rev => $status) {
@@ -162,7 +156,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     }
 
     if (!empty($context['query']['conflicts'])) {
-      $conflicts = $this->revTree->getConflicts($entity_uuid);
+      $conflicts = $rev_tree_index->getConflicts($entity_uuid);
       foreach ($conflicts as $rev => $status) {
         $data['_conflicts'][] = $rev;
       }
@@ -211,7 +205,8 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     // Map data from the UUID index.
     // @todo: {@link https://www.drupal.org/node/2599938 Needs test.}
     if (!empty($entity_uuid)) {
-      if ($record = $this->uuidIndex->get($entity_uuid)) {
+      $uuid_index = (isset($context['workspace']) && ($context['workspace'] instanceof WorkspaceInterface)) ? $this->indexFactory->get('multiversion.entity_index.uuid', $context['workspace']) : $this->indexFactory->get('multiversion.entity_index.uuid');
+      if ($record = $uuid_index->get($entity_uuid)) {
         $entity_id = $record['entity_id'];
         if (empty($entity_type_id)) {
           $entity_type_id = $record['entity_type_id'];
@@ -274,13 +269,13 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
       // When language is configured or undefined go ahead with denormalization.
       elseif (isset($site_languages[$key]) || $key === 'und') {
-        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $files, $rev, $revisions, $existing_users_names);
+        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions, $existing_users_names);
       }
       // Configure then language then do denormalization.
       else {
         $language = ConfigurableLanguage::createFromLangcode($key);
         $language->save();
-        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key,  $files, $rev, $revisions, $existing_users_names);
+        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions, $existing_users_names);
       }
     }
 
@@ -360,7 +355,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param array $existing_users_names
    * @return mixed
    */
-  private function denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, array $files = [], $rev = null, array $revisions = [], array $existing_users_names = []) {
+  private function denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, array $files = [], $rev = null, array $revisions = [], array $existing_users_names = []) {
     // Add the _rev field to the $translation array.
     if (isset($rev)) {
       $translation['_rev'] = array(array('value' => $rev));
@@ -439,9 +434,14 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $bundles = $this->entityManager->getBundleInfo($target_entity_type_id);
             $target_bundle_id = key($bundles);
           }
-          $target_storage = $this->entityManager->getStorage($target_entity_type_id);
-          $target_entity = $target_storage->loadByProperties(['uuid' => $target_entity_uuid]);
-          $target_entity = !empty($target_entity) ? reset($target_entity) : NULL;
+          $target_entity = null;
+          $uuid_index = (isset($context['workspace']) && ($context['workspace'] instanceof WorkspaceInterface)) ? $this->indexFactory->get('multiversion.entity_index.uuid', $context['workspace']) : $this->indexFactory->get('multiversion.entity_index.uuid');
+          if ($target_entity_info = $uuid_index->get($target_entity_uuid)) {
+            $target_entity = $this->entityManager
+              ->getStorage($target_entity_info['entity_type_id'])
+              ->load($target_entity_info['entity_id']);
+          }
+
 
           if ($target_entity) {
             $translation[$field_name][$delta] = array(
