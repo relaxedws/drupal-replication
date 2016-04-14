@@ -44,7 +44,7 @@ class AttachmentNormalizer extends ContentEntityNormalizer implements Denormaliz
       $file_data['uri'] = $context['uri'];
     }
 
-    $file_info_keys = array('uuid', 'status', 'uid');
+    $file_info_keys = array('uuid', 'status', 'uid', 'workspace');
     foreach ($file_info_keys as $key) {
       if (isset($context[$key])) {
         $file_data[$key] = $context[$key];

@@ -6,22 +6,24 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\file\FileInterface;
+use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
+use Drupal\multiversion\Entity\WorkspaceInterface;
 
 class ProcessFileAttachment {
 
   /** @var \Drupal\Core\Session\AccountProxyInterface  */
   protected $current_user;
 
-  /** @var  \Drupal\Core\Entity\EntityRepositoryInterface */
-  protected $entity_repository;
-
   /** @var  \Drupal\Core\Entity\EntityTypeManagerInterface */
   protected $entity_type_manager;
 
-  function __construct(AccountProxyInterface $current_user, EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager) {
+  /** @var \Drupal\multiversion\Entity\Index\MultiversionIndexFactory  */
+  protected $index_factory;
+
+  function __construct(AccountProxyInterface $current_user, EntityTypeManagerInterface $entity_type_manager, MultiversionIndexFactory $index_factory) {
     $this->current_user = $current_user;
-    $this->entity_repository = $entity_repository;
     $this->entity_type_manager = $entity_type_manager;
+    $this->index_factory = $index_factory;
   }
 
   /**
@@ -32,10 +34,11 @@ class ProcessFileAttachment {
    * @param string $data
    * @param string $key
    * @param string $format
+   * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    *
    * @return \Drupal\file\FileInterface|NULL
    */
-  public function process($data, $key, $format) {
+  public function process($data, $key, $format, WorkspaceInterface $workspace = null) {
 
     $current_user_id = $this->current_user->id();
     list(, , $file_uuid, $scheme, $target) = explode('/', $key, 5);
@@ -43,15 +46,19 @@ class ProcessFileAttachment {
     $stream_wrapper_name = 'stream_wrapper.' . $scheme;
     multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
     // Check if exists a file entity with this uuid.
+    $uuid_index = $workspace ? $this->index_factory->get('multiversion.entity_index.uuid', $workspace) : $this->index_factory->get('multiversion.entity_index.uuid');
     /** @var FileInterface $file */
-    $file = $this->entity_repository
-      ->loadEntityByUuid('file', $file_uuid);
+    $entity_info = $uuid_index->get($file_uuid);
+    if (!empty($entity_info)) {
+      $file = $this->entity_type_manager->getStorage($entity_info['entity_type_id'])
+        ->load($entity_info['entity_id']);
+    }
     if ($file && is_file($file->getFileUri())) {
       // Do nothing.
     }
     // If the file entity exists but the file is missing then run the
     // deserializer to create the file.
-    elseif ($file && !is_file($file->getFileUri())) {
+    if ($file && !is_file($file->getFileUri())) {
       $file_context = [
         'uri' => $uri,
         'uuid' => $file_uuid,
@@ -76,6 +83,7 @@ class ProcessFileAttachment {
         'uuid' => $file_uuid,
         'status' => FILE_STATUS_PERMANENT,
         'uid' => $current_user_id,
+        'workspace' => $workspace,
       ];
       $file = \Drupal::getContainer()
         ->get('serializer')

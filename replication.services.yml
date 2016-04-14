@@ -1,7 +1,7 @@
 services:
   replication.process_file_attachment:
     class: Drupal\replication\ProcessFileAttachment
-    arguments: ['@current_user', '@entity.repository', '@entity_type.manager']
+    arguments: ['@current_user', '@entity_type.manager', '@multiversion.entity_index.factory']
 
 #Factories
   replication.changes_factory:
