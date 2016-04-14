@@ -31,7 +31,7 @@ services:
   replication.normalizer.link_item:
     class: Drupal\replication\Normalizer\LinkItemNormalizer
     tags:
-      - { name: normalizer, priority: 20 }
+      - { name: normalizer, priority: 5 }
   replication.normalizer.text_item:
     class: Drupal\replication\Normalizer\TextItemNormalizer
     tags:
