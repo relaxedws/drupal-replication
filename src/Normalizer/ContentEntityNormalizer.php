@@ -452,7 +452,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
               ->load($target_entity_info['entity_id']);
           }
 
-
           // This set the correct uri for link field if the target entity
           // already exists.
           if ($type == 'link' && $target_entity) {
@@ -472,10 +471,10 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           // The stub entity will be updated when it's full entity comes around
           // later in the replication.
           else {
-            $options = [
-              'target_type' => $target_entity_type_id,
-              'handler_settings' => $settings['handler_settings'],
-            ];
+            $options['target_type'] = $target_entity_type_id;
+            if (isset($settings['handler_settings'])) {
+              $options['handler_settings'] = $settings['handler_settings'];
+            }
             /** @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionWithAutocreateInterface $selection_instance */
             $selection_instance = $this->selectionManager->getInstance($options);
             // We use a temporary label and entity owner ID as this will be
