@@ -53,9 +53,7 @@ class ProcessFileAttachment {
       $file = $this->entity_type_manager->getStorage($entity_info['entity_type_id'])
         ->load($entity_info['entity_id']);
     }
-    if ($file && is_file($file->getFileUri())) {
-      // Do nothing.
-    }
+
     // If the file entity exists but the file is missing then run the
     // deserializer to create the file.
     if ($file && !is_file($file->getFileUri())) {
@@ -70,7 +68,7 @@ class ProcessFileAttachment {
         ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
     }
     // Create the new entity file and the file itself.
-    else {
+    elseif (empty($file)) {
       // Check if exists a file with this $uri, if it exists then rename the file.
       $existing_files = $this->entity_type_manager
         ->getStorage('file')
