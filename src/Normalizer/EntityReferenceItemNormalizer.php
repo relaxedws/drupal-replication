@@ -31,7 +31,7 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
   public function normalize($field, $format = NULL, array $context = array()) {
     $value = $field->getValue();
     $target_type = $field->getFieldDefinition()->getSetting('target_type');
-    $storage = \Drupal::entityManager()->getStorage($target_type);
+    $storage = \Drupal::entityTypeManager()->getStorage($target_type);
 
     if (!($storage instanceof FieldableEntityStorageInterface)) {
       return $value;
@@ -42,7 +42,7 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
       return $value;
     }
 
-    $referenced_entity = entity_load($target_type, $taget_id, TRUE);
+    $referenced_entity = $storage->load($taget_id);
     if (!$referenced_entity) {
       return $value;
     }

@@ -34,7 +34,6 @@ class FileItemNormalizerTest extends NormalizerTestBase{
     'replication',
     'file',
     'image',
-    'replication'
   ];
 
   protected $entityClass = 'Drupal\entity_test\Entity\EntityTest';

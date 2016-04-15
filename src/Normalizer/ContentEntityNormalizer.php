@@ -423,7 +423,17 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           // Find the target entity type and target bundle IDs and figure out if
           // the referenced entity exists or not.
           $target_entity_uuid = $item['target_uuid'];
-          $target_entity_type_id = $settings['target_type'];
+
+          // Denormalize link field type as an entity reference field if it
+          // has info about 'target_uuid' and 'entity_type_id'. These are used
+          // to denormalize 'uri' in formats like 'entity:ENTITY_TYPE/ID'.
+          $type = $fields[$field_name]->getType();
+          if ($type == 'link' && isset($item['entity_type_id'])) {
+            $target_entity_type_id = $item['entity_type_id'];
+          }
+          else {
+            $target_entity_type_id = $settings['target_type'];
+          }
 
           if (isset($settings['handler_settings']['target_bundles'])) {
             $target_bundle_id = reset($settings['handler_settings']['target_bundles']);
@@ -442,8 +452,16 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
               ->load($target_entity_info['entity_id']);
           }
 
-
-          if ($target_entity) {
+          // This set the correct uri for link field if the target entity
+          // already exists.
+          if ($type == 'link' && $target_entity) {
+            unset($item['entity_type_id']);
+            unset($item['target_uuid']);
+            $translation[$field_name][$delta] = $item;
+            $id = $target_entity->id();
+            $translation[$field_name][$delta]['uri'] = "entity:$target_entity_type_id/$id";
+          }
+          elseif ($target_entity) {
             $translation[$field_name][$delta] = array(
               'target_id' => $target_entity->id(),
             );
@@ -453,10 +471,10 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           // The stub entity will be updated when it's full entity comes around
           // later in the replication.
           else {
-            $options = [
-              'target_type' => $target_entity_type_id,
-              'handler_settings' => $settings['handler_settings'],
-            ];
+            $options['target_type'] = $target_entity_type_id;
+            if (isset($settings['handler_settings'])) {
+              $options['handler_settings'] = $settings['handler_settings'];
+            }
             /** @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionWithAutocreateInterface $selection_instance */
             $selection_instance = $this->selectionManager->getInstance($options);
             // We use a temporary label and entity owner ID as this will be
@@ -464,17 +482,33 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $target_entity = $selection_instance
               ->createNewEntity($target_entity_type_id, $target_bundle_id, rand(), 1);
 
+            // Set the target workspace if we have it in context.
+            if (isset($context['workspace']) && ($context['workspace'] instanceof WorkspaceInterface)) {
+              $target_entity->workspace->target_id = $context['workspace']->id();
+            }
             // Set the UUID to what we received to ensure it gets updated when
             // the full entity comes around later.
             $target_entity->uuid->value = $target_entity_uuid;
             // Indicate that this revision is a stub.
             $target_entity->_rev->is_stub = TRUE;
 
-            // Populate the data field.
-            $translation[$field_name][$delta] = array(
-              'target_id' => NULL,
-              'entity' => $target_entity,
-            );
+            // Set for the uri value the target entity. This entity will be
+            // replaced with the uri in \Drupal\multiversion\LinkItem::preSve().
+            if ($type == 'link') {
+              $link = $translation[$field_name][$delta];
+              $link['uri'] = $target_entity;
+              unset($link['entity_type_id']);
+              unset($link['target_uuid']);
+              $translation[$field_name][$delta] = \Drupal::service('replication.normalizer.link_item')
+                ->denormalize($link, 'Drupal\link\Plugin\Field\FieldType\LinkItem', NULL, $context);
+            }
+            else {
+              // Populate the data field.
+              $translation[$field_name][$delta] = array(
+                'target_id' => NULL,
+                'entity' => $target_entity,
+              );
+            }
           }
         }
       }
