@@ -6,6 +6,11 @@ use Drupal\file\FileInterface;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\simpletest\BrowserTestBase;
 
+/**
+ * Test the use of the ProcessFileAttachment service.
+ *
+ * @group replication
+ */
 class ProcessFileAttachmentTest extends BrowserTestBase {
 
   /**
@@ -13,6 +18,9 @@ class ProcessFileAttachmentTest extends BrowserTestBase {
    */
   public static $modules = ['user', 'serialization', 'key_value', 'multiversion', 'replication', 'file'];
 
+  /**
+   * Test ProcessFileAttachment.
+   */
   public function testProcessFileAttachment() {
     $live = Workspace::load(1);
     $stage = Workspace::create(['type' => 'basic', 'machine_name' => 'stage', 'label' => 'Stage']);
