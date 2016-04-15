@@ -482,6 +482,10 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $target_entity = $selection_instance
               ->createNewEntity($target_entity_type_id, $target_bundle_id, rand(), 1);
 
+            // Set the target workspace if we have it in context.
+            if (isset($context['workspace']) && ($context['workspace'] instanceof WorkspaceInterface)) {
+              $target_entity->workspace->target_id = $context['workspace']->id();
+            }
             // Set the UUID to what we received to ensure it gets updated when
             // the full entity comes around later.
             $target_entity->uuid->value = $target_entity_uuid;

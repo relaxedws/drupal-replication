@@ -8,6 +8,7 @@
 namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -59,7 +60,9 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
       // @see \Drupal\relaxed\BulkDocs\BulkDocs::save()
       if ($entity->isNew()) {
         $uuid = $entity->uuid();
-        $uuid_index = \Drupal::service('multiversion.entity_index.uuid');
+        $workspace = isset($context['workspace']) && ($context['workspace'] instanceof WorkspaceInterface) ? $context['workspace'] : NULL;
+        $uuid_index = \Drupal::service('multiversion.entity_index.factory')
+          ->get('multiversion.entity_index.uuid', $workspace);
         if ($uuid && $record = $uuid_index->get($uuid)) {
           /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
           $entity_type_manager = \Drupal::service('entity_type.manager');
