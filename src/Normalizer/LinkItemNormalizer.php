@@ -8,6 +8,9 @@
 namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
+use Drupal\multiversion\Entity\Index\UuidIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -20,6 +23,25 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
    * @var string
    */
   protected $supportedInterfaceOrClass = 'Drupal\link\Plugin\Field\FieldType\LinkItem';
+
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * @var \Drupal\multiversion\Entity\Index\MultiversionIndexFactory
+   */
+  protected $indexFactory;
+
+  /**
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\multiversion\Entity\Index\MultiversionIndexFactory $index_factory
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, MultiversionIndexFactory $index_factory) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->indexFactory = $index_factory;
+  }
 
   /**
    * {@inheritdoc}
@@ -37,8 +59,7 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
       $scheme = parse_url($attributes['uri'], PHP_URL_SCHEME);
       if ($scheme === 'entity') {
         list($entity_type, $entity_id) = explode('/', substr($attributes['uri'], 7), 2);
-        $entity_manager = \Drupal::entityTypeManager();
-        if ($entity = $entity_manager->getStorage($entity_type)->load($entity_id)) {
+        if ($entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id)) {
           $attributes['entity_type_id'] = $entity_type;
           $attributes['target_uuid'] = $entity->uuid();
         }
@@ -61,22 +82,20 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
       if ($entity->isNew()) {
         $uuid = $entity->uuid();
         $workspace = isset($context['workspace']) && ($context['workspace'] instanceof WorkspaceInterface) ? $context['workspace'] : NULL;
-        $uuid_index = \Drupal::service('multiversion.entity_index.factory')
-          ->get('multiversion.entity_index.uuid', $workspace);
+        $uuid_index = $this->indexFactory->get('multiversion.entity_index.uuid', $workspace);
         if ($uuid && $record = $uuid_index->get($uuid)) {
-          /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-          $entity_type_manager = \Drupal::service('entity_type.manager');
+
           $entity_type_id = $entity->getEntityTypeId();
 
           // Now we have to decide what revision to use.
-          $id_key = $entity_type_manager
+          $id_key = $this->entityTypeManager
             ->getDefinition($entity_type_id)
             ->getKey('id');
 
           // If the referenced entity is a stub, but a full entity already was
           // created, then load and use that entity instead without saving.
           if ($entity->_rev->is_stub && !$record['is_stub']) {
-            $entity = $entity_type_manager
+            $entity = $this->entityTypeManager
               ->getStorage($entity_type_id)
               ->load($record['entity_id']);
           }

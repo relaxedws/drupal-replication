@@ -30,6 +30,7 @@ services:
 #Normalizers
   replication.normalizer.link_item:
     class: Drupal\replication\Normalizer\LinkItemNormalizer
+    arguments: ['@entity_type.manager', '@multiversion.entity_index.factory']
     tags:
       - { name: normalizer, priority: 5 }
   replication.normalizer.text_item:
