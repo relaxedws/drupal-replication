@@ -46,47 +46,44 @@ class ProcessFileAttachment {
     $stream_wrapper_name = 'stream_wrapper.' . $scheme;
     multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
     // Check if exists a file entity with this uuid.
-    $uuid_index = $workspace ? $this->index_factory->get('multiversion.entity_index.uuid', $workspace) : $this->index_factory->get('multiversion.entity_index.uuid');
-    /** @var FileInterface $file */
+    $uuid_index = $this->index_factory->get('multiversion.entity_index.uuid', $workspace);
     $entity_info = $uuid_index->get($file_uuid);
     if (!empty($entity_info)) {
+      /** @var FileInterface $file */
       $file = $this->entity_type_manager->getStorage($entity_info['entity_type_id'])
         ->load($entity_info['entity_id']);
+      if ($file && !is_file($file->getFileUri())) {
+        $file_context = [
+          'uri' => $uri,
+          'uuid' => $file_uuid,
+          'status' => FILE_STATUS_PERMANENT,
+          'uid' => $current_user_id,
+        ];
+        $file = \Drupal::getContainer()
+          ->get('serializer')
+          ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
+      }
+      return $file;
     }
 
-    // If the file entity exists but the file is missing then run the
-    // deserializer to create the file.
-    if ($file && !is_file($file->getFileUri())) {
-      $file_context = [
-        'uri' => $uri,
-        'uuid' => $file_uuid,
-        'status' => FILE_STATUS_PERMANENT,
-        'uid' => $current_user_id,
-      ];
-      $file = \Drupal::getContainer()
-        ->get('serializer')
-        ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
-    }
     // Create the new entity file and the file itself.
-    elseif (empty($file)) {
-      // Check if exists a file with this $uri, if it exists then rename the file.
-      $existing_files = $this->entity_type_manager
-        ->getStorage('file')
-        ->loadByProperties(['uri' => $uri]);
-      if (count($existing_files)) {
-        $uri = file_destination($uri, FILE_EXISTS_RENAME);
-      }
-      $file_context = [
-        'uri' => $uri,
-        'uuid' => $file_uuid,
-        'status' => FILE_STATUS_PERMANENT,
-        'uid' => $current_user_id,
-        'workspace' => $workspace,
-      ];
-      $file = \Drupal::getContainer()
-        ->get('serializer')
-        ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
+    // Check if exists a file with this $uri, if it exists then rename the file.
+    $existing_files = $this->entity_type_manager
+      ->getStorage('file')
+      ->loadByProperties(['uri' => $uri]);
+    if (count($existing_files)) {
+      $uri = file_destination($uri, FILE_EXISTS_RENAME);
     }
+    $file_context = [
+      'uri' => $uri,
+      'uuid' => $file_uuid,
+      'status' => FILE_STATUS_PERMANENT,
+      'uid' => $current_user_id,
+      'workspace' => $workspace,
+    ];
+    $file = \Drupal::getContainer()
+      ->get('serializer')
+      ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
 
     return $file;
   }

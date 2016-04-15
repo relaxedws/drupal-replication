@@ -2,6 +2,8 @@
 
 namespace Drupal\replication\Normalizer;
 
+use Drupal\file\FileInterface;
+use Drupal\multiversion\Entity\Index\UuidIndexInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 class AttachmentNormalizer extends ContentEntityNormalizer implements DenormalizerInterface {
@@ -48,6 +50,23 @@ class AttachmentNormalizer extends ContentEntityNormalizer implements Denormaliz
     foreach ($file_info_keys as $key) {
       if (isset($context[$key])) {
         $file_data[$key] = $context[$key];
+      }
+    }
+    if (isset($context['uuid'])) {
+      $workspace = isset($context['workspace']) ? $context['workspace'] : NULL;
+      /** @var UuidIndexInterface $uuid_index */
+      $uuid_index = $this->indexFactory->get('multiversion.entity_index.uuid', $workspace);
+      $entity_info = $uuid_index->get($context['uuid']);
+      if (!empty($entity_info)) {
+        /** @var FileInterface $file */
+        $file = $this->entityManager->getStorage($entity_info['entity_type_id'])
+          ->load($entity_info['entity_id']);
+        if (!empty($file)) {
+          foreach ($file_data as $key => $data) {
+            $file->{$key} = $data;
+          }
+          return $file;
+        }
       }
     }
     return $this->entityManager->getStorage('file')->create($file_data);

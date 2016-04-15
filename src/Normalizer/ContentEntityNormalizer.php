@@ -24,11 +24,23 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   protected $supportedInterfaceOrClass = array('Drupal\Core\Entity\ContentEntityInterface');
 
   /**
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
    * @var \Drupal\multiversion\Entity\Index\MultiversionIndexFactory
    */
   protected $indexFactory;
 
-  /** @var \Drupal\replication\ProcessFileAttachment  */
+  /**
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * @var \Drupal\replication\ProcessFileAttachment
+   */
   protected $processFileAttachment;
 
   /**
