@@ -72,7 +72,8 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * {@inheritdoc}
    */
   public function normalize($entity, $format = NULL, array $context = array()) {
-    $rev_tree_index = $this->indexFactory->get('multiversion.entity_index.rev.tree', $entity->workspace->entity);
+    $workspace = isset($entity->workspace) ? $entity->workspace->target_id : null;
+    $rev_tree_index = $this->indexFactory->get('multiversion.entity_index.rev.tree', $workspace);
 
     $entity_type_id = $context['entity_type'] = $entity->getEntityTypeId();
     $entity_type = $this->entityManager->getDefinition($entity_type_id);
