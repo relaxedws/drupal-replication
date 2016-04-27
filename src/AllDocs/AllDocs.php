@@ -151,11 +151,13 @@ class AllDocs implements AllDocsInterface {
     foreach ($entity_types as $entity_type_id => $entity_type) {
       if ($this->multiversionManager->isEnabledEntityType($entity_type) && !$entity_type->get('local')) {
         try {
-          $ids = $this->entityTypeManager
+          $query = $this->entityTypeManager
             ->getStorage($entity_type_id)
-            ->getQuery()
-            ->condition('workspace', $this->workspace->id())
-            ->execute();
+            ->getQuery();
+          if ($entity_type->get('workspace') !== FALSE) {
+            $query->condition('workspace', $this->workspace->id());
+          }
+          $ids = $query->execute();
         }
         catch (\Exception $e) {
           watchdog_exception('replication', $e);
