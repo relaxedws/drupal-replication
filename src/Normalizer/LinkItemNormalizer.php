@@ -97,6 +97,7 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
           if ($entity->_rev->is_stub && !$record['is_stub']) {
             $entity = $this->entityTypeManager
               ->getStorage($entity_type_id)
+              ->useWorkspace($workspace->id())
               ->load($record['entity_id']);
           }
           // If the referenced entity is not a stub then map it with the correct
