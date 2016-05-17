@@ -331,7 +331,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           unset($translations[$default_langcode][$revision_key]);
         }
         $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
-        $translations[$default_langcode]['uid'][0]['target_id'] = $child_type = \Drupal::config('multiversion.settings')->get('author_id');
+        $translations[$default_langcode]['uid'][0]['target_id'] = \Drupal::config('multiversion.settings')->get('author_id');
         $entity = $storage->create($translations[$default_langcode]);
       }
     }
