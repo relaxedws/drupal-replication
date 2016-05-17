@@ -268,17 +268,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
 
-    // For the user entity type set a random name if an user with the same name
-    // already exists in the database.
-    $existing_users_names = [];
-    if ($entity_type_id == 'user') {
-      $query = db_select('users', 'u');
-      $query->fields('u', ['uuid']);
-      $query->join('users_field_data', 'ufd', 'u.uid = ufd.uid');
-      $query->fields('ufd', ['name']);
-      $existing_users_names = $query->execute()->fetchAllKeyed(1, 0);
-    }
-
     $translations = [];
     foreach ($data as $key => $translation) {
       // Skip any keys that start with '_' or '@'.
@@ -287,13 +276,13 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
       // When language is configured or undefined go ahead with denormalization.
       elseif (isset($site_languages[$key]) || $key === 'und') {
-        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions, $existing_users_names);
+        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
       }
       // Configure then language then do denormalization.
       else {
         $language = ConfigurableLanguage::createFromLangcode($key);
         $language->save();
-        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions, $existing_users_names);
+        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
       }
     }
 
@@ -330,8 +319,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     }
     else {
       $entity = NULL;
-      $entity_types_to_create = ['user'];
-      if (!empty($bundle_key) && !empty($translations[$default_langcode][$bundle_key]) || in_array($entity_type_id, $entity_types_to_create)) {
+      if (!empty($bundle_key) && !empty($translations[$default_langcode][$bundle_key])) {
         unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
         $entity = $storage->create($translations[$default_langcode]);
       }
@@ -343,7 +331,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           unset($translations[$default_langcode][$revision_key]);
         }
         $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
-        $translations[$default_langcode]['uid'][0]['target_id'] = \Drupal::currentUser()->id();
+        $translations[$default_langcode]['uid'][0]['target_id'] = $child_type = \Drupal::config('multiversion.settings')->get('author_id');
         $entity = $storage->create($translations[$default_langcode]);
       }
     }
@@ -410,19 +398,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
 
-    if ($entity_type_id === 'user') {
-      $random = new Random();
-      if (empty($translation['name'][0]['value'])) {
-        $translation['name'][0]['value'] = 'anonymous_' . $random->name(8, TRUE);
-      }
-      else {
-        $name = $translation['name'][0]['value'];
-        if (in_array($name, array_keys($existing_users_names)) && $existing_users_names[$name] != $entity_uuid) {
-          $translation['name'][0]['value'] = $name . '_' . $random->name(8, TRUE);
-        }
-      }
-    }
-
     if (!empty($files)) {
       $translation = array_merge($translation, $files);
     }
@@ -451,6 +426,17 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           }
           else {
             $target_entity_type_id = $settings['target_type'];
+          }
+
+          // For user target type use the ID from multiversion configuration
+          // object.
+          if ($target_entity_type_id === 'user') {
+            $translation[$field_name][$delta] = array(
+              'target_id' => \Drupal::config('multiversion.settings')->get('author_id'),
+            );
+            unset($item['entity_type_id']);
+            unset($item['target_uuid']);
+            continue;
           }
 
           if (isset($settings['handler_settings']['target_bundles'])) {

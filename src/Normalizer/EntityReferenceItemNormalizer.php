@@ -38,6 +38,10 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
     }
 
     $taget_id = isset($value['target_id']) ? $value['target_id'] : NULL;
+    // For user target type use the ID from multiversion configuration object.
+    if ($target_type === 'user') {
+      $taget_id = \Drupal::config('multiversion.settings')->get('author_id');
+    }
     if (!$taget_id) {
       return $value;
     }
