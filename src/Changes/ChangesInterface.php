@@ -10,8 +10,43 @@ namespace Drupal\replication\Changes;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 interface ChangesInterface {
+
+  /**
+   * Filter out changes only for the given UUIDs.
+   *
+   * Note: if the entity a UUID refers to references another entity, that
+   * referenced entity's UUID must also be included in order to maintain data
+   * integrity.
+   *
+   * @param string[string] $uuids
+   *   The UUIDs to include in the change set.
+   *
+   * @return \Drupal\replication\Changes\ChangesInterface
+   */
+  public function uuids(array $uuids);
+
+  /**
+   * Set the id of the filter plugin to use to refine the changeset.
+   *
+   * @param string $filter_name
+   *   The plugin id of a Drupal\replication\Plugin\ReplicationFilterInterface.
+   *
+   * @return \Drupal\replication\Changes\ChangesInterface
+   */
+  public function filter($filter_name);
+
+  /**
+   * Set the parameters for the filter plugin.
+   *
+   * @param ParameterBag $parameters
+   *   The parameters passed to the filter function.
+   *
+   * @return ReplicationTaskInterface
+   */
+  public function parameters(ParameterBag $parameters);
 
   /**
    * @param boolean $include_docs
