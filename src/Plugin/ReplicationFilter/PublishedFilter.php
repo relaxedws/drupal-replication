@@ -22,7 +22,8 @@ class PublishedFilter extends ReplicationFilterBase {
    */
   public function filter(EntityInterface $entity = NULL, ParameterBag $parameters) {
     // @todo If entity is NULL, include it?
-    return NULL == $entity || NODE_PUBLISHED == $entity->status;
+    // @todo how to handle non-node entities that don't have an isPublished?
+    return NULL == $entity || $entity->isPublished();
   }
 
 }
