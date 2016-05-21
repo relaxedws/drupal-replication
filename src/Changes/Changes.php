@@ -97,7 +97,6 @@ class Changes implements ChangesInterface {
    * {@inheritdoc}
    */
   public function filter($filter_name) {
-    var_dump('YYYYYYYYYYYY');
     $this->filterName = $filter_name;
     return $this;
   }
