@@ -7,11 +7,14 @@
 
 namespace Drupal\replication\Changes;
 
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
+use Drupal\replication\Plugin\ReplicationFilterManagerInterface;
+// @todo where is the ParameterBagInterface???
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Serializer\SerializerInterface;
-use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 /**
  * @todo {@link https://www.drupal.org/node/2282295 Implement remaining feed
@@ -36,6 +39,28 @@ class Changes implements ChangesInterface {
   protected $serializer;
 
   /**
+   * @var \Drupal\replication\Plugin\ReplicationFilterManagerInterface
+   */
+  protected $filterManager;
+
+  /**
+   * @var string[string]
+   *   The UUIDs to include in the changeset.
+   */
+  protected $uuids = [];
+
+  /**
+   * @var string
+   *   The id of the filter plugin to use during replication.
+   */
+  protected $filterName;
+
+  /**
+   * @var ParameterBag
+   */
+  protected $parameters;
+
+  /**
    * @var boolean
    */
   protected $includeDocs = FALSE;
@@ -50,12 +75,39 @@ class Changes implements ChangesInterface {
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Symfony\Component\Serializer\SerializerInterface $serializer
+   * @param \Drupal\replication\Plugin\ReplicationFilterManagerInterface $filter_manager
    */
-  public function __construct(SequenceIndexInterface $sequence_index, WorkspaceInterface $workspace, EntityTypeManagerInterface $entity_type_manager, SerializerInterface $serializer) {
+  public function __construct(SequenceIndexInterface $sequence_index, WorkspaceInterface $workspace, EntityTypeManagerInterface $entity_type_manager, SerializerInterface $serializer, ReplicationFilterManagerInterface $filter_manager) {
     $this->sequenceIndex = $sequence_index;
     $this->workspaceId = $workspace->id();
     $this->entityTypeManager = $entity_type_manager;
     $this->serializer = $serializer;
+    $this->filterManager = $filter_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function uuids(array $uuids) {
+    $this->uuids = $uuids;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function filter($filter_name) {
+    var_dump('YYYYYYYYYYYY');
+    $this->filterName = $filter_name;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function parameters(ParameterBag $parameters) {
+    $this->parameters = $parameters;
+    return $this;
   }
 
   /**
@@ -63,6 +115,7 @@ class Changes implements ChangesInterface {
    */
   public function includeDocs($include_docs) {
     $this->includeDocs = $include_docs;
+    return $this;
   }
 
   /**
@@ -81,10 +134,33 @@ class Changes implements ChangesInterface {
       ->useWorkspace($this->workspaceId)
       ->getRange($this->lastSeq, NULL);
 
+    // Setup filter plugin.
+    $filter = NULL;
+    if (isset($this->filterName)) {
+      $filter = $this->filterManager->createInstance($this->filterName);
+    }
+    $parameters = isset($this->parameters) ? $this->parameters : new ParameterBag();
+
     // Format the result array.
     $changes = array();
     foreach ($sequences as $sequence) {
       if (!empty($sequence['local']) || !empty($sequence['is_stub'])) {
+        continue;
+      }
+      if (!empty($this->uuids) && !in_array($sequence['entity_uuid'], $this->uuids)) {
+        continue;
+      }
+
+      // Get the document.
+      $revision = NULL;
+      if ($this->includeDocs == TRUE || $filter !== NULL) {
+        /** @var \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface $storage */
+        $storage = $this->entityTypeManager->getStorage($sequence['entity_type_id']);
+        $revision = $storage->loadRevision($sequence['revision_id']);
+      }
+
+      // Filter the document.
+      if ($filter !== NULL && !$filter->filter($revision, $parameters)) {
         continue;
       }
 
@@ -99,10 +175,9 @@ class Changes implements ChangesInterface {
       if ($sequence['deleted']) {
         $changes[$uuid]['deleted'] = TRUE;
       }
+
+      // Include the document.
       if ($this->includeDocs == TRUE) {
-        /** @var \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface $storage */
-        $storage = $this->entityTypeManager->getStorage($sequence['entity_type_id']);
-        $revision = $storage->loadRevision($sequence['revision_id']);
         $changes[$uuid]['doc'] = $this->serializer->normalize($revision);
       }
     }
