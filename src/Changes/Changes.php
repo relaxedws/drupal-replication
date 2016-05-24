@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\Changes\Changes.
- */
-
 namespace Drupal\replication\Changes;
 
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
@@ -17,14 +12,14 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * @todo {@link https://www.drupal.org/node/2282295 Implement remaining feed
- *   query types.}
+ * {@inheritdoc}
  */
 class Changes implements ChangesInterface {
   use DependencySerializationTrait;
 
   /**
    * @var string
+   *   The workspace to generate the changeset from.
    */
   protected $workspaceId;
 
@@ -57,16 +52,19 @@ class Changes implements ChangesInterface {
 
   /**
    * @var ParameterBag
+   *   The parameters passed to the filter function.
    */
   protected $parameters;
 
   /**
    * @var boolean
+   *   Whether to include entities in the changeset.
    */
   protected $includeDocs = FALSE;
 
   /**
    * @var int
+   *   The sequence ID to start including changes from. Result includes $lastSeq.
    */
   protected $lastSeq = 0;
 
@@ -146,6 +144,8 @@ class Changes implements ChangesInterface {
       if (!empty($sequence['local']) || !empty($sequence['is_stub'])) {
         continue;
       }
+
+      // Filter by UUID.
       if (!empty($this->uuids) && !in_array($sequence['entity_uuid'], $this->uuids)) {
         continue;
       }
