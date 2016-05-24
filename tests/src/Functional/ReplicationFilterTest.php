@@ -5,6 +5,7 @@ namespace Drupal\Tests\replication\Functional;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\node\Entity\Node;
 use Drupal\simpletest\WebTestBase;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Tests replication filters.
@@ -102,6 +103,41 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->save();
 
     $changes = $changes_factory->get($workspace)->filter('published')->getNormal();
+    $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset.');
+  }
+
+  /**
+   * Test filtering the changeset with the entity type filter.
+   */
+  public function testEntityTypeFilter() {
+    $container = \Drupal::getContainer();
+    $changes_factory = $container->get('replication.changes_factory');
+
+    $this->drupalCreateContentType(['type' => 'article2', 'name' => 'Article2']);
+
+    $workspace = Workspace::create(['machine_name' => 'default', 'type' => 'basic']);
+    $workspace->save();
+
+    $entity1 = Node::create([
+      'type' => 'article',
+      'title' => 'Test Entity 1',
+      'uid' => $this->user->id(),
+      'status' => TRUE,
+    ]);
+    $entity1->workspace = $workspace;
+    $entity1->save();
+
+    $entity2 = Node::create([
+      'type' => 'article2',
+      'title' => 'Test Entity 2',
+      'uid' => $this->user->id(),
+      'status' => FALSE,
+    ]);
+    $entity2->workspace = $workspace;
+    $entity2->save();
+
+    $parameters = new ParameterBag(['entity_type' => 'article']);
+    $changes = $changes_factory->get($workspace)->filter('entity_type')->parameters($parameters)->getNormal();
     $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset.');
   }
 
