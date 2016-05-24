@@ -79,7 +79,7 @@ class ReplicationTask implements ReplicationTaskInterface {
    */
   public function setParameter($name, $value) {
     if ($this->parameters == NULL) {
-      $parameters = new ParameterBag($parameters_array);
+      $parameters = new ParameterBag();
       $this->setParameters($parameters);
     }
     $this->parameters->set($name, $value);
