@@ -22,6 +22,7 @@ interface ReplicationTaskInterface {
    *   The plugin id of a ReplicationFilterInterface.
    *
    * @return ReplicationTaskInterface
+   *   Returns $this.
    */
   public function setFilter($filter_name);
 
@@ -36,10 +37,11 @@ interface ReplicationTaskInterface {
   /**
    * Set the UUIDs to include during replication.
    *
-   * @param string[string] $uuids
+   * @param array $uuids
    *   The UUIDs to include during replication.
    *
    * @return ReplicationTaskInterface
+   *   Returns $this.
    */
   public function setUuids(array $uuids);
 
@@ -58,6 +60,7 @@ interface ReplicationTaskInterface {
    *   The parameters passed to the filter function.
    *
    * @return ReplicationTaskInterface
+   *   Returns $this.
    */
   public function setParameters(ParameterBag $parameters);
 
@@ -67,10 +70,11 @@ interface ReplicationTaskInterface {
    * The array input is converted to a ParameterBag and then passed to
    * setParameters.
    *
-   * @param string[string] $parameters_array
+   * @param array $parameters_array
    *   An associative array of name-value parameters.
    *
    * @return ReplicationTaskInterface
+   *   Returns $this.
    */
   public function setParametersByArray(array $parameters_array);
 
@@ -81,11 +85,11 @@ interface ReplicationTaskInterface {
    *
    * @param string $name
    *   The parameter name to set.
-   *
    * @param string $value
    *   The value for the parameter.
    *
    * @return ReplicationTaskInterface
+   *   Returns $this.
    */
   public function setParameter($name, $value);
 
@@ -106,6 +110,8 @@ interface ReplicationTaskInterface {
   public function getParametersAsArray();
 
   /**
+   * Get a parameter's value.
+   *
    * @param string $name
    *   The parameter name.
    *
@@ -113,7 +119,7 @@ interface ReplicationTaskInterface {
    *   The parameter value.
    *
    * @throws \Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException
-   *   if the parameter is not defined
+   *   If the parameter is not defined.
    */
   public function getParameter($name);
 
