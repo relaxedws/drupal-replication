@@ -6,6 +6,12 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+/**
+ * Defines a replication filter.
+ *
+ * Replication filters are used to filter out entities from a changeset during
+ * replication.
+ */
 interface ReplicationFilterInterface extends PluginInspectionInterface {
 
   /**
@@ -25,15 +31,14 @@ interface ReplicationFilterInterface extends PluginInspectionInterface {
   /**
    * Filter the given entity.
    *
-   * @param EntityInterface|NULL $entity
-   *   The entity to filter, else NULL if the entity was not found.
-   *
+   * @param EntityInterface $entity
+   *   The entity to filter.
    * @param ParameterBag $parameters
    *   The parameters passed to the filter function.
    *
    * @return bool
    *   Return TRUE if it should be included, else FALSE.
    */
-  public function filter(EntityInterface $entity = NULL, ParameterBag $parameters);
+  public function filter(EntityInterface $entity, ParameterBag $parameters);
 
 }
