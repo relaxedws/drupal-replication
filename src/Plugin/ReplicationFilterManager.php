@@ -29,4 +29,3 @@ class ReplicationFilterManager extends DefaultPluginManager implements Replicati
   }
 
 }
-
