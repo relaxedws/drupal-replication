@@ -155,6 +155,7 @@ class Changes implements ChangesInterface {
       if ($this->includeDocs == TRUE || $filter !== NULL) {
         /** @var \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface $storage */
         $storage = $this->entityTypeManager->getStorage($sequence['entity_type_id']);
+        $storage->useWorkspace($this->workspaceId);
         $revision = $storage->loadRevision($sequence['revision_id']);
       }
 
