@@ -2,7 +2,6 @@
 
 namespace Drupal\replication\Normalizer;
 
-use Drupal\Component\Utility\Random;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
@@ -12,6 +11,7 @@ use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\ProcessFileAttachment;
 use Drupal\file\FileInterface;
+use Drupal\replication\UsersMapping;
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -49,6 +49,11 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   protected $selectionManager;
 
   /**
+   * @var \Drupal\replication\UsersMapping
+   */
+  protected $usersMapping;
+
+  /**
    * @var string[]
    */
   protected $format = array('json');
@@ -58,13 +63,15 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param \Drupal\multiversion\Entity\Index\MultiversionIndexFactory $index_factory
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    * @param \Drupal\replication\ProcessFileAttachment $process_file_attachment
+   * @param \Drupal\replication\UsersMapping $users_mapping
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager
    */
-  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, SelectionPluginManagerInterface $selection_manager = NULL) {
+  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, UsersMapping $users_mapping, SelectionPluginManagerInterface $selection_manager = NULL) {
     $this->entityManager = $entity_manager;
     $this->indexFactory = $index_factory;
     $this->languageManager = $language_manager;
     $this->processFileAttachment = $process_file_attachment;
+    $this->usersMapping = $users_mapping;
     $this->selectionManager = $selection_manager;
   }
 
@@ -331,7 +338,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           unset($translations[$default_langcode][$revision_key]);
         }
         $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
-        $translations[$default_langcode]['uid'][0]['target_id'] = \Drupal::config('replication.settings')->get('uid');
+        $translations[$default_langcode]['uid'][0]['target_id'] = $this->usersMapping->getUid();
         $entity = $storage->create($translations[$default_langcode]);
       }
     }
@@ -432,7 +439,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           // object.
           if ($target_entity_type_id === 'user') {
             $translation[$field_name][$delta] = array(
-              'target_id' => \Drupal::config('replication.settings')->get('uid'),
+              'target_id' => $this->usersMapping->getUid(),
             );
             unset($item['entity_type_id']);
             unset($item['target_uuid']);

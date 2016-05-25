@@ -2,6 +2,9 @@ services:
   replication.process_file_attachment:
     class: Drupal\replication\ProcessFileAttachment
     arguments: ['@current_user', '@entity_type.manager', '@multiversion.entity_index.factory']
+  replication.users_mapping:
+    class: Drupal\replication\UsersMapping
+    arguments: ['@config.factory']
 
 #Factories
   replication.changes_factory:
@@ -39,7 +42,7 @@ services:
       - { name: normalizer, priority: 5 }
   replication.normalizer.content_entity:
     class: Drupal\replication\Normalizer\ContentEntityNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@plugin.manager.entity_reference_selection']
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@plugin.manager.entity_reference_selection']
     tags:
       - { name: normalizer, priority: 10 }
   replication.normalizer.replication_log:
@@ -80,7 +83,7 @@ services:
       - { name: normalizer, priority: 30 }
   replication.normalizer.attachment:
     class: Drupal\replication\Normalizer\AttachmentNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@plugin.manager.entity_reference_selection']
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@plugin.manager.entity_reference_selection']
     tags:
       - { name: normalizer, priority: 30 }
   replication.normalizer.file_item:
