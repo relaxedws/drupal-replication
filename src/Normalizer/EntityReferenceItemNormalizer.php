@@ -56,6 +56,11 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
       'target_uuid' => $referenced_entity->uuid(),
     ];
 
+    // Add username to the field info for user entity type.
+    if ($target_type === 'user' && $username = $referenced_entity->getUsername()) {
+      $field_info = ['username' => $username];
+    }
+
     $bundle_key = $referenced_entity->getEntityType()->getKey('bundle');
     $bundle = $referenced_entity->bundle();
     if ($bundle_key && $bundle) {

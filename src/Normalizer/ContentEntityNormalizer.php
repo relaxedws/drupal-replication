@@ -13,6 +13,7 @@ use Drupal\replication\ProcessFileAttachment;
 use Drupal\file\FileInterface;
 use Drupal\replication\UsersMapping;
 use Drupal\serialization\Normalizer\NormalizerBase;
+use Drupal\user\UserInterface;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -435,12 +436,21 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $target_entity_type_id = $settings['target_type'];
           }
 
-          // For user target type use the ID from multiversion configuration
-          // object.
+          // For user target type try to map users by username, if it can't be
+          // mapped by username use the ID from replication configuration object.
           if ($target_entity_type_id === 'user') {
-            $translation[$field_name][$delta] = array(
-              'target_id' => $this->usersMapping->getUid(),
-            );
+            $users = [];
+            if (isset($item['username'])) {
+              $users = $this->entityManager->getStorage('user')
+                ->loadByProperties(['name' => $item['username']]);
+            }
+            $user = reset($users);
+            if ($user instanceof UserInterface && $id = $user->id()) {
+              $translation[$field_name][$delta] = ['target_id' => $id];
+            }
+            else {
+              $translation[$field_name][$delta] = ['target_id' => $this->usersMapping->getUid()];
+            }
             unset($item['entity_type_id']);
             unset($item['target_uuid']);
             continue;
