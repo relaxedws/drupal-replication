@@ -4,7 +4,7 @@ services:
     arguments: ['@current_user', '@entity_type.manager', '@multiversion.entity_index.factory']
   replication.users_mapping:
     class: Drupal\replication\UsersMapping
-    arguments: ['@config.factory']
+    arguments: ['@config.factory', '@entity_type.manager']
 
 #Factories
   replication.changes_factory:

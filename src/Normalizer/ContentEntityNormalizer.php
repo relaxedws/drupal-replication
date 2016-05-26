@@ -435,24 +435,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           else {
             $target_entity_type_id = $settings['target_type'];
           }
-
-          // For user target type try to map users by username, if it can't be
-          // mapped by username use the ID from replication configuration object.
+          
           if ($target_entity_type_id === 'user') {
-            $users = [];
-            if (isset($item['username'])) {
-              $users = $this->entityManager->getStorage('user')
-                ->loadByProperties(['name' => $item['username']]);
-            }
-            $user = reset($users);
-            if ($user instanceof UserInterface && $id = $user->id()) {
-              $translation[$field_name][$delta] = ['target_id' => $id];
-            }
-            else {
-              $translation[$field_name][$delta] = ['target_id' => $this->usersMapping->getUid()];
-            }
-            unset($item['entity_type_id']);
-            unset($item['target_uuid']);
+            $translation[$field_name] = $this->usersMapping->mapReferenceField($translation, $field_name);
             continue;
           }
 
