@@ -65,14 +65,14 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
     $referenced_entity1 = EntityTestMulRev::create(
       [
         'name' => $this->randomMachineName(),
-        'user_id' => 0,
+        'user_id' => 1,
       ]
     );
     $referenced_entity1->save();
     $referenced_entity2 = EntityTestMulRev::create(
       [
         'name' => $this->randomMachineName(),
-        'user_id' => 0,
+        'user_id' => 1,
       ]
     );
     $referenced_entity2->save();
@@ -80,7 +80,7 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
     // Create a test entity to serialize.
     $this->values = [
       'name' => $this->randomMachineName(),
-      'user_id' => 0,
+      'user_id' => 1,
       'field_test_text' => [
         'value' => $this->randomMachineName(),
         'format' => 'full_html',

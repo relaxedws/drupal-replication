@@ -1,0 +1,12 @@
+# Schema for the configuration files of the replication module.
+
+replication.settings:
+  type: config_object
+  label: 'Replication settings'
+  mapping:
+    mapping_type:
+      type: string
+      label: 'Users mapping type'
+    uid:
+      type: integer
+      label: 'UID'
