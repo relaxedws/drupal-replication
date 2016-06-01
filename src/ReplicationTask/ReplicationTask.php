@@ -31,7 +31,7 @@ class ReplicationTask implements ReplicationTaskInterface {
   /**
    * {@inheritdoc}
    */
-  public function setFilter($filter_name) {
+  public function setFilter($filter_name = NULL) {
     $this->filterName = $filter_name;
     return $this;
   }
@@ -69,7 +69,7 @@ class ReplicationTask implements ReplicationTaskInterface {
   /**
    * {@inheritdoc}
    */
-  public function setParametersByArray(array $parameters_array = NULL) {
+  public function setParametersByArray(array $parameters_array = array()) {
     $parameters = new ParameterBag($parameters_array);
     return $this->setParameters($parameters);
   }
@@ -78,7 +78,7 @@ class ReplicationTask implements ReplicationTaskInterface {
    * {@inheritdoc}
    */
   public function setParameter($name, $value) {
-    if ($this->parameters == NULL) {
+    if (!$this->parameters instanceof ParameterBag) {
       $parameters = new ParameterBag();
       $this->setParameters($parameters);
     }

@@ -24,7 +24,7 @@ interface ReplicationTaskInterface {
    * @return ReplicationTaskInterface
    *   Returns $this.
    */
-  public function setFilter($filter_name);
+  public function setFilter($filter_name = NULL);
 
   /**
    * Get the id of the filter plugin to use during replication.
@@ -43,7 +43,7 @@ interface ReplicationTaskInterface {
    * @return ReplicationTaskInterface
    *   Returns $this.
    */
-  public function setUuids(array $uuids);
+  public function setUuids(array $uuids = NULL);
 
   /**
    * Get the UUIDs to use during replication.
@@ -62,7 +62,7 @@ interface ReplicationTaskInterface {
    * @return ReplicationTaskInterface
    *   Returns $this.
    */
-  public function setParameters(ParameterBag $parameters);
+  public function setParameters(ParameterBag $parameters = NULL);
 
   /**
    * Set the parameters for the filter plugin using an array.
@@ -76,7 +76,7 @@ interface ReplicationTaskInterface {
    * @return ReplicationTaskInterface
    *   Returns $this.
    */
-  public function setParametersByArray(array $parameters_array);
+  public function setParametersByArray(array $parameters_array = array());
 
   /**
    * Set a parameter for the filter plugin.
