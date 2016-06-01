@@ -39,7 +39,7 @@ class Changes implements ChangesInterface {
   protected $filterManager;
 
   /**
-   * @var string[string]
+   * @var string[]
    *   The UUIDs to include in the changeset.
    */
   protected $uuids = [];
@@ -133,10 +133,10 @@ class Changes implements ChangesInterface {
 
     // Setup filter plugin.
     $filter = NULL;
-    if (isset($this->filterName)) {
+    if (is_string($this->filterName) && $this->filterName) {
       $filter = $this->filterManager->createInstance($this->filterName);
     }
-    $parameters = isset($this->parameters) ? $this->parameters : new ParameterBag();
+    $parameters = ($this->parameters instanceof ParameterBag) ? $this->parameters : new ParameterBag();
 
     // Format the result array.
     $changes = array();
@@ -146,7 +146,7 @@ class Changes implements ChangesInterface {
       }
 
       // Filter by UUID.
-      if (!empty($this->uuids) && !in_array($sequence['entity_uuid'], $this->uuids)) {
+      if (is_array($this->uuids) && count($this->uuids) && !in_array($sequence['entity_uuid'], $this->uuids)) {
         continue;
       }
 
