@@ -17,10 +17,10 @@ class ReplicationTask implements ReplicationTaskInterface {
   protected $filterName;
 
   /**
-   * @var string[string]
+   * @var string[]
    *   The UUIDs to include during replication.
    */
-  protected $uuids;
+  protected $uuids = [];
 
   /**
    * @var ParameterBag
