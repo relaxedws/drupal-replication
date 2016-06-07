@@ -27,7 +27,7 @@ class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
       ->setMethods(NULL)
       ->getMock();
     $entity = $this->getMock(EntityInterface::class);
-    $entity->method('getEntityTypeId')
+    $entity->method('bundle')
       ->willReturn('article');
     $parameters = new ParameterBag(['entity_type' => $parameter_value]);
 
