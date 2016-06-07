@@ -26,12 +26,13 @@ class EntityTypeFilter extends ReplicationFilterBase {
   public function filter(EntityInterface $entity, ParameterBag $parameters) {
     if ($parameters->has('entity_type')) {
       $types = $parameters->get('entity_type');
-    } else {
+    }
+    else {
       $types = '';
     }
     $types = explode(',', $types);
     $types = array_filter(array_map('trim', $types));
-    return in_array($entity->getEntityTypeId(), $types);
+    return in_array($entity->bundle(), $types);
   }
 
 }
