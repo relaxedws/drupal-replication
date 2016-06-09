@@ -39,12 +39,6 @@ class Changes implements ChangesInterface {
   protected $filterManager;
 
   /**
-   * @var string[]
-   *   The UUIDs to include in the changeset.
-   */
-  protected $uuids = [];
-
-  /**
    * @var string
    *   The id of the filter plugin to use during replication.
    */
@@ -81,14 +75,6 @@ class Changes implements ChangesInterface {
     $this->entityTypeManager = $entity_type_manager;
     $this->serializer = $serializer;
     $this->filterManager = $filter_manager;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function uuids(array $uuids) {
-    $this->uuids = $uuids;
-    return $this;
   }
 
   /**
@@ -142,11 +128,6 @@ class Changes implements ChangesInterface {
     $changes = array();
     foreach ($sequences as $sequence) {
       if (!empty($sequence['local']) || !empty($sequence['is_stub'])) {
-        continue;
-      }
-
-      // Filter by UUID.
-      if (is_array($this->uuids) && count($this->uuids) && !in_array($sequence['entity_uuid'], $this->uuids)) {
         continue;
       }
 

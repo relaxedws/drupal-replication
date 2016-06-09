@@ -16,21 +16,6 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 interface ChangesInterface {
 
   /**
-   * Filter out changes only for the given UUIDs.
-   *
-   * Note: if the entity a UUID refers to references another entity, that
-   * referenced entity's UUID must also be included in order to maintain data
-   * integrity.
-   *
-   * @param array $uuids
-   *   The UUIDs to include in the change set.
-   *
-   * @return \Drupal\replication\Changes\ChangesInterface
-   *   Returns $this.
-   */
-  public function uuids(array $uuids);
-
-  /**
    * Set the id of the filter plugin to use to refine the changeset.
    *
    * @param string $filter_name
