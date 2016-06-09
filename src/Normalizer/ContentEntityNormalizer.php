@@ -5,7 +5,6 @@ namespace Drupal\replication\Normalizer;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
-use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
@@ -14,7 +13,6 @@ use Drupal\replication\ProcessFileAttachment;
 use Drupal\file\FileInterface;
 use Drupal\replication\UsersMapping;
 use Drupal\serialization\Normalizer\NormalizerBase;
-use Drupal\user\UserInterface;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -204,7 +202,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     $entity_id = NULL;
 
     // Get the default language of the entity
-    $default_langcode = isset($data['@context']['@language']) ?: 'und';
+    $default_langcode = $data['@context']['@language'];
     // Get all of the configured languages of the site
     $site_languages = $this->languageManager->getLanguages();
 
@@ -222,16 +220,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     }
     elseif (!empty($context['entity_type'])) {
       $entity_type_id = $context['entity_type'];
-    }
-    // This part has been removed but added again because it resolves the entity
-    // type ID when working with PouchDB. The format for local replication log
-    // IDs in PouchDB is '_local/v1Ps_yh1q.ud3gg85uu40A=='.
-    elseif (!empty($data['_id']) && strpos($data['_id'], '/') !== FALSE) {
-      list($prefix, $entity_uuid) = explode('/', $data['_id']);
-      if ($prefix == '_local' && $entity_uuid) {
-        $entity_type_id = 'replication_log';
-        $data['uuid'] = $entity_uuid;
-      }
     }
 
     // Map data from the UUID index.

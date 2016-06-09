@@ -181,18 +181,21 @@ class BulkDocs implements BulkDocsInterface {
         $entity->_rev->new_edit = $this->newEdits;
         $entity->save();
 
+        $id = ($entity_type->id() === 'replication_log') ? "_local/$uuid" : $uuid;
         $this->result[] = array(
           'ok' => TRUE,
-          'id' => $entity->uuid(),
+          'id' => $id,
           'rev' => $entity->_rev->value,
         );
       }
       catch (\Exception $e) {
         $message = $e->getMessage();
+        $entity_type_id = $entity->getEntityTypeId();
+        $id = ($entity_type_id === 'replication_log') ? "_local/$uuid" : $uuid;
         $this->result[] = array(
           'error' => $message,
           'reason' => 'exception',
-          'id' => $entity->uuid(),
+          'id' => $id,
           'rev' => $entity->_rev->value,
         );
         $this->logger->critical($message);
