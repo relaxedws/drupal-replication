@@ -118,11 +118,16 @@ class Changes implements ChangesInterface {
       ->getRange($this->lastSeq, NULL);
 
     // Setup filter plugin.
+    $parameters = ($this->parameters instanceof ParameterBag) ? $this->parameters : new ParameterBag();
     $filter = NULL;
     if (is_string($this->filterName) && $this->filterName) {
       $filter = $this->filterManager->createInstance($this->filterName);
     }
-    $parameters = ($this->parameters instanceof ParameterBag) ? $this->parameters : new ParameterBag();
+    // If UUIDs are sent as a parameter, but no filter is set, automatically
+    // select the "uuid" filter.
+    elseif ($parameters->has('uuids')) {
+      $filter = $this->filterManager->createInstance('uuid');
+    }
 
     // Format the result array.
     $changes = array();
