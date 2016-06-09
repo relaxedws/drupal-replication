@@ -17,12 +17,6 @@ class ReplicationTask implements ReplicationTaskInterface {
   protected $filterName;
 
   /**
-   * @var string[]
-   *   The UUIDs to include during replication.
-   */
-  protected $uuids = [];
-
-  /**
    * @var ParameterBag
    *   The parameters passed to the filter function.
    */
@@ -41,21 +35,6 @@ class ReplicationTask implements ReplicationTaskInterface {
    */
   public function getFilter() {
     return $this->filterName;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setUuids(array $uuids = NULL) {
-    $this->uuids = $uuids;
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getUuids() {
-    return $this->uuids;
   }
 
   /**

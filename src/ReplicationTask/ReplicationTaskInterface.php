@@ -35,25 +35,6 @@ interface ReplicationTaskInterface {
   public function getFilter();
 
   /**
-   * Set the UUIDs to include during replication.
-   *
-   * @param array $uuids
-   *   The UUIDs to include during replication.
-   *
-   * @return ReplicationTaskInterface
-   *   Returns $this.
-   */
-  public function setUuids(array $uuids = NULL);
-
-  /**
-   * Get the UUIDs to use during replication.
-   *
-   * @return string[string]
-   *   The UUIDs to include during replication.
-   */
-  public function getUuids();
-
-  /**
    * Set the parameters for the filter plugin.
    *
    * @param ParameterBag $parameters
