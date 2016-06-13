@@ -45,7 +45,20 @@ class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface
       foreach ($data['docs'] as $doc) {
         if (!empty($doc)) {
           // @todo {@link https://www.drupal.org/node/2599934 Find a more generic way to denormalize.}
-          $entity = \Drupal::service('replication.normalizer.content_entity')->denormalize($doc, 'Drupal\Core\Entity\ContentEntityInterface', $format, $context);
+          if (!empty($doc['_id']) && strpos($doc['_id'], '/') !== FALSE) {
+            // Denormalize replication_log entities. This is used when the
+            // replication_log entity format is not standard, for example when
+            // replicating content from PouchDB.
+            list($prefix, $entity_uuid) = explode('/', $doc['_id']);
+            if ($prefix == '_local' && $entity_uuid) {
+              $entity = \Drupal::service('replication.normalizer.replication_log')
+                ->denormalize($doc, 'Drupal\replication\Entity\ReplicationLog', $format, $context);
+            }
+          }
+          else {
+            $entity = \Drupal::service('replication.normalizer.content_entity')
+              ->denormalize($doc, 'Drupal\Core\Entity\ContentEntityInterface', $format, $context);
+          }
           if ($entity) {
             $entities[] = $entity;
           }

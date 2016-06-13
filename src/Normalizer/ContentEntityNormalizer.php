@@ -13,7 +13,6 @@ use Drupal\replication\ProcessFileAttachment;
 use Drupal\file\FileInterface;
 use Drupal\replication\UsersMapping;
 use Drupal\serialization\Normalizer\NormalizerBase;
-use Drupal\user\UserInterface;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -339,7 +338,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           unset($translations[$default_langcode][$revision_key]);
         }
         $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
-        $translations[$default_langcode]['uid'][0]['target_id'] = $this->usersMapping->getUid();
+        $translations[$default_langcode]['uid'][0]['target_id'] = $this->usersMapping->getUidFromConfig();
         $entity = $storage->create($translations[$default_langcode]);
       }
     }
