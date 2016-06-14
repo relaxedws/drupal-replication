@@ -1,21 +1,50 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\Changes\ChangesInterface.
- */
-
 namespace Drupal\replication\Changes;
 
-use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
-use Drupal\multiversion\Entity\WorkspaceInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
+/**
+ * Define and build a changeset for a Workspace.
+ *
+ * @todo {@link https://www.drupal.org/node/2282295 Implement remaining feed
+ *   query types.}
+ * @todo break this class into a value object and a service object: one that
+ * defines the parameters for getting the changeset and the other for executing
+ * the code to build the changeset
+ */
 interface ChangesInterface {
 
   /**
-   * @param boolean $include_docs
+   * Set the id of the filter plugin to use to refine the changeset.
+   *
+   * @param string $filter_name
+   *   The plugin id of a Drupal\replication\Plugin\ReplicationFilterInterface.
+   *
    * @return \Drupal\replication\Changes\ChangesInterface
+   *   Returns $this.
+   */
+  public function filter($filter_name);
+
+  /**
+   * Set the parameters for the filter plugin.
+   *
+   * @param ParameterBag $parameters
+   *   The parameters passed to the filter function.
+   *
+   * @return \Drupal\replication\Changes\ChangesInterface
+   *   Returns $this.
+   */
+  public function parameters(ParameterBag $parameters);
+
+  /**
+   * Set the flag for including entities in the changeset.
+   *
+   * @param bool $include_docs
+   *   Whether to include entities in the changeset.
+   *
+   * @return \Drupal\replication\Changes\ChangesInterface
+   *   Returns $this.
    */
   public function includeDocs($include_docs);
 
@@ -23,7 +52,10 @@ interface ChangesInterface {
    * Sets from what sequence number to check for changes.
    *
    * @param int $seq
+   *   The sequence ID to start including changes from. Result includes $seq.
+   *
    * @return \Drupal\replication\Changes\ChangesInterface
+   *   Returns $this.
    */
   public function lastSeq($seq);
 

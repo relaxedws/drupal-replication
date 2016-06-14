@@ -6,10 +6,15 @@ services:
     class: Drupal\replication\UsersMapping
     arguments: ['@config.factory', '@entity_type.manager']
 
+#Managers
+  plugin.manager.replication_filter:
+    class: Drupal\replication\Plugin\ReplicationFilterManager
+    parent: default_plugin_manager
+
 #Factories
   replication.changes_factory:
     class: Drupal\replication\ChangesFactory
-    arguments: ['@multiversion.entity_index.sequence', '@entity.manager', '@serializer']
+    arguments: ['@multiversion.entity_index.sequence', '@entity.manager', '@serializer', '@plugin.manager.replication_filter']
   replication.revisiondiff_factory:
     class: Drupal\replication\RevisionDiffFactory
     arguments: ['@multiversion.entity_index.rev']
