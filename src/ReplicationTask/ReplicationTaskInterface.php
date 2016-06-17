@@ -43,7 +43,7 @@ interface ReplicationTaskInterface {
    * @return ReplicationTaskInterface
    *   Returns $this.
    */
-  public function setParameters(ParameterBag $parameters = NULL);
+  public function setParameters(ParameterBag $parameters);
 
   /**
    * Set the parameters for the filter plugin using an array.

@@ -23,6 +23,13 @@ class ReplicationTask implements ReplicationTaskInterface {
   protected $parameters;
 
   /**
+   * ReplicationTask constructor.
+   */
+  public function __construct() {
+    $this->parameters = new ParameterBag();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function setFilter($filter_name = NULL) {
@@ -40,7 +47,7 @@ class ReplicationTask implements ReplicationTaskInterface {
   /**
    * {@inheritdoc}
    */
-  public function setParameters(ParameterBag $parameters = NULL) {
+  public function setParameters(ParameterBag $parameters) {
     $this->parameters = $parameters;
     return $this;
   }
