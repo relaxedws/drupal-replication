@@ -88,7 +88,7 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
-  public function parameters(ParameterBag $parameters) {
+  public function parameters(ParameterBag $parameters = NULL) {
     $this->parameters = $parameters;
     return $this;
   }

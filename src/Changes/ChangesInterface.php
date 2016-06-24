@@ -35,7 +35,7 @@ interface ChangesInterface {
    * @return \Drupal\replication\Changes\ChangesInterface
    *   Returns $this.
    */
-  public function parameters(ParameterBag $parameters);
+  public function parameters(ParameterBag $parameters = NULL);
 
   /**
    * Set the flag for including entities in the changeset.
