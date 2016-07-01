@@ -1,0 +1,12 @@
+---
+engines:
+  phpcodesniffer:
+    enabled: true
+    config:
+      encoding: utf-8
+      standard: "Drupal"
+      ignore_warnings: false
+exclude_paths:
+- .phpcs
+- .travis
+- tests
