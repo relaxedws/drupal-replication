@@ -16,4 +16,11 @@ interface ReplicationSettingsInterface extends ConfigEntityInterface {
    */
   public function getFilterId();
 
+  /**
+   * Get the replication filter parameters.
+   *
+   * @return string[string]
+   */
+  public function getParameters();
+
 }

@@ -46,9 +46,23 @@ class ReplicationSettings extends ConfigEntityBase implements ReplicationSetting
   protected $filter_id;
 
   /**
+   * The replication filter parameters.
+   *
+   * @var string[string]
+   */
+  protected $parameters;
+
+  /**
    * {@inheritdoc}
    */
   public function getFilterId() {
     return $this->filter_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getParameters() {
+    return $this->parameters;
   }
 }
