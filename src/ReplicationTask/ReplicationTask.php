@@ -55,7 +55,10 @@ class ReplicationTask implements ReplicationTaskInterface {
   /**
    * {@inheritdoc}
    */
-  public function setParametersByArray(array $parameters_array = array()) {
+  public function setParametersByArray(array $parameters_array = NULL) {
+    if ($parameters_array == NULL) {
+      $parameters_array = [];
+    }
     $parameters = new ParameterBag($parameters_array);
     return $this->setParameters($parameters);
   }

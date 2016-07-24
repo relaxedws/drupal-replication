@@ -51,13 +51,13 @@ interface ReplicationTaskInterface {
    * The array input is converted to a ParameterBag and then passed to
    * setParameters.
    *
-   * @param array $parameters_array
+   * @param array|NULL $parameters_array
    *   An associative array of name-value parameters.
    *
    * @return ReplicationTaskInterface
    *   Returns $this.
    */
-  public function setParametersByArray(array $parameters_array = array());
+  public function setParametersByArray(array $parameters_array = NULL);
 
   /**
    * Set a parameter for the filter plugin.
