@@ -285,8 +285,8 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       elseif (isset($site_languages[$key]) || $key === 'und') {
         $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
       }
-      // Configure then language then do denormalization.
-      else {
+      // Configure the language, then do denormalization.
+      elseif (is_array($translation)) {
         $language = ConfigurableLanguage::createFromLangcode($key);
         $language->save();
         $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
