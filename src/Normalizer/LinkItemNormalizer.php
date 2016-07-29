@@ -92,9 +92,9 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
             ->getDefinition($entity_type_id)
             ->getKey('id');
 
-          // If the referenced entity is a stub, but a full entity already was
+          // If the referenced entity is a stub, but an entity already was
           // created, then load and use that entity instead without saving.
-          if ($entity->_rev->is_stub && !$record['is_stub']) {
+          if ($entity->_rev->is_stub && is_numeric($record['entity_id'])) {
             $entity = $this->entityTypeManager
               ->getStorage($entity_type_id)
               ->useWorkspace($workspace->id())
