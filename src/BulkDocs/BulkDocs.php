@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 use Drupal\multiversion\Entity\Index\UuidIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
@@ -72,6 +73,13 @@ class BulkDocs implements BulkDocsInterface {
   protected $result = array();
 
   /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
@@ -80,8 +88,9 @@ class BulkDocs implements BulkDocsInterface {
    * @param \Drupal\multiversion\Entity\Index\RevisionIndexInterface $rev_index
    * @param \Drupal\Core\Lock\LockBackendInterface $lock
    * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
+   * @param \Drupal\Core\State\StateInterface $state
    */
-  public function __construct(WorkspaceManagerInterface $workspace_manager, WorkspaceInterface $workspace, UuidIndexInterface $uuid_index, RevisionIndexInterface $rev_index, EntityTypeManagerInterface $entity_type_manager, LockBackendInterface $lock, LoggerChannelInterface $logger) {
+  public function __construct(WorkspaceManagerInterface $workspace_manager, WorkspaceInterface $workspace, UuidIndexInterface $uuid_index, RevisionIndexInterface $rev_index, EntityTypeManagerInterface $entity_type_manager, LockBackendInterface $lock, LoggerChannelInterface $logger, StateInterface $state) {
     $this->workspaceManager = $workspace_manager;
     $this->workspace = $workspace;
     $this->uuidIndex = $uuid_index;
@@ -89,6 +98,7 @@ class BulkDocs implements BulkDocsInterface {
     $this->entityTypeManager = $entity_type_manager;
     $this->lock = $lock;
     $this->logger = $logger;
+    $this->state = $state;
   }
 
   /**
@@ -134,6 +144,9 @@ class BulkDocs implements BulkDocsInterface {
 
     $inital_workspace = $this->workspaceManager->getActiveWorkspace();
     $this->workspaceManager->setActiveWorkspace($this->workspace);
+
+    // Temporarily disable the maintenance of the {comment_entity_statistics} table.
+    $this->state->set('comment.maintain_entity_statistics', FALSE);
 
     foreach ($this->entities as $entity) {
       $uuid = $entity->uuid();
@@ -201,6 +214,9 @@ class BulkDocs implements BulkDocsInterface {
         $this->logger->critical($message);
       }
     }
+
+    // Enable the the maintenance of entity statistics for comments.
+    $this->state->set('comment.maintain_entity_statistics', TRUE);
 
     // Switch back to the initial workspace.
     $this->workspaceManager->setActiveWorkspace($inital_workspace);

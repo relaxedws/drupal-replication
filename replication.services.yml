@@ -20,7 +20,7 @@ services:
     arguments: ['@multiversion.entity_index.rev']
   replication.bulkdocs_factory:
     class: Drupal\replication\BulkDocsFactory
-    arguments: ['@workspace.manager', '@multiversion.entity_index.uuid', '@multiversion.entity_index.rev', '@entity_type.manager', '@lock', '@logger.factory']
+    arguments: ['@workspace.manager', '@multiversion.entity_index.uuid', '@multiversion.entity_index.rev', '@entity_type.manager', '@lock', '@logger.factory', '@state']
   replication.alldocs_factory:
     class: Drupal\replication\AllDocsFactory
     arguments: ['@entity_type.manager', '@multiversion.manager', '@multiversion.entity_index.id', '@serializer']
