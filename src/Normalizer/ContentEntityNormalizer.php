@@ -5,6 +5,7 @@ namespace Drupal\replication\Normalizer;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
@@ -281,8 +282,11 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       if (in_array($key{0}, ['_', '@'])) {
         continue;
       }
-      // When language is configured or undefined go ahead with denormalization.
-      elseif (isset($site_languages[$key]) || $key === 'und') {
+      // When language is configured, undefined or not applicable go ahead with
+      // denormalization.
+      elseif (isset($site_languages[$key])
+        || $key === LanguageInterface::LANGCODE_NOT_SPECIFIED
+        || $key === LanguageInterface::LANGCODE_NOT_APPLICABLE) {
         $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
       }
       // Configure the language, then do denormalization.
