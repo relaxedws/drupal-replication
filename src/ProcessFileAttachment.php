@@ -39,12 +39,10 @@ class ProcessFileAttachment {
    * @return \Drupal\file\FileInterface|NULL
    */
   public function process($data, $key, $format, WorkspaceInterface $workspace = null) {
-
     $current_user_id = $this->current_user->id();
     list(, , $file_uuid, $scheme, $target) = explode('/', $key, 5);
     $uri = "$scheme://$target";
-    $stream_wrapper_name = 'stream_wrapper.' . $scheme;
-    multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
+    multiversion_prepare_file_destination($uri);
     // Check if exists a file entity with this uuid.
     $uuid_index = $this->index_factory->get('multiversion.entity_index.uuid', $workspace);
     $entity_info = $uuid_index->get($file_uuid);
