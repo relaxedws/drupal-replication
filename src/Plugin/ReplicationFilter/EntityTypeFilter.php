@@ -25,9 +25,24 @@ class EntityTypeFilter extends ReplicationFilterBase {
    * {@inheritdoc}
    */
   public function filter(EntityInterface $entity, ParameterBag $parameters) {
-    $type_ids = $this->parseParameterValues($parameters, 'entity_type_id');
+    $entity_type_ids = $this->parseParameterValues($parameters, 'entity_type_id');
     $bundles = $this->parseParameterValues($parameters, 'bundle');
-    return in_array($entity->getEntityTypeId(), $type_ids) && in_array($entity->bundle(), $bundles);
+
+    // Ensure length of entity_type_ids and bundles are equal.
+    if (count($entity_type_ids) != count($bundles)) {
+      return FALSE;
+    }
+
+    $entity_type_id = $entity->getEntityTypeId();
+    $bundle = $entity->bundle();
+
+    for ($i = 0; $i < count($entity_type_ids); $i++) {
+      if ($entity_type_ids[$i] == $entity_type_id && $bundles[$i] == $bundle) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**
