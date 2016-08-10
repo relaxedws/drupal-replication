@@ -38,17 +38,51 @@ abstract class ReplicationFilterBase extends PluginBase implements ReplicationFi
   }
 
   /**
-   * Parse a configuration as comma delimited values.
+   * {@inheritdoc}
    *
+   * For replication filters, the plugin configuration contains what would be
+   * passed as "query_params" to a CouchDB filter function.
+   */
+  public function getConfiguration() {
+    return $this->configuration;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setConfiguration(array $configuration) {
+    $this->configuration = $configuration;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return array();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    return array();
+  }
+
+  /**
+   * Parse a configuration as delimited values.
+   *
+   * @param string $delimiter
+   *   The delimiter of each value.
    * @param string $configuration_key
    *   The key of the configuration to get the values for.
    *
    * @return array
    *   The configuration parsed into an array of values.
    */
-  protected function parseConfigurationValues($configuration_key) {
-    $values = (isset($this->configuration[$configuration_key])) ? $this->configuration[$configuration_key] : '';
-    $values = explode(',', $values);
+  protected function getDelimitedConfigurationValue($delimiter, $configuration_key) {
+    $configuration = $this->getConfiguration();
+    $values = (isset($configuration[$configuration_key])) ? $configuration[$configuration_key] : '';
+    $values = explode($delimiter, $values);
     $values = array_filter(array_map('trim', $values));
     return $values;
   }

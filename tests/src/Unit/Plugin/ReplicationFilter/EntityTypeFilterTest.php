@@ -27,20 +27,25 @@ class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
    */
   public function testFilter($entity_type_id, $bundle, $expected) {
     // Use a mock builder for the class under test to eliminate the need to
-    // mock all the dependencies. This is OK since the method under test is a
-    // pure function, i.e. does not use the state createdy by the constructor.
+    // mock all the dependencies. The method under test uses the $configuration
+    // set by the constructor, but is retrieved via a get method we can stub.
     $filter = $this->getMockBuilder(EntityTypeFilter::class)
       ->disableOriginalConstructor()
-      ->setMethods(NULL)
+      ->setMethods(['getConfiguration'])
       ->getMock();
+    $configuration = [
+      'entity_type_id' => $entity_type_id,
+      'bundle' => $bundle,
+    ];
+    $filter->method('getConfiguration')
+      ->willReturn($configuration);
     $entity = $this->getMock(EntityInterface::class);
     $entity->method('getEntityTypeId')
       ->willReturn('node');
     $entity->method('bundle')
       ->willReturn('article');
-    $parameters = new ParameterBag(['entity_type_id' => $entity_type_id, 'bundle' => $bundle]);
 
-    $value = $filter->filter($entity, $parameters);
+    $value = $filter->filter($entity);
 
     $this->assertEquals($expected, $value);
   }

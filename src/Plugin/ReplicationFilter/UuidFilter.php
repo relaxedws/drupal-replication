@@ -24,7 +24,7 @@ class UuidFilter extends ReplicationFilterBase {
    * {@inheritdoc}
    */
   public function filter(EntityInterface $entity) {
-    $uuids = $this->parseConfigurationValues('uuids');
+    $uuids = $this->getDelimitedConfigurationValue(',', 'uuids');
     return in_array($entity->uuid(), $uuids);
   }
 

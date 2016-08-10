@@ -20,18 +20,22 @@ class UuidFilterTest extends \PHPUnit_Framework_TestCase {
    */
   public function testFilter($uuid, $parameter_value, $expected) {
     // Use a mock builder for the class under test to eliminate the need to
-    // mock all the dependencies. This is OK since the method under test is a
-    // pure function, i.e. does not use the state createdy by the constructor.
+    // mock all the dependencies. The method under test uses the $configuration
+    // set by the constructor, but is retrieved via a get method we can stub.
     $filter = $this->getMockBuilder(UuidFilter::class)
       ->disableOriginalConstructor()
-      ->setMethods(NULL)
+      ->setMethods(['getConfiguration'])
       ->getMock();
+    $configuration = [
+      'uuids' => $parameter_value,
+    ];
+    $filter->method('getConfiguration')
+      ->willReturn($configuration);
     $entity = $this->getMock(EntityInterface::class);
     $entity->method('uuid')
       ->willReturn($uuid);
-    $parameters = new ParameterBag(['uuids' => $parameter_value]);
 
-    $value = $filter->filter($entity, $parameters);
+    $value = $filter->filter($entity);
 
     $this->assertEquals($expected, $value);
   }
