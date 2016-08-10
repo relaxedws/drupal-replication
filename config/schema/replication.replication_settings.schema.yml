@@ -10,7 +10,7 @@ replication.replication_settings.*:
       label: 'Label'
     filter_id:
       type: string
-      label: 'Filter plugin id'
+      label: 'Filter plugin ID'
     parameters:
       type: ignore
       label: 'Filter parameters'
