@@ -12,5 +12,5 @@ replication.replication_settings.*:
       type: string
       label: 'Filter plugin id'
     parameters:
-      type: array
+      type: sequence
       label: 'Filter parameters'
