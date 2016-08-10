@@ -4,13 +4,14 @@ namespace Drupal\replication\Plugin\ReplicationFilter;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
+use Symfony\Component\Console\Exception\LogicException;
 
 /**
  * Provides a filter based on entity type.
  *
  * Supported configuration:
- *   entity_type_id: a comma delimited list of entity type id's to include
- *   bundle: a comma delimited list of bundles matching the type ids
+ *   entity_type_id: a comma delimited list of entity type ID's to include
+ *   bundle: a comma delimited list of bundles matching the type ID's
  *
  * @ReplicationFilter(
  *   id = "entity_type",
@@ -29,7 +30,7 @@ class EntityTypeFilter extends ReplicationFilterBase {
 
     // Ensure length of entity_type_ids and bundles are equal.
     if (count($entity_type_ids) != count($bundles)) {
-      return FALSE;
+      throw new LogicException('The entity_type_id and bundle filter parameters must have equal length.');
     }
 
     $entity_type_id = $entity->getEntityTypeId();
