@@ -25,14 +25,14 @@ use Drupal\replication\Entity\ReplicationSettingsInterface;
 class ReplicationSettings extends ConfigEntityBase implements ReplicationSettingsInterface {
 
   /**
-   * An identifier for this replication settings.
+   * An identifier for these replication settings.
    *
    * @var string
    */
   protected $id;
 
   /**
-   * The human readable name for this replication settings.
+   * The human readable name for these replication settings.
    *
    * @var string
    */

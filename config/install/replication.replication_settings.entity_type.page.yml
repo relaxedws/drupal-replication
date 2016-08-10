@@ -5,4 +5,5 @@ id: page
 label: Replicate only page entities
 filter_id: entity_type
 parameters:
-  entity_type: page
+  entity_type_id: node
+  bundle: page

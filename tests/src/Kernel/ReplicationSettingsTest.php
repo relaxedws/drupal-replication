@@ -12,8 +12,14 @@ use Drupal\replication\Entity\ReplicationSettings;
  */
 class ReplicationSettingsTest extends KernelTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   protected $strictConfigSchema = FALSE;
 
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'user',
     'serialization',
@@ -32,7 +38,7 @@ class ReplicationSettingsTest extends KernelTestBase {
       'id' => 'test',
       'label' => 'Replication settings test',
       'filter_id' => 'entity_type',
-      'parameters' => ['entity_type' => 'article'],
+      'parameters' => ['entity_type_id' => 'node', 'bundle' => 'article'],
     ]);
     $this->assertTrue($entity instanceof ReplicationSettings, 'Replication Settings entity was created.');
     $entity->save();

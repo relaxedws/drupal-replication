@@ -14,8 +14,14 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  */
 class ReplicationFilterTest extends WebTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   protected $strictConfigSchema = FALSE;
 
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'multiversion',
     'node',
@@ -137,7 +143,7 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->workspace = $workspace;
     $entity2->save();
 
-    $parameters = new ParameterBag(['entity_type' => 'article']);
+    $parameters = new ParameterBag(['entity_type_id' => 'node', 'bundle' => 'article']);
     $changes = $changes_factory->get($workspace)->filter('entity_type')->parameters($parameters)->getNormal();
     $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset.');
   }

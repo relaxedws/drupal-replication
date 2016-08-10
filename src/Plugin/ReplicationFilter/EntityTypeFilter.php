@@ -10,7 +10,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Provides a filter based on entity type.
  *
  * Supported parameters:
- *   entity_type: a comma delimited list of entity type id's to include
+ *   entity_type_id: a comma delimited list of entity type id's to include
+ *   bundle: a comma delimited list of bundles matching the type ids
  *
  * @ReplicationFilter(
  *   id = "entity_type",
@@ -24,15 +25,30 @@ class EntityTypeFilter extends ReplicationFilterBase {
    * {@inheritdoc}
    */
   public function filter(EntityInterface $entity, ParameterBag $parameters) {
-    if ($parameters->has('entity_type')) {
-      $types = $parameters->get('entity_type');
+    $type_ids = $this->parseParameterValues($parameters, 'entity_type_id');
+    $bundles = $this->parseParameterValues($parameters, 'bundle');
+    return in_array($entity->getEntityTypeId(), $type_ids) && in_array($entity->bundle(), $bundles);
+  }
+
+  /**
+   * Parse a parameter's comma delimiated values.
+   *
+   * @param string $parameter_name
+   *   The name of the parameter to get the values for.
+   *
+   * @return array
+   *   The parsed parameter values.
+   */
+  protected function parseParameterValues(ParameterBag $parameters, $parameter_name) {
+    if ($parameters->has($parameter_name)) {
+      $values = $parameters->get($parameter_name);
     }
     else {
-      $types = '';
+      $values = '';
     }
-    $types = explode(',', $types);
-    $types = array_filter(array_map('trim', $types));
-    return in_array($entity->bundle(), $types);
+    $values = explode(',', $values);
+    $values = array_filter(array_map('trim', $values));
+    return $values;
   }
 
 }
