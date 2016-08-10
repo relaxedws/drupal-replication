@@ -17,8 +17,7 @@ use Drupal\replication\Entity\ReplicationSettingsInterface;
  *   config_prefix = "replication_settings",
  *   entity_keys = {
  *     "id" = "id",
- *     "label" = "label",
- *     "filter_id" = "filter_id"
+ *     "label" = "label"
  *   }
  * )
  */
