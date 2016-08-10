@@ -16,9 +16,16 @@ class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
   /**
    * Test filtering entity types.
    *
+   * @param string $entity_type_id
+   *   The entity type id filter parameter.
+   * @param string $bundle
+   *   The bundle filter parameter.
+   * @param string $expected
+   *   The expected return value from the filter method.
+   *
    * @dataProvider filterTestProvider
    */
-  public function testFilter($entity_type, $parameter_value, $expected) {
+  public function testFilter($entity_type_id, $bundle, $expected) {
     // Use a mock builder for the class under test to eliminate the need to
     // mock all the dependencies. This is OK since the method under test is a
     // pure function, i.e. does not use the state createdy by the constructor.
@@ -27,9 +34,11 @@ class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
       ->setMethods(NULL)
       ->getMock();
     $entity = $this->getMock(EntityInterface::class);
+    $entity->method('getEntityTypeId')
+      ->willReturn('node');
     $entity->method('bundle')
       ->willReturn('article');
-    $parameters = new ParameterBag(['entity_type' => $parameter_value]);
+    $parameters = new ParameterBag(['entity_type_id' => $entity_type_id, 'bundle' => $bundle]);
 
     $value = $filter->filter($entity, $parameters);
 
@@ -37,23 +46,26 @@ class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
-   * Provide test cases for the "entity_type" parameter.
+   * Provide test cases for the "entity_type_id" and "bundle" parameters.
    */
   public function filterTestProvider() {
     return [
       // Test singular parameter values.
-      ['article', 'article', TRUE],
-      ['article', 'page', FALSE],
+      ['node', 'article', TRUE],
+      ['node', 'page', FALSE],
       // Test multiple parameter values.
-      ['article', 'page,article', TRUE],
-      ['article', 'article,page', TRUE],
-      ['article', 'page,news', FALSE],
+      ['node,node', 'page,article', TRUE],
+      ['node,node', 'article,page', TRUE],
+      ['node,node', 'page,news', FALSE],
+      // Test mismatched multiple parameter values.
+      ['node', 'page,article', FALSE],
+      ['node,node', 'node', FALSE],
       // Test bad data that might be entered into the parameters:
-      ['article', '', FALSE],
-      ['article', NULL, FALSE],
-      ['article', FALSE, FALSE],
-      ['article', TRUE, FALSE],
-      ['article', 0, FALSE],
+      ['', '', FALSE],
+      [NULL, NULL, FALSE],
+      [FALSE, FALSE, FALSE],
+      [TRUE, TRUE, FALSE],
+      [0, 0, FALSE],
     ];
   }
 
