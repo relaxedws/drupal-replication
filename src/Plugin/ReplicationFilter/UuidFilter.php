@@ -4,7 +4,6 @@ namespace Drupal\replication\Plugin\ReplicationFilter;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Provides filtering by UUID.
@@ -24,10 +23,8 @@ class UuidFilter extends ReplicationFilterBase {
   /**
    * {@inheritdoc}
    */
-  public function filter(EntityInterface $entity, ParameterBag $parameters) {
-    $uuids = $parameters->get('uuids') ?: '';
-    $uuids = explode(',', $uuids);
-    $uuids = array_map('trim', $uuids);
+  public function filter(EntityInterface $entity) {
+    $uuids = $this->parseConfigurationValues('uuids');
     return in_array($entity->uuid(), $uuids);
   }
 

@@ -5,7 +5,6 @@ namespace Drupal\replication\Plugin\ReplicationFilter;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\NodeInterface;
 use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Provides a filter for published entities.
@@ -23,9 +22,9 @@ class PublishedFilter extends ReplicationFilterBase {
   /**
    * {@inheritdoc}
    */
-  public function filter(EntityInterface $entity, ParameterBag $parameters) {
+  public function filter(EntityInterface $entity) {
     if (!$entity instanceof NodeInterface) {
-      return false;
+      return FALSE;
     }
     return $entity->isPublished();
   }

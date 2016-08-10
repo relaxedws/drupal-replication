@@ -46,7 +46,7 @@ class Changes implements ChangesInterface {
 
   /**
    * @var ParameterBag
-   *   The parameters passed to the filter function.
+   *   The parameters passed to the filter plugin.
    */
   protected $parameters;
 
@@ -121,12 +121,12 @@ class Changes implements ChangesInterface {
     $parameters = ($this->parameters instanceof ParameterBag) ? $this->parameters : new ParameterBag();
     $filter = NULL;
     if (is_string($this->filterName) && $this->filterName) {
-      $filter = $this->filterManager->createInstance($this->filterName);
+      $filter = $this->filterManager->createInstance($this->filterName, $parameters->all());
     }
     // If UUIDs are sent as a parameter, but no filter is set, automatically
     // select the "uuid" filter.
     elseif ($parameters->has('uuids')) {
-      $filter = $this->filterManager->createInstance('uuid');
+      $filter = $this->filterManager->createInstance('uuid', $parameters->all());
     }
 
     // Format the result array.
@@ -146,7 +146,7 @@ class Changes implements ChangesInterface {
       }
 
       // Filter the document.
-      if ($filter !== NULL && !$filter->filter($revision, $parameters)) {
+      if ($filter !== NULL && !$filter->filter($revision)) {
         continue;
       }
 

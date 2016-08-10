@@ -30,7 +30,7 @@ interface ChangesInterface {
    * Set the parameters for the filter plugin.
    *
    * @param ParameterBag $parameters
-   *   The parameters passed to the filter function.
+   *   The parameters passed to the filter plugin.
    *
    * @return \Drupal\replication\Changes\ChangesInterface
    *   Returns $this.
