@@ -47,7 +47,7 @@ class ReplicationSettings extends ConfigEntityBase implements ReplicationSetting
   /**
    * The replication filter parameters.
    *
-   * @var string[string]
+   * @var array
    */
   protected $parameters;
 

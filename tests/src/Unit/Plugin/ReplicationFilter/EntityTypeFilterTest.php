@@ -17,7 +17,7 @@ class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
    * Test filtering entity types.
    *
    * @param string $entity_type_id
-   *   The entity type id filter parameter.
+   *   The entity type ID filter parameter.
    * @param string $bundle
    *   The bundle filter parameter.
    * @param string $expected
