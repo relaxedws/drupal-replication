@@ -68,23 +68,4 @@ abstract class ReplicationFilterBase extends PluginBase implements ReplicationFi
     return array();
   }
 
-  /**
-   * Parse a configuration as delimited values.
-   *
-   * @param string $delimiter
-   *   The delimiter of each value.
-   * @param string $configuration_key
-   *   The key of the configuration to get the values for.
-   *
-   * @return array
-   *   The configuration parsed into an array of values.
-   */
-  protected function getDelimitedConfigurationValue($delimiter, $configuration_key) {
-    $configuration = $this->getConfiguration();
-    $values = (isset($configuration[$configuration_key])) ? $configuration[$configuration_key] : '';
-    $values = explode($delimiter, $values);
-    $values = array_filter(array_map('trim', $values));
-    return $values;
-  }
-
 }

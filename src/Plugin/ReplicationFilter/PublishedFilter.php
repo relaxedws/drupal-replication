@@ -3,14 +3,18 @@
 namespace Drupal\replication\Plugin\ReplicationFilter;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a filter for published entities.
  *
- * Note: this filter will only work with NodeTypes.
+ * Use the configuration "include_unpublisheable_entities" to determine what
+ * happens to entities that do not have a "status" field, if set to TRUE they
+ * will be included by the filter, else excluded.
+ * with values in the format
  *
  * @ReplicationFilter(
  *   id = "published",
@@ -52,13 +56,28 @@ class PublishedFilter extends ReplicationFilterBase implements ContainerFactoryP
   /**
    * {@inheritdoc}
    */
+  public function defaultConfiguration() {
+    return [
+      'include_unpublisheable_entities' => FALSE,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function filter(EntityInterface $entity) {
+    // @todo handle translations?
+    // @todo is there an easier way to tell if an entity is published?
     $definition = $this->entityTypeManager->getDefinition($entity->getEntityTypeId());
-    if ($definition->get('status')) {
-      return $entity->status;
+    if ($definition->hasKey('status')) {
+      $field_name = $definition->getKey('status');
+      $field_definition = $entity->getFieldDefinition($field_name);
+      $property = $field_definition->getFieldStorageDefinition()->getMainPropertyName();
+      return (bool) $entity->get($field_name)->$property;
     }
-    // Assume all entities without 'status' are published.
-    return TRUE;
+    // Determine what to do with entities without a 'status' field.
+    $configuration = $this->getConfiguration();
+    return $configuration['include_unpublisheable_entities'];
   }
 
 }
