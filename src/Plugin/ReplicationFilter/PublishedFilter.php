@@ -26,6 +26,7 @@ class PublishedFilter extends ReplicationFilterBase implements ContainerFactoryP
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   *   The entity type manager to check for "status" entity key.
    */
   protected $entityTypeManager;
 
