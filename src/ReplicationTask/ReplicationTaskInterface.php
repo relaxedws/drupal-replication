@@ -2,8 +2,6 @@
 
 namespace Drupal\replication\ReplicationTask;
 
-use Symfony\Component\HttpFoundation\ParameterBag;
-
 /**
  * The replication settings between source and target.
  *
@@ -37,27 +35,13 @@ interface ReplicationTaskInterface {
   /**
    * Set the parameters for the filter plugin.
    *
-   * @param ParameterBag $parameters
-   *   The parameters passed to the filter function.
-   *
-   * @return ReplicationTaskInterface
-   *   Returns $this.
-   */
-  public function setParameters(ParameterBag $parameters);
-
-  /**
-   * Set the parameters for the filter plugin using an array.
-   *
-   * The array input is converted to a ParameterBag and then passed to
-   * setParameters.
-   *
    * @param array|NULL $parameters_array
    *   An associative array of name-value parameters.
    *
    * @return ReplicationTaskInterface
    *   Returns $this.
    */
-  public function setParametersByArray(array $parameters_array = NULL);
+  public function setParameters(array $parameters = NULL);
 
   /**
    * Set a parameter for the filter plugin.
@@ -77,7 +61,7 @@ interface ReplicationTaskInterface {
   /**
    * Get the parameters for the filter plugin.
    *
-   * @return ParameterBag
+   * @return array
    *   The parameters passed to the filter plugin.
    */
   public function getParameters();

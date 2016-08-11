@@ -5,7 +5,6 @@ namespace Drupal\Tests\replication\Functional;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\node\Entity\Node;
 use Drupal\simpletest\WebTestBase;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Tests replication filters.
@@ -76,7 +75,7 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->workspace = $workspace;
     $entity2->save();
 
-    $parameters = new ParameterBag(['uuids' => $entity1->uuid()]);
+    $parameters = ['uuids' => $entity1->uuid()];
     $changes = $changes_factory->get($workspace)->filter('uuid')->parameters($parameters)->getNormal();
     $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset.');
   }
@@ -143,7 +142,7 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->workspace = $workspace;
     $entity2->save();
 
-    $parameters = new ParameterBag(['entity_type_id' => 'node', 'bundle' => 'article']);
+    $parameters = ['entity_type_id' => 'node', 'bundle' => 'article'];
     $changes = $changes_factory->get($workspace)->filter('entity_type')->parameters($parameters)->getNormal();
     $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset.');
   }

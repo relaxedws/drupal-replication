@@ -5,7 +5,6 @@ namespace Drupal\replication\Plugin;
 use Drupal\Component\Plugin\ConfigurablePluginInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Defines a replication filter.
@@ -34,8 +33,6 @@ interface ReplicationFilterInterface extends PluginInspectionInterface, Configur
    *
    * @param EntityInterface $entity
    *   The entity to filter.
-   * @param ParameterBag $parameters
-   *   The parameters passed to the filter function.
    *
    * @return bool
    *   Return TRUE if it should be included, else FALSE.

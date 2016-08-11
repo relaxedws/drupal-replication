@@ -7,8 +7,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\Plugin\ReplicationFilterManagerInterface;
-// @todo where is the ParameterBagInterface???
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -45,7 +43,7 @@ class Changes implements ChangesInterface {
   protected $filterName;
 
   /**
-   * @var ParameterBag
+   * @var array
    *   The parameters passed to the filter plugin.
    */
   protected $parameters;
@@ -88,7 +86,7 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
-  public function parameters(ParameterBag $parameters = NULL) {
+  public function parameters(array $parameters = NULL) {
     $this->parameters = $parameters;
     return $this;
   }
@@ -118,7 +116,7 @@ class Changes implements ChangesInterface {
       ->getRange($this->lastSeq, NULL);
 
     // Setup filter plugin.
-    $parameters = ($this->parameters instanceof ParameterBag) ? $this->parameters->all() : [];
+    $parameters = is_array($this->parameters) ? $this->parameters : [];
     $filter = NULL;
     if (is_string($this->filterName) && $this->filterName) {
       $filter = $this->filterManager->createInstance($this->filterName, $parameters);

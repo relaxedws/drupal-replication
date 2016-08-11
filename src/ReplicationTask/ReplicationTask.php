@@ -3,7 +3,6 @@
 namespace Drupal\replication\ReplicationTask;
 
 use Drupal\replication\ReplicationTask\ReplicationTaskInterface;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * {@inheritdoc}
@@ -17,17 +16,10 @@ class ReplicationTask implements ReplicationTaskInterface {
   protected $filterName;
 
   /**
-   * @var ParameterBag
+   * @var array
    *   The parameters passed to the filter function.
    */
   protected $parameters;
-
-  /**
-   * ReplicationTask constructor.
-   */
-  public function __construct() {
-    $this->parameters = new ParameterBag();
-  }
 
   /**
    * {@inheritdoc}
@@ -47,7 +39,10 @@ class ReplicationTask implements ReplicationTaskInterface {
   /**
    * {@inheritdoc}
    */
-  public function setParameters(ParameterBag $parameters) {
+  public function setParameters(array $parameters = NULL) {
+    if ($parameters == NULL) {
+      $parameters = [];
+    }
     $this->parameters = $parameters;
     return $this;
   }
@@ -55,21 +50,9 @@ class ReplicationTask implements ReplicationTaskInterface {
   /**
    * {@inheritdoc}
    */
-  public function setParametersByArray(array $parameters_array = NULL) {
-    if ($parameters_array == NULL) {
-      $parameters_array = [];
-    }
-    $parameters = new ParameterBag($parameters_array);
-    return $this->setParameters($parameters);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function setParameter($name, $value) {
-    if (!$this->parameters instanceof ParameterBag) {
-      $parameters = new ParameterBag();
-      $this->setParameters($parameters);
+    if (!is_array($this->parameters)) {
+      $this->setParameters([]);
     }
     $this->parameters->set($name, $value);
     return $this;
