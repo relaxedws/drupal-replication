@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\replication\Kernel;
+namespace Drupal\Tests\replication\Kernel\Plugin\ReplicationFilter;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\block_content\Entity\BlockContent;
@@ -85,7 +85,7 @@ class PublishedFilterTest extends KernelTestBase {
   /**
    * Test default configuration for published filter.
    */
-  public function testDefaultConfig($include_unpublisheable_entities, $entity_class, $entity_values, $expected) {
+  public function testDefaultConfig() {
     /** @var \Drupal\replication\Plugin\ReplicationFilterManagerInterface $filter_manager */
     $filter_manager = $this->container->get('plugin.manager.replication_filter');
     $filter = $filter_manager->createInstance('published');

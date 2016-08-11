@@ -44,6 +44,9 @@ abstract class ReplicationFilterBase extends PluginBase implements ReplicationFi
    * passed as "query_params" to a CouchDB filter function.
    */
   public function getConfiguration() {
+    if ($this->configuration == NULL) {
+      return $this->defaultConfiguration();
+    }
     return $this->configuration;
   }
 
