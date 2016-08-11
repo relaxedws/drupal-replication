@@ -40,7 +40,7 @@ class ReplicationSettingsTest extends KernelTestBase {
       'filter_id' => 'entity_type',
       'parameters' => ['entity_type_id' => 'node', 'bundle' => 'article'],
     ]);
-    $this->assertTrue($entity instanceof ReplicationSettings, 'Replication Settings entity was created.');
+    $this->assertInstanceOf(ReplicationSettings::class, $entity, 'Replication Settings entity was created.');
     $entity->save();
 
     $entity = $entityTypeManager->getStorage('replication_settings')->load('test');
