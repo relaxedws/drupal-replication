@@ -8,6 +8,8 @@ use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
 /**
  * Provides filtering by UUID.
  *
+ * Use the configuration "uuids" with comma delimited values, e.g. "101,102".
+ *
  * Note: if the entity a UUID refers to references another entity, that
  * referenced entity's UUID must also be included in order to maintain data
  * integrity.
@@ -24,7 +26,10 @@ class UuidFilter extends ReplicationFilterBase {
    * {@inheritdoc}
    */
   public function filter(EntityInterface $entity) {
-    $uuids = $this->getDelimitedConfigurationValue(',', 'uuids');
+    $configuration = $this->getConfiguration();
+    $uuids = isset($configuration['uuids']) ? $configuration['uuids'] : '';
+    $uuids = explode(',', $uuids);
+    $uuids = array_map('trim', $uuids);
     return in_array($entity->uuid(), $uuids);
   }
 

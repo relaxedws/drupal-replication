@@ -4,7 +4,6 @@ namespace Drupal\Tests\replication\Unit\Plugin\ReplicationFilter;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\replication\Plugin\ReplicationFilter\UuidFilter;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Tests that the uuid filter parses parameters correctly.
@@ -73,7 +72,7 @@ class UuidFilterTest extends \PHPUnit_Framework_TestCase {
     $entity = $this->getMock(EntityInterface::class);
     $entity->method('uuid')
       ->willReturn('123');
-    $parameters = new ParameterBag();
+    $parameters = [];
 
     $value = $filter->filter($entity, $parameters);
 
