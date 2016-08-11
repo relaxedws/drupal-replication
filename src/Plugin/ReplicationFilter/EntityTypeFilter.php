@@ -4,14 +4,13 @@ namespace Drupal\replication\Plugin\ReplicationFilter;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
-use Symfony\Component\Console\Exception\LogicException;
 
 /**
  * Provides a filter based on entity type.
  *
- * Supported configuration:
- *   entity_type_id: a comma delimited list of entity type ID's to include
- *   bundle: a comma delimited list of bundles matching the type ID's
+ * Use the configuration "types" with values in the format
+ * "{entity_type_id}.{bundle}", for example, "node.article". This can also be a
+ * comma delimited list like "node.article,node.page".
  *
  * @ReplicationFilter(
  *   id = "entity_type",
@@ -25,19 +24,29 @@ class EntityTypeFilter extends ReplicationFilterBase {
    * {@inheritdoc}
    */
   public function filter(EntityInterface $entity) {
-    $entity_type_ids = $this->getDelimitedConfigurationValue(',', 'entity_type_id');
-    $bundles = $this->getDelimitedConfigurationValue(',', 'bundle');
+    $configuration = $this->getConfiguration();
+    $types = isset($configuration['types']) ? $configuration['types'] : '';
+    $types = str_replace(' ', '', $types);
+    $types = explode(',', $types);
+    $types = array_filter($types);
 
-    // Ensure length of entity_type_ids and bundles are equal.
-    if (count($entity_type_ids) != count($bundles)) {
-      throw new LogicException('The entity_type_id and bundle filter parameters must have equal length.');
-    }
+    foreach ($types as $type) {
+      // Handle cases like "node.".
+      $type = trim($type, '.');
 
-    $entity_type_id = $entity->getEntityTypeId();
-    $bundle = $entity->bundle();
+      $split = explode('.', $type);
 
-    for ($i = 0; $i < count($entity_type_ids); $i++) {
-      if ($entity_type_ids[$i] == $entity_type_id && $bundles[$i] == $bundle) {
+      $entity_type_id = $split[0];
+      $bundle = isset($split[1]) ? $split[1] : NULL;
+
+      // Filter for only the entity type id.
+      if ($bundle == NULL && $entity->getEntityTypeId() == $entity_type_id) {
+        return TRUE;
+      }
+
+      // Filter for both the entity type id and bundle.
+      if ($entity->getEntityTypeId() == $entity_type_id
+        && $entity->bundle() == $bundle) {
         return TRUE;
       }
     }
