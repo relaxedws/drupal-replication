@@ -29,8 +29,9 @@ class ReplicationFilterTest extends WebTestBase {
   ];
 
   /**
+   * The logged in user.
+   *
    * @var \Drupal\user\Entity\User
-   *   The logged in user.
    */
   protected $user;
 

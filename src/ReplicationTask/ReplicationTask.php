@@ -10,14 +10,16 @@ use Drupal\replication\ReplicationTask\ReplicationTaskInterface;
 class ReplicationTask implements ReplicationTaskInterface {
 
   /**
+   * The id of the filter plugin to use during replication.
+   *
    * @var string
-   *   The id of the filter plugin to use during replication.
    */
   protected $filterName;
 
   /**
+   * The parameters passed to the filter function.
+   *
    * @var array
-   *   The parameters passed to the filter function.
    */
   protected $parameters;
 

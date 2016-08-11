@@ -16,8 +16,9 @@ class Changes implements ChangesInterface {
   use DependencySerializationTrait;
 
   /**
+   * The workspace to generate the changeset from.
+   *
    * @var string
-   *   The workspace to generate the changeset from.
    */
   protected $workspaceId;
 
@@ -43,20 +44,23 @@ class Changes implements ChangesInterface {
   protected $filterName;
 
   /**
+   * The parameters passed to the filter plugin.
+   *
    * @var array
-   *   The parameters passed to the filter plugin.
    */
   protected $parameters;
 
   /**
+   * Whether to include entities in the changeset.
+   *
    * @var boolean
-   *   Whether to include entities in the changeset.
    */
   protected $includeDocs = FALSE;
 
   /**
+   * The sequence ID to start including changes from. Result includes $lastSeq.
+   *
    * @var int
-   *   The sequence ID to start including changes from. Result includes $lastSeq.
    */
   protected $lastSeq = 0;
 
