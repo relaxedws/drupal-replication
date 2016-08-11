@@ -60,13 +60,6 @@ abstract class ReplicationFilterBase extends PluginBase implements ReplicationFi
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
-    return array();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function calculateDependencies() {
     return array();
   }

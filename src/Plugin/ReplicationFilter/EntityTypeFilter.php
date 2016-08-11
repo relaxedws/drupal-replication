@@ -8,9 +8,8 @@ use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
 /**
  * Provides a filter based on entity type.
  *
- * Use the configuration "types" with values in the format
- * "{entity_type_id}.{bundle}", for example, "node.article". This can also be a
- * comma delimited list like "node.article,node.page".
+ * Use the configuration "types" which is an array of values in the format
+ * "{entity_type_id}.{bundle}".
  *
  * @ReplicationFilter(
  *   id = "entity_type",
@@ -23,12 +22,18 @@ class EntityTypeFilter extends ReplicationFilterBase {
   /**
    * {@inheritdoc}
    */
+  public function defaultConfiguration() {
+    return [
+      'types' => [],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function filter(EntityInterface $entity) {
     $configuration = $this->getConfiguration();
-    $types = isset($configuration['types']) ? $configuration['types'] : '';
-    $types = str_replace(' ', '', $types);
-    $types = explode(',', $types);
-    $types = array_filter($types);
+    $types = $configuration['types'];
 
     foreach ($types as $type) {
       // Handle cases like "node.".

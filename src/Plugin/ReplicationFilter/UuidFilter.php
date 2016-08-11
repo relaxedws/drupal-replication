@@ -8,7 +8,7 @@ use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
 /**
  * Provides filtering by UUID.
  *
- * Use the configuration "uuids" with comma delimited values, e.g. "101,102".
+ * Use the configuration "uuids" which is an array of uuids, e.g. "101,102".
  *
  * Note: if the entity a UUID refers to references another entity, that
  * referenced entity's UUID must also be included in order to maintain data
@@ -25,12 +25,18 @@ class UuidFilter extends ReplicationFilterBase {
   /**
    * {@inheritdoc}
    */
+  public function defaultConfiguration() {
+    return [
+      'uuids' => [],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function filter(EntityInterface $entity) {
     $configuration = $this->getConfiguration();
-    $uuids = isset($configuration['uuids']) ? $configuration['uuids'] : '';
-    $uuids = explode(',', $uuids);
-    $uuids = array_map('trim', $uuids);
-    return in_array($entity->uuid(), $uuids);
+    return in_array($entity->uuid(), $configuration['uuids']);
   }
 
 }

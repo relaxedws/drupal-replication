@@ -11,10 +11,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides a filter for published entities.
  *
- * Use the configuration "include_unpublisheable_entities" to determine what
+ * Use the configuration "include_unpublishable_entities" to determine what
  * happens to entities that do not have a "status" field, if set to TRUE they
  * will be included by the filter, else excluded.
- * with values in the format
  *
  * @ReplicationFilter(
  *   id = "published",
@@ -25,8 +24,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PublishedFilter extends ReplicationFilterBase implements ContainerFactoryPluginInterface {
 
   /**
+   * The entity type manager to check for "status" entity key.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   *   The entity type manager to check for "status" entity key.
    */
   protected $entityTypeManager;
 
@@ -59,7 +59,7 @@ class PublishedFilter extends ReplicationFilterBase implements ContainerFactoryP
    */
   public function defaultConfiguration() {
     return [
-      'include_unpublisheable_entities' => FALSE,
+      'include_unpublishable_entities' => FALSE,
     ];
   }
 
@@ -78,7 +78,7 @@ class PublishedFilter extends ReplicationFilterBase implements ContainerFactoryP
     }
     // Determine what to do with entities without a 'status' field.
     $configuration = $this->getConfiguration();
-    return $configuration['include_unpublisheable_entities'];
+    return $configuration['include_unpublishable_entities'];
   }
 
 }

@@ -3,9 +3,7 @@
 namespace Drupal\Tests\replication\Kernel\Plugin\ReplicationFilter;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\block_content\Entity\BlockContent;
 use Drupal\block_content\Entity\BlockContentType;
-use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 
 /**
@@ -57,10 +55,10 @@ class PublishedFilterTest extends KernelTestBase {
   /**
    * Test filtering published entities.
    *
-   * @param bool $include_unpublisheable_entities
-   *   The plugin configuration value for including unpublisheable entities.
-   * @param string $entity_class
-   *   Fully qualified class name (FQCN) of the entity to create for testing.
+   * @param bool $include_unpublishable_entities
+   *   The plugin configuration value for including unpublishable entities.
+   * @param string $entity_type_id
+   *   The entity type id of the entity to create for testing.
    * @param array $entity_values
    *   The values to pass to $class::create().
    * @param bool $expected
@@ -68,18 +66,21 @@ class PublishedFilterTest extends KernelTestBase {
    *
    * @dataProvider filterTestProvider
    */
-  public function testFilter($include_unpublisheable_entities, $entity_class, $entity_values, $expected) {
+  public function testFilter($include_unpublishable_entities, $entity_type_id, $entity_values, $expected) {
     /** @var \Drupal\replication\Plugin\ReplicationFilterManagerInterface $filter_manager */
     $filter_manager = $this->container->get('plugin.manager.replication_filter');
     $configuration = [
-      'include_unpublisheable_entities' => $include_unpublisheable_entities,
+      'include_unpublishable_entities' => $include_unpublishable_entities,
     ];
     $filter = $filter_manager->createInstance('published', $configuration);
-    $entity = call_user_func($entity_class . '::create', $entity_values);
+    $entity = $this->container
+        ->get('entity_type.manager')
+        ->getStorage($entity_type_id)
+        ->create($entity_values);
 
     $value = $filter->filter($entity);
 
-    $this->assertEquals($expected, $value);
+    $this->assertSame($expected, $value);
   }
 
   /**
@@ -124,10 +125,10 @@ class PublishedFilterTest extends KernelTestBase {
     ];
 
     return [
-      [FALSE, Node::class, $published_node, TRUE],
-      [FALSE, Node::class, $unpublished_node, FALSE],
-      [TRUE, BlockContent::class, $block, TRUE],
-      [FALSE, BlockContent::class, $block, FALSE],
+      [FALSE, 'node', $published_node, TRUE],
+      [FALSE, 'node', $unpublished_node, FALSE],
+      [TRUE, 'block_content', $block, TRUE],
+      [FALSE, 'block_content', $block, FALSE],
     ];
   }
 
