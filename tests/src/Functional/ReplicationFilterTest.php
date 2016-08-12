@@ -76,7 +76,7 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->workspace = $workspace;
     $entity2->save();
 
-    $parameters = ['uuids' => $entity1->uuid()];
+    $parameters = ['uuids' => [$entity1->uuid()]];
     $changes = $changes_factory->get($workspace)->filter('uuid')->parameters($parameters)->getNormal();
     $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset for UUIDs filter.');
   }
@@ -143,7 +143,7 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->workspace = $workspace;
     $entity2->save();
 
-    $parameters = ['types' => 'node.article'];
+    $parameters = ['types' => ['node.article']];
     $changes = $changes_factory->get($workspace)->filter('entity_type')->parameters($parameters)->getNormal();
     $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset for entity type filter.');
   }
