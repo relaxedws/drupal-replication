@@ -90,9 +90,10 @@ class PublishedFilterTest extends KernelTestBase {
     /** @var \Drupal\replication\Plugin\ReplicationFilterManagerInterface $filter_manager */
     $filter_manager = $this->container->get('plugin.manager.replication_filter');
     $filter = $filter_manager->createInstance('published');
-    $entity = BlockContent::create([
-      'type' => 'test',
-    ]);
+    $entity = $this->container
+        ->get('entity_type.manager')
+        ->getStorage('block_content')
+        ->create(['type' => 'test']);
 
     $value = $filter->filter($entity);
 
