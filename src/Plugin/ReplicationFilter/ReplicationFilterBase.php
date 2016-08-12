@@ -14,11 +14,15 @@ use Drupal\replication\Plugin\ReplicationFilterInterface;
 abstract class ReplicationFilterBase extends PluginBase implements ReplicationFilterInterface {
 
   /**
+   * The human readable label for the replication filter.
+   *
    * @var string
    */
   protected $label;
 
   /**
+   * The description of what the replication filter does.
+   *
    * @var string
    */
   protected $description;
@@ -44,7 +48,7 @@ abstract class ReplicationFilterBase extends PluginBase implements ReplicationFi
    * passed as "query_params" to a CouchDB filter function.
    */
   public function getConfiguration() {
-    if ($this->configuration == NULL) {
+    if (empty($this->configuration)) {
       return $this->defaultConfiguration();
     }
     return $this->configuration;
