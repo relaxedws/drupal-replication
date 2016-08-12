@@ -45,16 +45,15 @@ class UuidFilterTest extends \PHPUnit_Framework_TestCase {
   public function filterTestProvider() {
     return [
       // Test singular parameter values.
-      ['123', '123', TRUE],
-      ['123', '456', FALSE],
+      ['123', ['123'], TRUE],
+      ['123', ['456'], FALSE],
       // Test multiple parameter values.
-      ['123', '123,456', TRUE],
-      ['123', '456,789', FALSE],
+      ['123', ['123', '456'], TRUE],
+      ['123', ['456', '789'], FALSE],
       // Test bad data that might be entered into the parameters:
-      ['123', '123, 456', TRUE],
-      ['123', '123 , 456', TRUE],
-      ['123', '0', FALSE],
-      ['123', 'NULL', FALSE],
+      ['123', ['123 '], FALSE],
+      ['123', [0], FALSE],
+      ['123', [NULL], FALSE],
     ];
   }
 
@@ -72,9 +71,8 @@ class UuidFilterTest extends \PHPUnit_Framework_TestCase {
     $entity = $this->getMock(EntityInterface::class);
     $entity->method('uuid')
       ->willReturn('123');
-    $parameters = [];
 
-    $value = $filter->filter($entity, $parameters);
+    $value = $filter->filter($entity, []);
 
     $this->assertEquals(FALSE, $value);
   }
