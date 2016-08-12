@@ -52,23 +52,23 @@ class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
   public function filterTestProvider() {
     return [
       // Test singular parameter values.
-      ['node', TRUE],
-      ['node.article', TRUE],
-      ['node.page', FALSE],
+      [['node'], TRUE],
+      [['node.article'], TRUE],
+      [['node.page'], FALSE],
       // Test multiple parameter values.
-      ['block,node', TRUE],
-      ['node.article,node.page', TRUE],
-      ['node.page,node.article', TRUE],
-      ['node.test,node.page', FALSE],
+      [['block', 'node'], TRUE],
+      [['node.article', 'node.page'], TRUE],
+      [['node.page', 'node.article'], TRUE],
+      [['node.test', 'node.page'], FALSE],
       // Test bad data that might be entered into the parameters:
-      ['', FALSE],
-      [',', FALSE],
-      [',node', TRUE],
-      ['..', FALSE],
-      [NULL, FALSE],
-      [FALSE, FALSE],
-      [TRUE, FALSE],
-      [0, FALSE],
+      [[''], FALSE],
+      [[','], FALSE],
+      [[',node'], FALSE],
+      [['..'], FALSE],
+      [[NULL], FALSE],
+      [[FALSE], FALSE],
+      [[TRUE], FALSE],
+      [[0], FALSE],
     ];
   }
 
