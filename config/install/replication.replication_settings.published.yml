@@ -4,4 +4,5 @@ dependencies: {  }
 id: published
 label: Replicate published entities
 filter_id: published
-parameters: []
+parameters:
+  include_unpublishable_entities: FALSE
