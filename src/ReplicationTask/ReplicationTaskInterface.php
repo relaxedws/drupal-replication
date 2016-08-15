@@ -14,10 +14,10 @@ namespace Drupal\replication\ReplicationTask;
 interface ReplicationTaskInterface {
 
   /**
-   * Set the id of the filter plugin to use during replication.
+   * Set the ID of the filter plugin to use during replication.
    *
    * @param string $filter_name
-   *   The plugin id of a ReplicationFilterInterface.
+   *   The plugin ID of a ReplicationFilterInterface.
    *
    * @return ReplicationTaskInterface
    *   Returns $this.
@@ -25,17 +25,17 @@ interface ReplicationTaskInterface {
   public function setFilter($filter_name = NULL);
 
   /**
-   * Get the id of the filter plugin to use during replication.
+   * Get the ID of the filter plugin to use during replication.
    *
    * @return string
-   *   The plugin id of a ReplicationFilterInterface.
+   *   The plugin ID of a ReplicationFilterInterface.
    */
   public function getFilter();
 
   /**
    * Set the parameters for the filter plugin.
    *
-   * @param array|NULL $parameters_array
+   * @param array|NULL $parameters
    *   An associative array of name-value parameters.
    *
    * @return ReplicationTaskInterface

@@ -3,7 +3,6 @@
 namespace Drupal\Tests\replication\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\replication\Entity\ReplicationSettings;
 
 /**
  * Test operations on ReplicationSettings config entity.
@@ -40,7 +39,6 @@ class ReplicationSettingsTest extends KernelTestBase {
       'filter_id' => 'entity_type',
       'parameters' => ['entity_type_id' => 'node', 'bundle' => 'article'],
     ]);
-    $this->assertInstanceOf(ReplicationSettings::class, $entity, 'Replication Settings entity was created.');
     $entity->save();
 
     $entity = $entityTypeManager->getStorage('replication_settings')->load('test');

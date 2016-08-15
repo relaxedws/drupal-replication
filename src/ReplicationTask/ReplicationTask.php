@@ -10,7 +10,7 @@ use Drupal\replication\ReplicationTask\ReplicationTaskInterface;
 class ReplicationTask implements ReplicationTaskInterface {
 
   /**
-   * The id of the filter plugin to use during replication.
+   * The ID of the filter plugin to use during replication.
    *
    * @var string
    */
@@ -56,7 +56,7 @@ class ReplicationTask implements ReplicationTaskInterface {
     if (!is_array($this->parameters)) {
       $this->setParameters([]);
     }
-    $this->parameters->set($name, $value);
+    $this->parameters[$name] = $value;
     return $this;
   }
 

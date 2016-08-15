@@ -60,7 +60,7 @@ class PublishedFilterTest extends KernelTestBase {
    * @param string $entity_type_id
    *   The entity type id of the entity to create for testing.
    * @param array $entity_values
-   *   The values to pass to $class::create().
+   *   The values with which to create the entity.
    * @param bool $expected
    *   The expected return value from the filter function.
    *
