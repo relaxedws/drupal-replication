@@ -2,16 +2,16 @@
 
 namespace Drupal\Tests\replication\Functional;
 
+use Drupal\Tests\BrowserTestBase;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\node\Entity\Node;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests replication filters.
  *
  * @group replication
  */
-class ReplicationFilterTest extends WebTestBase {
+class ReplicationFilterTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
