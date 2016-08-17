@@ -4,7 +4,6 @@ namespace Drupal\Tests\replication\Unit\Plugin\ReplicationFilter;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\replication\Plugin\ReplicationFilter\EntityTypeFilter;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Tests that the entity type filter parses parameters correctly.
@@ -16,44 +15,60 @@ class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
   /**
    * Test filtering entity types.
    *
+   * @param string $types
+   *   The types filter parameter.
+   * @param string $expected
+   *   The expected return value from the filter method.
+   *
    * @dataProvider filterTestProvider
    */
-  public function testFilter($entity_type, $parameter_value, $expected) {
+  public function testFilter($types, $expected) {
     // Use a mock builder for the class under test to eliminate the need to
-    // mock all the dependencies. This is OK since the method under test is a
-    // pure function, i.e. does not use the state createdy by the constructor.
+    // mock all the dependencies. The method under test uses the $configuration
+    // set by the constructor, but is retrieved via a get method we can stub.
     $filter = $this->getMockBuilder(EntityTypeFilter::class)
       ->disableOriginalConstructor()
-      ->setMethods(NULL)
+      ->setMethods(['getConfiguration'])
       ->getMock();
+    $configuration = [
+      'types' => $types,
+    ];
+    $filter->method('getConfiguration')
+      ->willReturn($configuration);
     $entity = $this->getMock(EntityInterface::class);
+    $entity->method('getEntityTypeId')
+      ->willReturn('node');
     $entity->method('bundle')
       ->willReturn('article');
-    $parameters = new ParameterBag(['entity_type' => $parameter_value]);
 
-    $value = $filter->filter($entity, $parameters);
+    $value = $filter->filter($entity);
 
     $this->assertEquals($expected, $value);
   }
 
   /**
-   * Provide test cases for the "entity_type" parameter.
+   * Provide test cases for the "entity_type_id" and "bundle" parameters.
    */
   public function filterTestProvider() {
     return [
       // Test singular parameter values.
-      ['article', 'article', TRUE],
-      ['article', 'page', FALSE],
+      [['node'], TRUE],
+      [['node.article'], TRUE],
+      [['node.page'], FALSE],
       // Test multiple parameter values.
-      ['article', 'page,article', TRUE],
-      ['article', 'article,page', TRUE],
-      ['article', 'page,news', FALSE],
+      [['block', 'node'], TRUE],
+      [['node.article', 'node.page'], TRUE],
+      [['node.page', 'node.article'], TRUE],
+      [['node.test', 'node.page'], FALSE],
       // Test bad data that might be entered into the parameters:
-      ['article', '', FALSE],
-      ['article', NULL, FALSE],
-      ['article', FALSE, FALSE],
-      ['article', TRUE, FALSE],
-      ['article', 0, FALSE],
+      [[''], FALSE],
+      [[','], FALSE],
+      [[',node'], FALSE],
+      [['..'], FALSE],
+      [[NULL], FALSE],
+      [[FALSE], FALSE],
+      [[TRUE], FALSE],
+      [[0], FALSE],
     ];
   }
 

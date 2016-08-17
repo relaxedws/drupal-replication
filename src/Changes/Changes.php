@@ -7,8 +7,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\Plugin\ReplicationFilterManagerInterface;
-// @todo where is the ParameterBagInterface???
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -18,8 +16,9 @@ class Changes implements ChangesInterface {
   use DependencySerializationTrait;
 
   /**
+   * The workspace to generate the changeset from.
+   *
    * @var string
-   *   The workspace to generate the changeset from.
    */
   protected $workspaceId;
 
@@ -45,20 +44,23 @@ class Changes implements ChangesInterface {
   protected $filterName;
 
   /**
-   * @var ParameterBag
-   *   The parameters passed to the filter function.
+   * The parameters passed to the filter plugin.
+   *
+   * @var array
    */
   protected $parameters;
 
   /**
+   * Whether to include entities in the changeset.
+   *
    * @var boolean
-   *   Whether to include entities in the changeset.
    */
   protected $includeDocs = FALSE;
 
   /**
+   * The sequence ID to start including changes from. Result includes $lastSeq.
+   *
    * @var int
-   *   The sequence ID to start including changes from. Result includes $lastSeq.
    */
   protected $lastSeq = 0;
 
@@ -88,7 +90,7 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
-  public function parameters(ParameterBag $parameters = NULL) {
+  public function parameters(array $parameters = NULL) {
     $this->parameters = $parameters;
     return $this;
   }
@@ -118,15 +120,15 @@ class Changes implements ChangesInterface {
       ->getRange($this->lastSeq, NULL);
 
     // Setup filter plugin.
-    $parameters = ($this->parameters instanceof ParameterBag) ? $this->parameters : new ParameterBag();
+    $parameters = is_array($this->parameters) ? $this->parameters : [];
     $filter = NULL;
     if (is_string($this->filterName) && $this->filterName) {
-      $filter = $this->filterManager->createInstance($this->filterName);
+      $filter = $this->filterManager->createInstance($this->filterName, $parameters);
     }
     // If UUIDs are sent as a parameter, but no filter is set, automatically
     // select the "uuid" filter.
-    elseif ($parameters->has('uuids')) {
-      $filter = $this->filterManager->createInstance('uuid');
+    elseif (isset($parameters['uuids'])) {
+      $filter = $this->filterManager->createInstance('uuid', $parameters);
     }
 
     // Format the result array.
@@ -146,7 +148,7 @@ class Changes implements ChangesInterface {
       }
 
       // Filter the document.
-      if ($filter !== NULL && !$filter->filter($revision, $parameters)) {
+      if ($filter !== NULL && !$filter->filter($revision)) {
         continue;
       }
 

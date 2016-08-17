@@ -2,8 +2,6 @@
 
 namespace Drupal\replication\Changes;
 
-use Symfony\Component\HttpFoundation\ParameterBag;
-
 /**
  * Define and build a changeset for a Workspace.
  *
@@ -29,13 +27,13 @@ interface ChangesInterface {
   /**
    * Set the parameters for the filter plugin.
    *
-   * @param ParameterBag $parameters
-   *   The parameters passed to the filter function.
+   * @param array $parameters
+   *   The parameters passed to the filter plugin.
    *
    * @return \Drupal\replication\Changes\ChangesInterface
    *   Returns $this.
    */
-  public function parameters(ParameterBag $parameters = NULL);
+  public function parameters(array $parameters = NULL);
 
   /**
    * Set the flag for including entities in the changeset.

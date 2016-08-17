@@ -2,20 +2,25 @@
 
 namespace Drupal\Tests\replication\Functional;
 
+use Drupal\Tests\BrowserTestBase;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\node\Entity\Node;
-use Drupal\simpletest\WebTestBase;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Tests replication filters.
  *
  * @group replication
  */
-class ReplicationFilterTest extends WebTestBase {
+class ReplicationFilterTest extends BrowserTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   protected $strictConfigSchema = FALSE;
 
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'multiversion',
     'node',
@@ -24,8 +29,9 @@ class ReplicationFilterTest extends WebTestBase {
   ];
 
   /**
+   * The logged in user.
+   *
    * @var \Drupal\user\Entity\User
-   *   The logged in user.
    */
   protected $user;
 
@@ -70,9 +76,9 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->workspace = $workspace;
     $entity2->save();
 
-    $parameters = new ParameterBag(['uuids' => $entity1->uuid()]);
+    $parameters = ['uuids' => [$entity1->uuid()]];
     $changes = $changes_factory->get($workspace)->filter('uuid')->parameters($parameters)->getNormal();
-    $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset.');
+    $this->assertCount(1, $changes, 'Expect there is 1 entity in the changeset for UUIDs filter.');
   }
 
   /**
@@ -104,7 +110,7 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->save();
 
     $changes = $changes_factory->get($workspace)->filter('published')->getNormal();
-    $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset.');
+    $this->assertCount(1, $changes, 'Expect there is 1 entity in the changeset for published filter.');
   }
 
   /**
@@ -137,9 +143,9 @@ class ReplicationFilterTest extends WebTestBase {
     $entity2->workspace = $workspace;
     $entity2->save();
 
-    $parameters = new ParameterBag(['entity_type' => 'article']);
+    $parameters = ['types' => ['node.article']];
     $changes = $changes_factory->get($workspace)->filter('entity_type')->parameters($parameters)->getNormal();
-    $this->assertEqual(1, count($changes), 'Expect there is 1 entity in the changeset.');
+    $this->assertCount(1, $changes, 'Expect there is 1 entity in the changeset for entity type filter.');
   }
 
 }
