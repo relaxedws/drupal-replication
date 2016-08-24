@@ -27,8 +27,15 @@ class ChangesNormalizer extends NormalizerBase {
     $last_result = end($results);
     $last_seq = isset($last_result['seq']) ? $last_result['seq'] : 0;
 
-    // 'since' parameter is important for PouchDB replication.
+    // Check if 'since' parameter is set.
     $since = (isset($context['query']['since']) && is_numeric($context['query']['since'])) ? $context['query']['since'] : 0;
+
+    // Check if 'limit' parameter is set.
+    $limit = (isset($context['query']['limit']) && is_numeric($context['query']['limit'])) ? $context['query']['limit'] : NULL;
+
+    // Note that using 0 here has the same effect as 1.
+    // This is specified in CouchDB documentation.
+    $limit = (!is_null($limit) && $limit == 0) ? 1 : $limit;
 
     $filtered_results = array();
     if ($since == 0) {
@@ -40,6 +47,11 @@ class ChangesNormalizer extends NormalizerBase {
           $filtered_results[] = $result;
         }
       }
+    }
+
+    // Limit the number of results if the limit is set.
+    if ($limit) {
+      $filtered_results = array_slice($filtered_results, 0, $limit);
     }
 
     return array(
