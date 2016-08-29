@@ -323,7 +323,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
 
       foreach ($site_languages as $site_language) {
         $langcode = $site_language->getId();
-        if ($entity->language()->getId() != $langcode) {
+        if ($entity->language()->getId() != $langcode && isset($translations[$langcode])) {
           $entity->addTranslation($langcode, $translations[$langcode]);
         }
       }
@@ -438,7 +438,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           else {
             $target_entity_type_id = $settings['target_type'];
           }
-          
+
           if ($target_entity_type_id === 'user') {
             $translation[$field_name] = $this->usersMapping->mapReferenceField($translation, $field_name);
             continue;
