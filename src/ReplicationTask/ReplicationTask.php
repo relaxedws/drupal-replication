@@ -2,12 +2,10 @@
 
 namespace Drupal\replication\ReplicationTask;
 
-use Relaxed\Replicator\ReplicationTask as RelaxedReplicationTask;
-
 /**
  * {@inheritdoc}
  */
-class ReplicationTask extends RelaxedReplicationTask implements ReplicationTaskInterface {
+class ReplicationTask implements ReplicationTaskInterface {
 
   /**
    * The ID of the filter plugin to use during replication.

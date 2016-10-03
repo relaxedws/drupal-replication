@@ -5,6 +5,8 @@
  * Drush integration for the replication module.
  */
 
+// @todo move this file to the Relaxed module or revise to not be dependent
+// upon Relaxed.
 use Doctrine\CouchDB\CouchDBClient;
 use Relaxed\Replicator\ReplicationTask;
 use Relaxed\Replicator\Replication;
