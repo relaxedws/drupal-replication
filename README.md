@@ -4,4 +4,4 @@
 Replication
 ===========
 
-Provides services and entities types so assist with and log content replication.
+Provides services and entities types to assist with and log content replication.
