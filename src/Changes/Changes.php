@@ -16,6 +16,13 @@ class Changes implements ChangesInterface {
   use DependencySerializationTrait;
 
   /**
+   * The sequence index.
+   * 
+   * @var \Drupal\multiversion\Entity\Index\SequenceIndexInterface
+   */
+  protected $sequenceIndex;
+
+  /**
    * The workspace to generate the changeset from.
    *
    * @var string
@@ -41,7 +48,7 @@ class Changes implements ChangesInterface {
    * @var string
    *   The id of the filter plugin to use during replication.
    */
-  protected $filterName;
+  protected $filter;
 
   /**
    * The parameters passed to the filter plugin.
@@ -82,8 +89,8 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
-  public function filter($filter_name) {
-    $this->filterName = $filter_name;
+  public function filter($filter) {
+    $this->filter = $filter;
     return $this;
   }
 
@@ -122,8 +129,8 @@ class Changes implements ChangesInterface {
     // Setup filter plugin.
     $parameters = is_array($this->parameters) ? $this->parameters : [];
     $filter = NULL;
-    if (is_string($this->filterName) && $this->filterName) {
-      $filter = $this->filterManager->createInstance($this->filterName, $parameters);
+    if (is_string($this->filter) && $this->filter) {
+      $filter = $this->filterManager->createInstance($this->filter, $parameters);
     }
     // If UUIDs are sent as a parameter, but no filter is set, automatically
     // select the "uuid" filter.
