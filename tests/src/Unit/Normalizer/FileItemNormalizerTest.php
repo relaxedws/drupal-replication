@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Normalizer\FileItemNormalizerTest.
- */
-
 namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;

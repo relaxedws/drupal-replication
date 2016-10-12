@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Normalizer\WorkspaceNormalizerTest.
- */
-
 namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
@@ -16,21 +11,6 @@ use Drupal\multiversion\Entity\Workspace;
  * @group replication
  */
 class WorkspaceNormalizerTest extends NormalizerTestBase {
-
-  public static $modules = [
-    'serialization',
-    'system',
-    'field',
-    'entity_test',
-    'text',
-    'filter',
-    'user',
-    'key_value',
-    'multiversion',
-    'rest',
-    'replication',
-    'replication'
-  ];
 
   protected $entityClass = 'Drupal\multiversion\Entity\Workspace';
 

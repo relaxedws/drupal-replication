@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Normalizer\ReplicationLogNormalizerTest.
- */
-
 namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\replication\Entity\ReplicationLog;
@@ -15,21 +10,6 @@ use Drupal\replication\Entity\ReplicationLog;
  * @group replication
  */
 class ReplicationLogNormalizerTest extends NormalizerTestBase {
-
-  public static $modules = [
-    'serialization',
-    'system',
-    'field',
-    'entity_test',
-    'text',
-    'filter',
-    'user',
-    'key_value',
-    'multiversion',
-    'replication',
-    'rest',
-    'replication'
-  ];
 
   protected $entityClass = 'Drupal\replication\Entity\ReplicationLog';
 

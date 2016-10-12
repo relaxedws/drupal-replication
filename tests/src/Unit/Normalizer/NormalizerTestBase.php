@@ -1,17 +1,11 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Normalizer\NormalizerTestBase.
- */
-
 namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\multiversion\Entity\Workspace;
-use Drupal\multiversion\Entity\WorkspaceType;
 
 abstract class NormalizerTestBase extends KernelTestBase {
 
@@ -22,13 +16,17 @@ abstract class NormalizerTestBase extends KernelTestBase {
    */
   public static $modules = [
     'serialization',
+    'multiversion',
+    'key_value',
     'system',
     'field',
     'entity_test',
     'replication',
     'text',
     'filter',
-    'user'
+    'user',
+    'link',
+    'file',
   ];
 
   /**
@@ -41,9 +39,10 @@ abstract class NormalizerTestBase extends KernelTestBase {
     $this->installEntitySchema('entity_test_mulrev');
     $this->installEntitySchema('user');
     $this->installSchema('system', ['url_alias', 'router']);
-    $this->installConfig(['field', 'multiversion']);
+    $this->installSchema('key_value', ['key_value_sorted']);
+    $this->installConfig(['multiversion', 'replication']);
+    \Drupal::service('multiversion.manager')->enableEntityTypes();
     \Drupal::service('router.builder')->rebuild();
-    \Drupal::moduleHandler()->invoke('rest', 'install');
 
     // Auto-create a field for testing.
     FieldStorageConfig::create([
@@ -64,13 +63,9 @@ abstract class NormalizerTestBase extends KernelTestBase {
       ),
     ])->save();
 
-    $this->installSchema('key_value', ['key_value_sorted']);
-    \Drupal::service('multiversion.manager')->enableEntityTypes();
-
     $this->serializer = $this->container->get('serializer');
-
-    $workspace = Workspace::create(['machine_name' => 'default', 'type' => 'basic']);
-    $workspace->save();
+    // Create default workspace.
+    Workspace::create(['machine_name' => 'live', 'label' => 'Live', 'type' => 'basic'])->save();
   }
 
 }

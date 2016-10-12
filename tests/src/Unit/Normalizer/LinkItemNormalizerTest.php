@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Normalizer\LinkItemNormalizerTest.
- */
-
 namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
@@ -18,19 +13,6 @@ use Drupal\field\Entity\FieldStorageConfig;
  * @group replication
  */
 class LinkItemNormalizerTest extends NormalizerTestBase {
-
-  public static $modules = [
-    'serialization',
-    'system',
-    'field',
-    'entity_test',
-    'user',
-    'key_value',
-    'multiversion',
-    'rest',
-    'replication',
-    'link',
-  ];
 
   protected $entityClass = 'Drupal\entity_test\Entity\EntityTest';
 

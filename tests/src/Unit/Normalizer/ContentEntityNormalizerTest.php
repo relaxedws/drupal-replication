@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Normalizer\ContentEntityNormalizerTest.
- */
-
 namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
@@ -16,21 +11,6 @@ use Drupal\entity_test\Entity\EntityTestMulRev;
  * @group replication
  */
 class ContentEntityNormalizerTest extends NormalizerTestBase {
-
-  public static $modules = [
-    'serialization',
-    'system',
-    'field',
-    'entity_test',
-    'text',
-    'filter',
-    'user',
-    'key_value',
-    'multiversion',
-    'rest',
-    'replication',
-    'replication'
-  ];
 
   protected $entityClass = 'Drupal\entity_test\Entity\EntityTest';
 

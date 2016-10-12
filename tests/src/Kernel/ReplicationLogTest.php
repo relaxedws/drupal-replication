@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\Tests\ReplicationLogTest.
- */
-
 namespace Drupal\Tests\replication\Kernel;
 
 use Drupal\Core\Entity\EntityStorageException;

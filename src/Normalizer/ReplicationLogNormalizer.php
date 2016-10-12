@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\UuidIndexInterface;
 use Drupal\replication\Entity\ReplicationLog;
 use Drupal\replication\Entity\ReplicationLogInterface;
-use Drupal\rest\LinkManager\LinkManagerInterface;
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -26,6 +25,8 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
    * @var string[]
    */
   protected $format = array('json');
+
+  protected $entityTypeManager;
 
   /**
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager

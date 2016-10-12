@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Normalizer\AttachmentNormalizerTest.
- */
-
 namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
@@ -16,16 +11,6 @@ use Drupal\file\Entity\File;
  * @group replication
  */
 class AttachmentNormalizerTest extends NormalizerTestBase {
-
-  public static $modules = [
-    'serialization',
-    'system',
-    'field',
-    'file',
-    'key_value',
-    'multiversion',
-    'replication'
-  ];
 
   /**
    * @var \Symfony\Component\Serializer\SerializerInterface

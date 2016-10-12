@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Normalizer\BulkDocsNormalizerTest.
- */
-
 namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
@@ -17,21 +12,6 @@ use Drupal\replication\BulkDocs\BulkDocsInterface;
  * @group replication
  */
 class BulkDocsNormalizerTest extends NormalizerTestBase {
-
-  public static $modules = [
-    'serialization',
-    'system',
-    'field',
-    'entity_test',
-    'text',
-    'filter',
-    'user',
-    'key_value',
-    'multiversion',
-    'rest',
-    'replication',
-    'replication'
-  ];
 
   protected $entityClass = 'Drupal\entity_test\Entity\EntityTest';
 
