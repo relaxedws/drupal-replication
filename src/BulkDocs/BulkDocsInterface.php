@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\BulkDocs\BulkDocsInterface
- */
-
 namespace Drupal\replication\BulkDocs;
 
 interface BulkDocsInterface {

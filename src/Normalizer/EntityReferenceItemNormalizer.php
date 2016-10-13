@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\Normalizer\EntityReferenceItemNormalizer.
- */
-
 namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Entity\FieldableEntityStorageInterface;

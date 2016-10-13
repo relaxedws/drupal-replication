@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\replication\Unit\Encoder\StreamEncoderTest.
- */
-
 namespace Drupal\Tests\replication\Unit\Encoder;
 
 use Drupal\KernelTests\KernelTestBase;

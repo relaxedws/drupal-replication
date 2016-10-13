@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\Normalizer\ChangesNormalizer.
- */
-
 namespace Drupal\replication\Normalizer;
 
 use Drupal\serialization\Normalizer\NormalizerBase;

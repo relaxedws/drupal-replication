@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\Normalizer\FileItemNormalizer.
- */
-
 namespace Drupal\replication\Normalizer;
 
 use Drupal\file\Entity\File;
@@ -34,9 +29,10 @@ class FileItemNormalizer extends NormalizerBase implements DenormalizerInterface
     $definition = $data->getFieldDefinition();
     $values = $data->getValue();
     $file = isset($values['target_id']) ? File::load($values['target_id']) : NULL;
+    $file_system = \Drupal::service('file_system');
     if ($file) {
       $uri = $file->getFileUri();
-      $scheme = file_uri_scheme($uri);
+      $scheme = $file_system->uriScheme($uri);
       $field_name = $definition->getName();
 
       if (!$target = file_uri_target($uri)) {
@@ -48,7 +44,7 @@ class FileItemNormalizer extends NormalizerBase implements DenormalizerInterface
 
       // @todo {@link https://www.drupal.org/node/2600354 Align file data normalization with attachment normalization.}
       $file_contents = file_get_contents($uri);
-      if (in_array(file_uri_scheme($uri), array('public', 'private')) == FALSE) {
+      if (in_array($file_system->uriScheme($uri), array('public', 'private')) == FALSE) {
         $file_data = '';
       }
       else {

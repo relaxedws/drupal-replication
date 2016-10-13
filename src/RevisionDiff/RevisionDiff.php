@@ -1,15 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\RevisionDiff\RevisionDiff.
- */
-
 namespace Drupal\replication\RevisionDiff;
 
 use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class RevisionDiff implements RevisionDiffInterface {
 

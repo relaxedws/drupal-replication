@@ -1,16 +1,10 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\Normalizer\LinkItemNormalizer.
- */
-
 namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
-use Drupal\multiversion\Entity\Index\UuidIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;

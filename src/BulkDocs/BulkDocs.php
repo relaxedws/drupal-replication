@@ -1,15 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\BulkDocs\BulkDocs
- */
-
 namespace Drupal\replication\BulkDocs;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\multiversion\Entity\Index\RevisionIndexInterface;

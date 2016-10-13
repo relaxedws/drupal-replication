@@ -1,15 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\replication\RevisionDiff\RevisionDiffInterface.
- */
-
 namespace Drupal\replication\RevisionDiff;
-
-use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
-use Drupal\multiversion\Entity\WorkspaceInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 interface RevisionDiffInterface {
 
