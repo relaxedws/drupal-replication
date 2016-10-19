@@ -16,13 +16,13 @@ interface ReplicationTaskInterface {
   /**
    * Set the ID of the filter plugin to use during replication.
    *
-   * @param string $filter_name
+   * @param string $filter
    *   The plugin ID of a ReplicationFilterInterface.
    *
    * @return ReplicationTaskInterface
    *   Returns $this.
    */
-  public function setFilter($filter_name = NULL);
+  public function setFilter($filter = NULL);
 
   /**
    * Get the ID of the filter plugin to use during replication.

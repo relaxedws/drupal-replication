@@ -12,7 +12,7 @@ class ReplicationTask implements ReplicationTaskInterface {
    *
    * @var string
    */
-  protected $filterName;
+  protected $filter;
 
   /**
    * The parameters passed to the filter function.
@@ -24,8 +24,8 @@ class ReplicationTask implements ReplicationTaskInterface {
   /**
    * {@inheritdoc}
    */
-  public function setFilter($filter_name = NULL) {
-    $this->filterName = $filter_name;
+  public function setFilter($filter = NULL) {
+    $this->filter = $filter;
     return $this;
   }
 
@@ -33,7 +33,7 @@ class ReplicationTask implements ReplicationTaskInterface {
    * {@inheritdoc}
    */
   public function getFilter() {
-    return $this->filterName;
+    return $this->filter;
   }
 
   /**

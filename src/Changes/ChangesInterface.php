@@ -14,15 +14,15 @@ namespace Drupal\replication\Changes;
 interface ChangesInterface {
 
   /**
-   * Set the id of the filter plugin to use to refine the changeset.
+   * Set the ID of the filter plugin to use to refine the changeset.
    *
-   * @param string $filter_name
+   * @param string $filter
    *   The plugin id of a Drupal\replication\Plugin\ReplicationFilterInterface.
    *
    * @return \Drupal\replication\Changes\ChangesInterface
    *   Returns $this.
    */
-  public function filter($filter_name);
+  public function filter($filter);
 
   /**
    * Set the parameters for the filter plugin.

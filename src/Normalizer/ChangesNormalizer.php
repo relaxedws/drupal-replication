@@ -18,6 +18,12 @@ class ChangesNormalizer extends NormalizerBase {
    */
   public function normalize($changes, $format = NULL, array $context = array()) {
     /** @var \Drupal\replication\Changes\ChangesInterface $changes */
+    if (isset($context['query']['filter'])) {
+      $changes->filter($context['query']['filter']);
+    }
+    if (isset($context['query']['parameters'])) {
+      $changes->parameters($context['query']['parameters']);
+    }
     $results = $changes->getNormal();
     $last_result = end($results);
     $last_seq = isset($last_result['seq']) ? $last_result['seq'] : 0;
