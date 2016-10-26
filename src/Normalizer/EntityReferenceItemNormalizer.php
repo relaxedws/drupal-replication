@@ -37,7 +37,7 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
     if ($target_type === 'user') {
       $taget_id = \Drupal::service('replication.users_mapping')->getUidFromConfig();
     }
-    if (!$taget_id) {
+    if ($taget_id === NULL) {
       return $value;
     }
 
@@ -53,7 +53,7 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
 
     // Add username to the field info for user entity type.
     if ($target_type === 'user' && $username = $referenced_entity->getUsername()) {
-      $field_info = ['username' => $username];
+      $field_info['username'] = $username;
     }
 
     $bundle_key = $referenced_entity->getEntityType()->getKey('bundle');
