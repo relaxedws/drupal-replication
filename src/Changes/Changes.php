@@ -154,11 +154,6 @@ class Changes implements ChangesInterface {
         $revision = $storage->loadRevision($sequence['revision_id']);
       }
 
-      // Ignore missing revisions.
-      if (!$revision) {
-        continue;
-      }
-
       // Filter the document.
       if ($filter !== NULL && !$filter->filter($revision)) {
         continue;
