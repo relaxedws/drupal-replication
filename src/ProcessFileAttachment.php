@@ -50,13 +50,16 @@ class ProcessFileAttachment {
       /** @var FileInterface $file */
       $file = $this->entity_type_manager->getStorage($entity_info['entity_type_id'])
         ->load($entity_info['entity_id']);
-      if ($file && !is_file($file->getFileUri())) {
+      if (!$file || !is_file($file->getFileUri())) {
         $file_context = [
           'uri' => $uri,
           'uuid' => $file_uuid,
           'status' => FILE_STATUS_PERMANENT,
           'uid' => $current_user_id,
         ];
+        if ($workspace) {
+          $file_context['workspace'] = $workspace;
+        }
         $file = \Drupal::getContainer()
           ->get('serializer')
           ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
