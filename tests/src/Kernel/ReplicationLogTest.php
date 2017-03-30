@@ -29,16 +29,6 @@ class ReplicationLogTest extends KernelTestBase {
     $seq_id = \Drupal::service('multiversion.manager')->newSequenceId();
     $entity->source_last_seq->value = $seq_id;
     $entity->history->recorded_seq = $seq_id;
-
-    try {
-      $entity->save();
-      $this->fail('Required history column was enforced.');
-    }
-    catch(EntityStorageException $e) {
-      $this->assertTrue($e !== null, 'Required history column was enforced.');
-    }
-
-    // Try again with the remaining required field set.
     $entity->history->session_id = \Drupal::service('uuid')->generate();
     $entity->save();
 
