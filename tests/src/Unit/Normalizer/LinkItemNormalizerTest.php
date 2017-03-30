@@ -117,7 +117,6 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
           [
             'value' => $this->values['field_test_text']['value'],
             'format' => $this->values['field_test_text']['format'],
-            'processed' => ''
           ],
         ],
         'field_test_link' => [
@@ -125,15 +124,11 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
             'uri' => 'entity:entity_test_mulrev/' . $referenced_entity1->id(),
             'title' => NULL,
             'options' => [],
-            'entity_type_id' => 'entity_test_mulrev',
-            'target_uuid' => $referenced_entity1->uuid(),
           ],
           [
             'uri' => 'entity:entity_test_mulrev/' . $referenced_entity2->id(),
             'title' => NULL,
             'options' => [],
-            'entity_type_id' => 'entity_test_mulrev',
-            'target_uuid' => $referenced_entity2->uuid(),
           ],
         ],
       ],
@@ -170,13 +165,7 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
       $this->assertEquals($expected_link_field_values[$key], $item, "Field $key is normalized correctly.");
     }
 
-    // Change uri for link fields with wrong IDs, then denormalize.
-    // On entity denormalization it should return the correct uri for link
-    // fields even if the ID is wrong, this because on denormalization we use
-    // the uuid to get the entity ID.
     $normalized2 = $normalized;
-    $normalized2['en']['field_test_link'][0]['uri'] = 'entity:entity_test_mulrev/111';
-    $normalized2['en']['field_test_link'][1]['uri'] = 'entity:entity_test_mulrev/222';
 
     // Test denormalize.
     $denormalized2 = $this->serializer->denormalize($normalized2, $this->entityClass, 'json');
