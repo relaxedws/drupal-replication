@@ -2,7 +2,6 @@
 
 namespace Drupal\replication\Entity;
 
-use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -115,22 +114,26 @@ class ReplicationLog extends ContentEntityBase implements ReplicationLogInterfac
     $fields['history'] = BaseFieldDefinition::create('replication_history')
       ->setLabel(t('Replication log history'))
       ->setDescription(t('The version id of the test entity.'))
+      ->setRevisionable(TRUE)
       ->setReadOnly(TRUE)
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
 
     $fields['session_id'] = BaseFieldDefinition::create('uuid')
       ->setLabel(t('Replication session ID'))
       ->setDescription(t('The unique session ID of the last replication. Shortcut to the session_id in the last history item.'))
+      ->setRevisionable(TRUE)
       ->setReadOnly(TRUE);
 
     $fields['source_last_seq'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Last processed checkpoint'))
       ->setDescription(t('The last processed checkpoint. Shortcut to the source_last_seq in the last history item.'))
+      ->setRevisionable(TRUE)
       ->setReadOnly(TRUE);
 
     $fields['ok'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('ok'))
       ->setDescription(t('Replication status'))
+      ->setRevisionable(TRUE)
       ->setDefaultValue(TRUE)
       ->setReadOnly(TRUE);
 
