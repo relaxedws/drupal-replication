@@ -90,66 +90,66 @@ class ReplicationHistoryItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
-    return array(
-      'columns' => array(
-        'doc_write_failures' => array(
+    return [
+      'columns' => [
+        'doc_write_failures' => [
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => FALSE,
-        ),
-        'docs_read' => array(
+        ],
+        'docs_read' => [
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => FALSE,
-        ),
-        'docs_written' => array(
+        ],
+        'docs_written' => [
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => FALSE,
-        ),
-        'end_last_seq' => array(
+        ],
+        'end_last_seq' => [
           'type' => 'int',
           'size' => 'big',
           'not null' => FALSE,
-        ),
-        'end_time' => array(
+        ],
+        'end_time' => [
           'type' => 'varchar',
           'length' => 50,
           'not null' => FALSE,
-        ),
-        'missing_checked' => array(
+        ],
+        'missing_checked' => [
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => FALSE,
-        ),
-        'missing_found' => array(
+        ],
+        'missing_found' => [
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => FALSE,
-        ),
-        'recorded_seq' => array(
+        ],
+        'recorded_seq' => [
           'type' => 'int',
           'size' => 'big',
           'not null' => FALSE,
           'default' => 0,
-        ),
-        'session_id' => array(
+        ],
+        'session_id' => [
           'type' => 'varchar',
           'length' => 128,
           'not null' => TRUE,
-        ),
-        'start_last_seq' => array(
+        ],
+        'start_last_seq' => [
           'type' => 'int',
           'size' => 'big',
           'not null' => FALSE,
-        ),
-        'start_time' => array(
+        ],
+        'start_time' => [
           'type' => 'varchar',
           'length' => 50,
           'not null' => FALSE,
-        ),
-      ),
-    );
+        ],
+      ],
+    ];
   }
 
 }

@@ -15,84 +15,84 @@ use Relaxed\Replicator\Replication;
  * Implements of hook_drush_command().
  */
 function replication_drush_command() {
-  $items = array();
+  $items = [];
 
-  $items['replication-start'] = array(
+  $items['replication-start'] = [
     'bootstrap' => DRUSH_BOOTSTRAP_NONE,
     'description' => 'Start a replication.',
-    'arguments' => array(
+    'arguments' => [
       'source' => dt('Source database.'),
       'target' => dt('Target database.'),
-    ),
+    ],
     'required-arguments' => TRUE,
-    'options' => array(
-      'continuous' => array(
+    'options' => [
+      'continuous' => [
         'description' => dt('Continuous replication.'),
         'default' => FALSE,
-      ),
-      'replicator' => array(
+      ],
+      'replicator' => [
         'description' => dt('The used replicator.'),
-      ),
-    ),
-    'outputformat' => array(
+      ],
+    ],
+    'outputformat' => [
       'default' => 'key-value',
       'pipe-format' => 'json',
-      'field-labels' => array(
+      'field-labels' => [
         'ok' => 'Status',
         'no_changes' => 'No changes',
         'session_id' => 'Session ID',
         'source_last_seq' => 'Last sequence number',
         'replication_id_version' => 'Replication protocol version',
-      ),
+      ],
       'output-data-type' => 'format-list',
-    ),
-  );
-  $items['replication-stop'] = array(
+    ],
+  ];
+  $items['replication-stop'] = [
     'bootstrap' => DRUSH_BOOTSTRAP_NONE,
     'description' => 'Stop a replication.',
-    'arguments' => array(
+    'arguments' => [
       'source' => dt('Source database.'),
       'target' => dt('Target database.'),
-    ),
+    ],
     'required-arguments' => TRUE,
-    'options' => array(
-      'continuous' => array(
+    'options' => [
+      'continuous' => [
         'description' => dt('Continuous replication.'),
         'default' => FALSE,
-      ),
-      'replicator' => array(
+      ],
+      'replicator' => [
         'description' => dt('The used replicator.'),
-      ),
-    ),
-    'outputformat' => array(
+      ],
+    ],
+    'outputformat' => [
       'default' => 'key-value',
       'pipe-format' => 'json',
-      'field-labels' => array(
+      'field-labels' => [
         'ok' => 'Status',
         'no_changes' => 'No changes',
         'session_id' => 'Session ID',
         'source_last_seq' => 'Last sequence number',
         'replication_id_version' => 'Replication protocol version',
-      ),
+      ],
       'output-data-type' => 'format-list',
-    ),
-  );
-  $items['replication-active'] = array(
+    ],
+  ];
+  $items['replication-active'] = [
     'bootstrap' => DRUSH_BOOTSTRAP_NONE,
     'description' => 'Prints information about the specific active replication between target and source databases.',
-    'arguments' => array(
+    'arguments' => [
       'source' => dt('Source database.'),
       'target' => dt('Target database.'),
-    ),
-    'options' => array(
-      'replicator' => array(
+    ],
+    'options' => [
+      'replicator' => [
         'description' => dt('The used replicator.'),
-      ),
-    ),
-    'outputformat' => array(
+      ],
+    ],
+    'outputformat' => [
       'default' => 'key-value-list',
       'pipe-format' => 'json',
-      'field-labels' => array(
+      'field-labels' => [
         'source' => 'Source',
         'target' => 'Target',
         'started_on' => 'Started on',
@@ -102,9 +102,9 @@ function replication_drush_command() {
         'revisions_checked' => 'Revisions checked',
         'doc_write_failures' => 'Write failures',
         'pid' => 'Process ID',
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
 
   return $items;
 }
@@ -191,7 +191,7 @@ function drush_replication_active($source = NULL, $target = NULL) {
         $target_diff = array_diff(replication_get_url_parts($result['target']), replication_get_url_parts($target));
         if (empty($source_diff) && empty($target_diff)) {
           // Return information about one active replication.
-          return array($results[$key]);
+          return [$results[$key]];
         }
         else {
           drush_print('No active replication.');
@@ -263,10 +263,10 @@ function replication_get_http_response_code($url) {
  */
 function replication_get_url_parts($url, $credentials = FALSE) {
   $url_parts = parse_url($url);
-  $options = array(
+  $options = [
     'host' => $url_parts['host'],
     'port' => $url_parts['port'],
-  );
+  ];
   $path = trim($url_parts['path'], '/');
   if ($path != '') {
     $options['path'] = $path;

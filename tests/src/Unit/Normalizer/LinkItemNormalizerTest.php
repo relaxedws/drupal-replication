@@ -81,11 +81,11 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
     $this->entity = EntityTestMulRev::create($this->values);
     $this->entity->save();
 
-    $expected = array(
-      '@context' => array(
+    $expected = [
+      '@context' => [
         '_id' => '@id',
         '@language' => 'en'
-      ),
+      ],
       '@type' => 'entity_test_mulrev',
       'en' => [
         '@context' => [
@@ -134,7 +134,7 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
       ],
       '_id' => $this->entity->uuid(),
       '_rev' => $this->entity->_rev->value,
-    );
+    ];
 
     // Test normalize.
     $normalized = $this->serializer->normalize($this->entity);

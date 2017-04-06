@@ -14,17 +14,17 @@ class WorkspaceNormalizer extends EntityNormalizer {
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = array('Drupal\multiversion\Entity\WorkspaceInterface');
+  protected $supportedInterfaceOrClass = ['Drupal\multiversion\Entity\WorkspaceInterface'];
 
   /**
    * @var string[]
    */
-  protected $format = array('json');
+  protected $format = ['json'];
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($entity, $format = NULL, array $context = array()) {
+  public function normalize($entity, $format = NULL, array $context = []) {
     $context['entity_type'] = 'workspace';
     $data = parent::normalize($entity, $format, $context);
 
@@ -45,7 +45,7 @@ class WorkspaceNormalizer extends EntityNormalizer {
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     if (isset($data['db_name'])) {
       $data['machine_name'] = $data['db_name'];
       unset($data['db_name']);

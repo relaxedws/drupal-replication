@@ -12,12 +12,12 @@ class RevsDiffNormalizer extends NormalizerBase implements DenormalizerInterface
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = array('Drupal\replication\RevisionDiff\RevisionDiffInterface');
+  protected $supportedInterfaceOrClass = ['Drupal\replication\RevisionDiff\RevisionDiffInterface'];
 
   /**
    * @var string[]
    */
-  protected $format = array('json');
+  protected $format = ['json'];
 
   /** @var  \Drupal\replication\RevisionDiffFactoryInterface */
   protected $revisionDiffFactory;
@@ -29,7 +29,7 @@ class RevsDiffNormalizer extends NormalizerBase implements DenormalizerInterface
   /**
    * {@inheritdoc}
    */
-  public function normalize($rev_diff, $format = NULL, array $context = array()) {
+  public function normalize($rev_diff, $format = NULL, array $context = []) {
     /** @var \Drupal\replication\RevisionDiff\RevisionDiffInterface $rev_diff */
     $missing = $rev_diff->getMissing();
     return $missing ?: new \stdClass();
@@ -38,7 +38,7 @@ class RevsDiffNormalizer extends NormalizerBase implements DenormalizerInterface
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     if (!isset($context['workspace'])) {
       throw new LogicException('A \'workspace\' context is required to denormalize revision diff data.');
     }

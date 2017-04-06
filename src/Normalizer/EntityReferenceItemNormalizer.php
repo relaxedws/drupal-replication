@@ -18,12 +18,12 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
   /**
    * @var string[]
    */
-  protected $format = array('json');
+  protected $format = ['json'];
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($field, $format = NULL, array $context = array()) {
+  public function normalize($field, $format = NULL, array $context = []) {
     $value = $field->getValue();
     $target_type = $field->getFieldDefinition()->getSetting('target_type');
     $storage = \Drupal::entityTypeManager()->getStorage($target_type);
@@ -68,7 +68,7 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     return $data;
   }
 

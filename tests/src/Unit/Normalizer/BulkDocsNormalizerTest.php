@@ -56,7 +56,7 @@ class BulkDocsNormalizerTest extends NormalizerTestBase {
 
   public function testNormalizer() {
     // Test normalize.
-    $expected = array();
+    $expected = [];
     for ($key = 0; $key < $this->testValuesNumber; $key++) {
       $entity = EntityTestMulRev::load($key + 1);
       $expected[$key] = [
@@ -103,7 +103,7 @@ class BulkDocsNormalizerTest extends NormalizerTestBase {
   }
 
   protected function createTestEntities($entity_type, $number = 3) {
-    $entities = array();
+    $entities = [];
     $entity_manager = \Drupal::entityManager();
 
     while ($number >= 1) {

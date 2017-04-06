@@ -11,17 +11,17 @@ class AttachmentNormalizer extends ContentEntityNormalizer implements Denormaliz
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = array('\Drupal\file\FileInterface');
+  protected $supportedInterfaceOrClass = ['\Drupal\file\FileInterface'];
 
   /**
    * @var string[]
    */
-  protected $format = array('stream', 'base64_stream');
+  protected $format = ['stream', 'base64_stream'];
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($data, $format = NULL, array $context = array()) {
+  public function normalize($data, $format = NULL, array $context = []) {
     // If the 'new_revision_id' context is TRUE then normalize file entity as a
     // content entity not stream.
     if (!empty($context['new_revision_id'])) {
@@ -35,10 +35,10 @@ class AttachmentNormalizer extends ContentEntityNormalizer implements Denormaliz
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     $meta_data = is_resource($data) ? stream_get_meta_data($data) : NULL;
     // @todo {@link https://www.drupal.org/node/2599926 Use $class to instantiate the entity.}
-    $file_data = array();
+    $file_data = [];
     if (isset($meta_data['uri'])) {
       $file_data['uri'] = $meta_data['uri'];
     }
@@ -46,7 +46,7 @@ class AttachmentNormalizer extends ContentEntityNormalizer implements Denormaliz
       $file_data['uri'] = $context['uri'];
     }
 
-    $file_info_keys = array('uuid', 'status', 'uid', 'workspace');
+    $file_info_keys = ['uuid', 'status', 'uid', 'workspace'];
     foreach ($file_info_keys as $key) {
       if (isset($context[$key])) {
         $file_data[$key] = $context[$key];

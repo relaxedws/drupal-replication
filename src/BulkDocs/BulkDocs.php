@@ -54,7 +54,7 @@ class BulkDocs implements BulkDocsInterface {
   /**
    * @var \Drupal\Core\Entity\ContentEntityInterface[]
    */
-  protected $entities = array();
+  protected $entities = [];
 
   /**
    * @var bool
@@ -64,7 +64,7 @@ class BulkDocs implements BulkDocsInterface {
   /**
    * @var array
    */
-  protected $result = array();
+  protected $result = [];
 
   /**
    * The state service.
@@ -154,12 +154,12 @@ class BulkDocs implements BulkDocsInterface {
 
         if ($record) {
           if (!$this->newEdits && !$record['is_stub']) {
-            $this->result[] = array(
+            $this->result[] = [
               'error' => 'conflict',
               'reason' => 'Document update conflict',
               'id' => $uuid,
               'rev' => $rev,
-            );
+            ];
             continue;
           }
         }
@@ -189,22 +189,22 @@ class BulkDocs implements BulkDocsInterface {
         $entity->save();
 
         $id = ($entity_type->id() === 'replication_log') ? "_local/$uuid" : $uuid;
-        $this->result[] = array(
+        $this->result[] = [
           'ok' => TRUE,
           'id' => $id,
           'rev' => $entity->_rev->value,
-        );
+        ];
       }
       catch (\Exception $e) {
         $message = $e->getMessage();
         $entity_type_id = $entity->getEntityTypeId();
         $id = ($entity_type_id === 'replication_log') ? "_local/$uuid" : $uuid;
-        $this->result[] = array(
+        $this->result[] = [
           'error' => $message,
           'reason' => 'exception',
           'id' => $id,
           'rev' => $entity->_rev->value,
-        );
+        ];
         $this->logger->critical($message);
       }
     }

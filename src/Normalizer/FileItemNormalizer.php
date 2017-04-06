@@ -11,21 +11,21 @@ class FileItemNormalizer extends NormalizerBase implements DenormalizerInterface
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = array(
+  protected $supportedInterfaceOrClass = [
     'Drupal\file\Plugin\Field\FieldType\FileItem',
     'Drupal\image\Plugin\Field\FieldType\ImageItem',
-  );
+  ];
 
   /**
    * @var string
    */
-  protected $format = array('json');
+  protected $format = ['json'];
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($data, $format = NULL, array $context = array()) {
-    $result = array();
+  public function normalize($data, $format = NULL, array $context = []) {
+    $result = [];
     $definition = $data->getFieldDefinition();
     $values = $data->getValue();
     $file = isset($values['target_id']) ? File::load($values['target_id']) : NULL;
@@ -44,7 +44,7 @@ class FileItemNormalizer extends NormalizerBase implements DenormalizerInterface
 
       // @todo {@link https://www.drupal.org/node/2600354 Align file data normalization with attachment normalization.}
       $file_contents = file_get_contents($uri);
-      if (in_array($file_system->uriScheme($uri), array('public', 'private')) == FALSE) {
+      if (in_array($file_system->uriScheme($uri), ['public', 'private']) == FALSE) {
         $file_data = '';
       }
       else {
@@ -52,14 +52,14 @@ class FileItemNormalizer extends NormalizerBase implements DenormalizerInterface
       }
 
       // @todo {@link https://www.drupal.org/node/2600360 Add revpos and other missing properties to the result array.}
-      $result = array(
-        $key => array(
+      $result = [
+        $key => [
           'content_type' => $file->getMimeType(),
           'digest' => 'md5-' . base64_encode(md5($file_contents)),
           'length' => $file->getSize(),
           'data' => $file_data,
-        ),
-      );
+        ],
+      ];
     }
 
     return $result;
@@ -68,7 +68,7 @@ class FileItemNormalizer extends NormalizerBase implements DenormalizerInterface
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     return $data;
   }
 

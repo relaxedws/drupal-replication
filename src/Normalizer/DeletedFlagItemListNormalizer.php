@@ -10,19 +10,19 @@ class DeletedFlagItemListNormalizer extends NormalizerBase implements Denormaliz
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = array('Drupal\multiversion\Plugin\Field\FieldType\DeletedFlagItemList');
+  protected $supportedInterfaceOrClass = ['Drupal\multiversion\Plugin\Field\FieldType\DeletedFlagItemList'];
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($field, $format = NULL, array $context = array()) {
+  public function normalize($field, $format = NULL, array $context = []) {
     return $field->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
-    return array(array('value' => $data));
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
+    return [['value' => $data]];
   }
 }

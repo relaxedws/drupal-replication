@@ -95,26 +95,26 @@ class FileItemNormalizerTest extends NormalizerTestBase{
     $file3->save();
 
     // Create a test entity to serialize.
-    $this->values = array(
+    $this->values = [
       'name' => $this->randomMachineName(),
       'user_id' => 1,
-      'field_test_text' => array(
+      'field_test_text' => [
         'value' => $this->randomMachineName(),
         'format' => 'full_html',
-      ),
-      'field_test_file' => array(
-        array(
+      ],
+      'field_test_file' => [
+        [
           'target_id' => $file1->id(),
           'display' => 1,
           'description' => $this->randomMachineName(),
-        ),
-        array(
+        ],
+        [
           'target_id' => $file2->id(),
           'display' => 1,
           'description' => $this->randomMachineName(),
-        ),
-      ),
-      'field_test_image' => array(
+        ],
+      ],
+      'field_test_image' => [
         'target_id' => $file3->id(),
         'display' => 1,
         'description' => $this->randomMachineName(),
@@ -122,8 +122,8 @@ class FileItemNormalizerTest extends NormalizerTestBase{
         'title' => $this->randomMachineName(),
         'width' => 200,
         'height' => 100,
-      ),
-    );
+      ],
+    ];
     $this->entity = EntityTestMulRev::create($this->values);
     $this->entity->save();
 
@@ -150,11 +150,11 @@ class FileItemNormalizerTest extends NormalizerTestBase{
       $files_number++;
     }
 
-    $expected = array(
-      '@context' => array(
+    $expected = [
+      '@context' => [
         '_id' => '@id',
         '@language' => 'en'
-      ),
+      ],
       '@type' => 'entity_test_mulrev',
       'en' => [
         '@context' => [
@@ -192,7 +192,7 @@ class FileItemNormalizerTest extends NormalizerTestBase{
       '_attachments' => $expected_attachments,
       '_id' => $entity->uuid(),
       '_rev' => $entity->_rev->value,
-    );
+    ];
 
     $normalized = $this->serializer->normalize($this->entity);
     foreach (array_keys($expected) as $key) {

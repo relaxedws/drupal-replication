@@ -45,11 +45,11 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
     ]);
     $entity->save();
 
-    $expected = array(
-      '@context' => array(
+    $expected = [
+      '@context' => [
         '_id' => '@id',
         '@language' => 'en'
-      ),
+      ],
       '@type' => 'entity_test_mulrev',
       'en' => [
         '@context' => [
@@ -87,7 +87,7 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
       ],
       '_id' => $entity->uuid(),
       '_rev' => $entity->_rev->value,
-    );
+    ];
 
     // Test normalize.
     $normalized = $this->serializer->normalize($entity);

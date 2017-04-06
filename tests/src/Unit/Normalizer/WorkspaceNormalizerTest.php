@@ -23,10 +23,10 @@ class WorkspaceNormalizerTest extends NormalizerTestBase {
 
   public function testNormalizer() {
     // Test normalize.
-    $expected = array(
+    $expected = [
       'db_name' => (string) $this->entity->getMachineName(),
       'instance_start_time' => (string) $this->entity->getStartTime(),
-    );
+    ];
     $normalized = $this->serializer->normalize($this->entity);
 
     foreach (array_keys($expected) as $fieldName) {

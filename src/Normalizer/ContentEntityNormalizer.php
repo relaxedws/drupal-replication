@@ -22,7 +22,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = array('Drupal\Core\Entity\ContentEntityInterface');
+  protected $supportedInterfaceOrClass = ['Drupal\Core\Entity\ContentEntityInterface'];
 
   /**
    * @var \Drupal\Core\Entity\EntityManagerInterface
@@ -57,7 +57,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   /**
    * @var string[]
    */
-  protected $format = array('json');
+  protected $format = ['json'];
 
   /**
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
@@ -79,7 +79,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   /**
    * {@inheritdoc}
    */
-  public function normalize($entity, $format = NULL, array $context = array()) {
+  public function normalize($entity, $format = NULL, array $context = []) {
     $workspace = isset($entity->workspace->entity) ? $entity->workspace->entity : null;
     $rev_tree_index = $this->indexFactory->get('multiversion.entity_index.rev.tree', $workspace);
 
@@ -95,14 +95,14 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     $entity_languages = $entity->getTranslationLanguages();
 
     // Create the basic data array with JSON-LD data.
-    $data = array(
-      '@context' => array(
+    $data = [
+      '@context' => [
         '_id' => '@id',
         '@language' => $entity_default_language->getId(),
-      ),
+      ],
       '@type' => $entity_type_id,
       '_id' => $entity_uuid,
-    );
+    ];
 
     // New or mocked entities might not have a rev yet.
     if (!empty($entity->_rev->value)) {
@@ -128,7 +128,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         if ($field_type == 'file' || $field_type == 'image') {
           if ($items !== NULL) {
             if (!isset($data['_attachments']) && !empty($items)) {
-              $data['_attachments'] = array();
+              $data['_attachments'] = [];
             }
             foreach ($items as $item) {
               $data['_attachments'] = array_merge($data['_attachments'], $item);
@@ -163,7 +163,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       foreach (array_reverse($default_branch) as $rev => $status) {
         // Build data for _revs_info.
         if (!empty($context['query']['revs_info'])) {
-          $data['_revs_info'][] = array('rev' => $rev, 'status' => $status);
+          $data['_revs_info'][] = ['rev' => $rev, 'status' => $status];
         }
         if (!empty($context['query']['revs'])) {
           list($start, $hash) = explode('-', $rev);
@@ -196,7 +196,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     // Make sure these values start as NULL
     $entity_type_id = NULL;
     $entity_uuid = NULL;
@@ -353,7 +353,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       $entity->_rev->is_stub = FALSE;
     }
 
-    Cache::invalidateTags(array($entity_type_id . '_list'));
+    Cache::invalidateTags([$entity_type_id . '_list']);
 
     return $entity;
   }
@@ -375,7 +375,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   private function denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, array $files = [], $rev = null, array $revisions = [], array $existing_users_names = []) {
     // Add the _rev field to the $translation array.
     if (isset($rev)) {
-      $translation['_rev'] = array(array('value' => $rev));
+      $translation['_rev'] = [['value' => $rev]];
     }
     if (isset($revisions['start']) && isset($revisions['ids'])) {
       $translation['_rev'][0]['revisions'] = $revisions['ids'];
@@ -388,7 +388,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     // structure since it's un-nested to follow the API spec when normalized.
     // @todo {@link https://www.drupal.org/node/2599938 Needs test for situation when a replication overwrites delete.}
     $deleted = isset($translation['_deleted']) ? $translation['_deleted'] : FALSE;
-    $translation['_deleted'] = array(array('value' => $deleted));
+    $translation['_deleted'] = [['value' => $deleted]];
 
     if ($entity_id) {
       // @todo {@link https://www.drupal.org/node/2599938 Needs test.}
@@ -471,9 +471,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $translation[$field_name][$delta]['uri'] = "entity:$target_entity_type_id/$id";
           }
           elseif ($target_entity) {
-            $translation[$field_name][$delta] = array(
+            $translation[$field_name][$delta] = [
               'target_id' => $target_entity->id(),
-            );
+            ];
             // Special handling for Entity Reference Revisions, it needs the
             // revision ID in addition to the primary entity ID.
             if ($type === 'entity_reference_revisions') {
@@ -520,10 +520,10 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             }
             else {
               // Populate the data field.
-              $translation[$field_name][$delta] = array(
+              $translation[$field_name][$delta] = [
                 'target_id' => NULL,
                 'entity' => $target_entity,
-              );
+              ];
             }
           }
         }
@@ -540,7 +540,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     // Remove changed info, otherwise we can get validation errors when the
     // 'changed' value for existing entity is higher than for the new entity (revision).
     // @see \Drupal\Core\Entity\Plugin\Validation\Constraint\EntityChangedConstraintValidator::validate().
-    foreach (array('@context', '@type', '_id', '_attachments', '_revisions', 'changed') as $key) {
+    foreach (['@context', '@type', '_id', '_attachments', '_revisions', 'changed'] as $key) {
       if (isset($translation[$key])) {
         unset($translation[$key]);
       }

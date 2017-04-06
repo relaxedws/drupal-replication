@@ -145,7 +145,7 @@ class AllDocs implements AllDocsInterface {
    *   into the serializer to better separate concerns.}
    */
   public function execute() {
-    $rows = array();
+    $rows = [];
 
     $entity_types = $this->entityTypeManager->getDefinitions();
     foreach ($entity_types as $entity_type_id => $entity_type) {
@@ -164,13 +164,13 @@ class AllDocs implements AllDocsInterface {
           continue;
         }
 
-        $keys = array();
+        $keys = [];
         foreach ($ids as $id) {
           $keys[] = $entity_type_id . ':' . $id;
         }
         $items = $this->entityIndex->getMultiple($keys);
         foreach ($items as $item) {
-          $rows[$item['uuid']] = array('rev' => $item['rev']);
+          $rows[$item['uuid']] = ['rev' => $item['rev']];
         }
 
         if ($this->includeDocs) {

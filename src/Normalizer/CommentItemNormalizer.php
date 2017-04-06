@@ -17,12 +17,12 @@ class CommentItemNormalizer extends NormalizerBase implements DenormalizerInterf
   /**
    * @var string[]
    */
-  protected $format = array('json');
+  protected $format = ['json'];
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($field, $format = NULL, array $context = array()) {
+  public function normalize($field, $format = NULL, array $context = []) {
     $value = $field->getValue();
     $field_info = [];
     $reference_fields = ['cid', 'last_comment_uid'];
@@ -41,7 +41,7 @@ class CommentItemNormalizer extends NormalizerBase implements DenormalizerInterf
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     return $data;
   }
 

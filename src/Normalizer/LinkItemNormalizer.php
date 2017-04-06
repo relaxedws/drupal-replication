@@ -65,7 +65,7 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     if ($this->hasNewEntity($data)) {
       $entity = $data['uri'];
       // As part of a bulk or replication operation there might be multiple

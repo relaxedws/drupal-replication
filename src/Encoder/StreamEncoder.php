@@ -11,7 +11,7 @@ class StreamEncoder implements EncoderInterface, DecoderInterface {
   /**
    * @var array
    */
-  protected $formats = array('stream', 'base64_stream');
+  protected $formats = ['stream', 'base64_stream'];
 
   /**
    * @param \Drupal\Component\Utility\Random $random
@@ -25,7 +25,7 @@ class StreamEncoder implements EncoderInterface, DecoderInterface {
   /**
    * {@inheritdoc}
    */
-  public function encode($data, $format, array $context = array()) {
+  public function encode($data, $format, array $context = []) {
     if (!is_resource($data)) {
       throw new \InvalidArgumentException(sprintf('Data argument is not a resource.'));
     }
@@ -36,7 +36,7 @@ class StreamEncoder implements EncoderInterface, DecoderInterface {
   /**
    * {@inheritdoc}
    */
-  public function decode($data, $format, array $context = array()) {
+  public function decode($data, $format, array $context = []) {
     if (!is_scalar($data)) {
       throw new \InvalidArgumentException(sprintf('Data argument is not a scalar.'));
     }

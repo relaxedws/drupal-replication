@@ -57,10 +57,10 @@ abstract class NormalizerTestBase extends KernelTestBase {
       'field_name' => 'field_test_text',
       'bundle' => 'entity_test_mulrev',
       'label' => 'Test text-field',
-      'widget' => array(
+      'widget' => [
         'type' => 'text_textfield',
         'weight' => 0,
-      ),
+      ],
     ])->save();
 
     $this->serializer = $this->container->get('serializer');

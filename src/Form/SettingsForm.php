@@ -40,15 +40,15 @@ class SettingsForm extends ConfigFormBase {
       'uid_1' => $this->t('Map to UID 1'),
     ];
 
-    $form['mapping_type'] = array(
+    $form['mapping_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Users mapping type'),
       '#default_value' => $config->get('mapping_type'),
       '#options' => $options,
       '#description' => $this->t("Select how users will be mapped when they can't be mapped by username or email."),
-    );
+    ];
 
-    $form['uid'] = array(
+    $form['uid'] = [
       '#type' => 'textfield',
       '#title' => $this->t('UID'),
       '#default_value' => $config->get('mapping_type') === 'uid' ? $config->get('uid') : '',
@@ -59,7 +59,7 @@ class SettingsForm extends ConfigFormBase {
           'select[name="mapping_type"]' => ['value' => 'uid'],
         ],
       ],
-    );
+    ];
 
 
     return parent::buildForm($form, $form_state);

@@ -6,17 +6,17 @@ use Drupal\serialization\Normalizer\NormalizerBase;
 
 class ChangesNormalizer extends NormalizerBase {
 
-  protected $supportedInterfaceOrClass = array('Drupal\replication\Changes\ChangesInterface');
+  protected $supportedInterfaceOrClass = ['Drupal\replication\Changes\ChangesInterface'];
 
   /**
    * @var string
    */
-  protected $format = array('json');
+  protected $format = ['json'];
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($changes, $format = NULL, array $context = array()) {
+  public function normalize($changes, $format = NULL, array $context = []) {
     /** @var \Drupal\replication\Changes\ChangesInterface $changes */
     if (isset($context['query']['filter'])) {
       $changes->filter($context['query']['filter']);
@@ -31,7 +31,7 @@ class ChangesNormalizer extends NormalizerBase {
     // 'since' parameter is important for PouchDB replication.
     $since = (isset($context['query']['since']) && is_numeric($context['query']['since'])) ? $context['query']['since'] : 0;
 
-    $filtered_results = array();
+    $filtered_results = [];
     if ($since == 0) {
       $filtered_results = $results;
     }
@@ -43,10 +43,10 @@ class ChangesNormalizer extends NormalizerBase {
       }
     }
 
-    return array(
+    return [
       'last_seq' => $last_seq,
       'results' => $filtered_results,
-    );
+    ];
   }
 
 }

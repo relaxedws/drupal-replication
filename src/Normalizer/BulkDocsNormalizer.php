@@ -8,13 +8,13 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface {
 
-  protected $supportedInterfaceOrClass = array('Drupal\replication\BulkDocs\BulkDocsInterface');
+  protected $supportedInterfaceOrClass = ['Drupal\replication\BulkDocs\BulkDocsInterface'];
 
   /**
    * {@inheritdoc}
    */
-  public function normalize($bulk_docs, $format = NULL, array $context = array()) {
-    $data = array();
+  public function normalize($bulk_docs, $format = NULL, array $context = []) {
+    $data = [];
     /** @var \Drupal\replication\BulkDocs\BulkDocsInterface $bulk_docs */
     foreach ($bulk_docs->getResult() as $result) {
       $data[] = $result;
@@ -25,7 +25,7 @@ class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface
   /**
    * {@inheritdoc}
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     if (!isset($context['workspace'])) {
       throw new LogicException('A \'workspace\' context is required to denormalize revision diff data.');
     }
@@ -40,7 +40,7 @@ class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface
       $bulk_docs->newEdits(FALSE);
     }
 
-    $entities = array();
+    $entities = [];
     if (isset($data['docs'])) {
       foreach ($data['docs'] as $doc) {
         if (!empty($doc)) {

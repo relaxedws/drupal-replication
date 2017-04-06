@@ -139,7 +139,7 @@ class Changes implements ChangesInterface {
     }
 
     // Format the result array.
-    $changes = array();
+    $changes = [];
     foreach ($sequences as $sequence) {
       if (!empty($sequence['local']) || !empty($sequence['is_stub'])) {
         continue;
@@ -160,13 +160,13 @@ class Changes implements ChangesInterface {
       }
 
       $uuid = $sequence['entity_uuid'];
-      $changes[$uuid] = array(
-        'changes' => array(
-          array('rev' => $sequence['rev']),
-        ),
+      $changes[$uuid] = [
+        'changes' => [
+          ['rev' => $sequence['rev']],
+        ],
         'id' => $uuid,
         'seq' => $sequence['seq'],
-      );
+      ];
       if ($sequence['deleted']) {
         $changes[$uuid]['deleted'] = TRUE;
       }

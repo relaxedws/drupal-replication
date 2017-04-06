@@ -35,11 +35,11 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
 
   public function testNormalizer() {
     // Test normalize.
-    $expected = array(
-      '@context' => array(
+    $expected = [
+      '@context' => [
         '_id' => '@id',
         '@language' => 'en'
-      ),
+      ],
       '@type' => 'entity_test_mulrev',
       'en' => [
         '@context' => [
@@ -76,7 +76,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
       ],
       '_id' => $this->entity->uuid(),
       '_rev' => $this->entity->_rev->value,
-    );
+    ];
 
     $normalized = $this->serializer->normalize($this->entity);
 

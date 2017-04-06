@@ -14,7 +14,7 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = array('Drupal\replication\Entity\ReplicationLog');
+  protected $supportedInterfaceOrClass = ['Drupal\replication\Entity\ReplicationLog'];
 
   /**
    * @var \Drupal\multiversion\Entity\Index\UuidIndexInterface
@@ -24,7 +24,7 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
   /**
    * @var string[]
    */
-  protected $format = array('json');
+  protected $format = ['json'];
 
   protected $entityTypeManager;
 
@@ -40,7 +40,7 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
   /**
    * {@inheritdoc}
    */
-  public function normalize($entity, $format = NULL, array $context = array()) {
+  public function normalize($entity, $format = NULL, array $context = []) {
     // Strictly format the entity how CouchDB expects it, plus our JSON-LD data.
     $data = [
       '@context' => [
@@ -59,7 +59,7 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
   /**
    * @inheritDoc
    */
-  public function denormalize($data, $class, $format = NULL, array $context = array()) {
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
     $data['_id'] = str_replace('_local/', '', $data['_id']);
     $record = $this->uuidIndex->get($data['_id']);
     if (!empty($record['entity_type_id']) && !empty($record['entity_id'])) {
