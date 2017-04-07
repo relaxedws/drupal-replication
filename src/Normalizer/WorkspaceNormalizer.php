@@ -35,6 +35,10 @@ class WorkspaceNormalizer extends EntityNormalizer {
     if ($update_seq = $entity->getUpdateSeq()) {
       $return_data['update_seq'] = (int) $update_seq;
     }
+    else {
+      // Replicator expects update_seq to be always set.
+      $return_data['update_seq'] = 0;
+    }
     if (isset($data['created'])) {
       $return_data['instance_start_time'] = (string) $entity->getStartTime();
     }
