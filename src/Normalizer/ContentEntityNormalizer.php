@@ -262,17 +262,19 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     if (isset($data['_attachments'])) {
       foreach ($data['_attachments'] as $key => $value) {
         /** @var FileInterface $file */
-        if (isset($context['workspace'])) {
+        if (isset($context['workspace']) && isset($value['data'])) {
           $file = $this->processFileAttachment->process($value['data'], $key, 'base64_stream', $context['workspace']);
         }
-        else {
+        elseif (isset($value['data'])) {
           $file = $this->processFileAttachment->process($value['data'], $key, 'base64_stream');
         }
-        list($field_name, $delta, , , ) = explode('/', $key, 5);
-        $files[$field_name][$delta] = [
-          'target_id' => $file->id(),
-          'entity' => $file,
-        ];
+        if (isset($file)) {
+          list($field_name, $delta, , , ) = explode('/', $key, 5);
+          $files[$field_name][$delta] = [
+            'target_id' => $file->id(),
+            'entity' => $file,
+          ];
+        }
       }
     }
 
