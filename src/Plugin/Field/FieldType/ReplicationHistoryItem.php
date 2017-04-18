@@ -43,14 +43,14 @@ class ReplicationHistoryItem extends FieldItemBase {
       ->setDescription(t('Number of documents written.'))
       ->setRequired(FALSE);
 
-    $properties['end_last_seq'] = DataDefinition::create('integer')
-      ->setLabel(t('End sequence'))
-      ->setDescription(t('Sequence ID where the replication ended.'))
+    $properties['start_last_seq'] = DataDefinition::create('string')
+      ->setLabel(t('Start sequence'))
+      ->setDescription(t('Sequence ID where the replication started.'))
       ->setRequired(FALSE);
 
-    $properties['end_time'] = DataDefinition::create('datetime_iso8601')
-      ->setLabel(t('End time'))
-      ->setDescription(t('Date and time when replication ended.'))
+    $properties['end_last_seq'] = DataDefinition::create('string')
+      ->setLabel(t('End sequence'))
+      ->setDescription(t('Sequence ID where the replication ended.'))
       ->setRequired(FALSE);
 
     $properties['missing_checked'] = DataDefinition::create('integer')
@@ -63,7 +63,7 @@ class ReplicationHistoryItem extends FieldItemBase {
       ->setDescription(t('Number of missing documents found.'))
       ->setRequired(FALSE);
 
-    $properties['recorded_seq'] = DataDefinition::create('integer')
+    $properties['recorded_seq'] = DataDefinition::create('string')
       ->setLabel(t('Recorded sequence'))
       ->setDescription(t('Recorded intermediate sequence.'))
       ->setRequired(FALSE);
@@ -73,14 +73,14 @@ class ReplicationHistoryItem extends FieldItemBase {
       ->setDescription(t('Unique session ID for the replication.'))
       ->setRequired(TRUE);
 
-    $properties['start_last_seq'] = DataDefinition::create('integer')
-      ->setLabel(t('Start sequence'))
-      ->setDescription(t('Sequence ID where the replication started.'))
-      ->setRequired(FALSE);
-
     $properties['start_time'] = DataDefinition::create('datetime_iso8601')
       ->setLabel(t('Start time'))
       ->setDescription(t('Date and time when replication started.'))
+      ->setRequired(FALSE);
+
+    $properties['end_time'] = DataDefinition::create('datetime_iso8601')
+      ->setLabel(t('End time'))
+      ->setDescription(t('Date and time when replication ended.'))
       ->setRequired(FALSE);
 
     return $properties;
@@ -107,16 +107,6 @@ class ReplicationHistoryItem extends FieldItemBase {
           'unsigned' => TRUE,
           'not null' => FALSE,
         ],
-        'end_last_seq' => [
-          'type' => 'int',
-          'size' => 'big',
-          'not null' => FALSE,
-        ],
-        'end_time' => [
-          'type' => 'varchar',
-          'length' => 50,
-          'not null' => FALSE,
-        ],
         'missing_checked' => [
           'type' => 'int',
           'unsigned' => TRUE,
@@ -127,23 +117,32 @@ class ReplicationHistoryItem extends FieldItemBase {
           'unsigned' => TRUE,
           'not null' => FALSE,
         ],
-        'recorded_seq' => [
-          'type' => 'int',
-          'size' => 'big',
-          'not null' => FALSE,
-          'default' => 0,
-        ],
         'session_id' => [
           'type' => 'varchar',
           'length' => 128,
           'not null' => TRUE,
         ],
+        'recorded_seq' => [
+          'type' => 'varchar',
+          'length' => 512,
+          'not null' => TRUE,
+        ],
         'start_last_seq' => [
-          'type' => 'int',
-          'size' => 'big',
+          'type' => 'varchar',
+          'length' => 512,
+          'not null' => FALSE,
+        ],
+        'end_last_seq' => [
+          'type' => 'varchar',
+          'length' => 512,
           'not null' => FALSE,
         ],
         'start_time' => [
+          'type' => 'varchar',
+          'length' => 50,
+          'not null' => FALSE,
+        ],
+        'end_time' => [
           'type' => 'varchar',
           'length' => 50,
           'not null' => FALSE,

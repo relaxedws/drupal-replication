@@ -102,3 +102,52 @@ function replication_update_8100() {
     }
   }
 }
+
+/**
+ * Update ReplicationHistoryItem property definitions.
+ *
+ * For compatibility with CouchDB 2.0.0.
+ */
+function replication_update_8101() {
+  $connection = Database::getConnection();
+  $entity_definition_update_manager = Drupal::entityDefinitionUpdateManager();
+  $entity_type_id = 'replication_log';
+
+  // Check if we have updates for replication_log entity type.
+  if ($entity_definition_update_manager->needsUpdates()) {
+    $changes = $entity_definition_update_manager->getChangeSummary();
+    if (in_array($entity_type_id, array_keys($changes))) {
+      // Set tables to update (history field tables).
+      $tables_to_update = [
+        $entity_type_id . '__history',
+        $entity_type_id . '_revision__history'
+      ];
+
+      $tables_data = [];
+      // Copy content from entity tables.
+      foreach ($tables_to_update as $table_to_update) {
+        $tables_data[$table_to_update] = $connection->select($table_to_update)
+          ->fields($table_to_update)
+          ->execute()->fetchAll();
+        $connection->truncate($table_to_update)->execute();
+      }
+
+      // Apply updates.
+      $storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id);
+      if ($storage_definitions['history']) {
+        $entity_definition_update_manager->updateFieldStorageDefinition($storage_definitions['history']);
+      }
+
+      // Insert content into updated entity tables.
+      foreach ($tables_data as $table_name => $table_data) {
+        foreach ($table_data as $result) {
+          $data = (array) $result;
+          // Save the information in the table.
+          $connection->insert($table_name)
+            ->fields($data)
+            ->execute();
+        }
+      }
+    }
+  }
+}
