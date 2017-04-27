@@ -10,10 +10,13 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
 use Drupal\multiversion\Entity\WorkspaceInterface;
+use Drupal\replication\Event\ReplicationContentDataAlterEvent;
+use Drupal\replication\Event\ReplicationDataEvents;
 use Drupal\replication\ProcessFileAttachment;
 use Drupal\file\FileInterface;
 use Drupal\replication\UsersMapping;
 use Drupal\serialization\Normalizer\NormalizerBase;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -55,6 +58,11 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   protected $usersMapping;
 
   /**
+   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   */
+  protected $dispatcher;
+
+  /**
    * @var string[]
    */
   protected $format = ['json'];
@@ -66,14 +74,16 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param \Drupal\replication\ProcessFileAttachment $process_file_attachment
    * @param \Drupal\replication\UsersMapping $users_mapping
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    */
-  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, UsersMapping $users_mapping, SelectionPluginManagerInterface $selection_manager = NULL) {
+  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, UsersMapping $users_mapping, SelectionPluginManagerInterface $selection_manager = NULL, EventDispatcherInterface $event_dispatcher = NULL) {
     $this->entityManager = $entity_manager;
     $this->indexFactory = $index_factory;
     $this->languageManager = $language_manager;
     $this->processFileAttachment = $process_file_attachment;
     $this->usersMapping = $users_mapping;
     $this->selectionManager = $selection_manager;
+    $this->dispatcher = $event_dispatcher;
   }
 
   /**
@@ -190,7 +200,10 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       unset($data[$langcode]['workspace'], $data[$langcode][$id_key], $data[$langcode][$revision_key], $data[$langcode][$uuid_key]);
     }
 
-    return $data;
+    $event = new ReplicationContentDataAlterEvent($entity, $data, $format, $context);
+    $this->dispatcher->dispatch(ReplicationDataEvents::ALTER_CONTENT_DATA, $event);
+
+    return $event->getData();
   }
 
   /**
