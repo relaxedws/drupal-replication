@@ -56,6 +56,11 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
         if ($entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id)) {
           $attributes['entity_type_id'] = $entity_type;
           $attributes['target_uuid'] = $entity->uuid();
+          $bundle_key = $entity->getEntityType()->getKey('bundle');
+          $bundle = $entity->bundle();
+          if ($bundle_key && $bundle) {
+            $attributes[$bundle_key] = $bundle;
+          }
         }
       }
     }
