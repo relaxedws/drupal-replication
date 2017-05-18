@@ -5,6 +5,7 @@ namespace Drupal\replication\Normalizer;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
@@ -68,20 +69,27 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   protected $format = ['json'];
 
   /**
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  private $moduleHandler;
+
+  /**
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @param \Drupal\multiversion\Entity\Index\MultiversionIndexFactory $index_factory
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    * @param \Drupal\replication\ProcessFileAttachment $process_file_attachment
    * @param \Drupal\replication\UsersMapping $users_mapping
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    */
-  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, UsersMapping $users_mapping, SelectionPluginManagerInterface $selection_manager = NULL, EventDispatcherInterface $event_dispatcher = NULL) {
+  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, UsersMapping $users_mapping, ModuleHandlerInterface $module_handler, SelectionPluginManagerInterface $selection_manager = NULL, EventDispatcherInterface $event_dispatcher = NULL) {
     $this->entityManager = $entity_manager;
     $this->indexFactory = $index_factory;
     $this->languageManager = $language_manager;
     $this->processFileAttachment = $process_file_attachment;
     $this->usersMapping = $users_mapping;
+    $this->moduleHandler = $module_handler;
     $this->selectionManager = $selection_manager;
     $this->dispatcher = $event_dispatcher;
   }
@@ -165,25 +173,11 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
 
-    // @todo: {@link https://www.drupal.org/node/2599938 Needs test.}
-    if (!empty($context['query']['revs']) || !empty($context['query']['revs_info'])) {
-      $default_branch = $rev_tree_index->getDefaultBranch($entity_uuid);
-
-      $i = 0;
-      foreach (array_reverse($default_branch) as $rev => $status) {
-        // Build data for _revs_info.
-        if (!empty($context['query']['revs_info'])) {
-          $data['_revs_info'][] = ['rev' => $rev, 'status' => $status];
-        }
-        if (!empty($context['query']['revs'])) {
-          list($start, $hash) = explode('-', $rev);
-          $data['_revisions']['ids'][] = $hash;
-          if ($i == 0) {
-            $data['_revisions']['start'] = (int) $start;
-          }
-        }
-        $i++;
-      }
+    // @todo: Needs test.}
+    // Normalize the $entity->_rev->revisions value.
+    if (!empty($entity->_rev->revisions)) {
+      $data['_revisions']['ids'] = $entity->_rev->revisions;
+      $data['_revisions']['start'] = count($data['_revisions']['ids']);
     }
 
     if (!empty($context['query']['conflicts'])) {
@@ -303,7 +297,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
       }
       // Configure the language, then do denormalization.
-      elseif (is_array($translation)) {
+      elseif (is_array($translation) && $this->moduleHandler->moduleExists('language')) {
         $language = ConfigurableLanguage::createFromLangcode($key);
         $language->save();
         $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
@@ -379,13 +373,13 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param $bundle_key
    * @param $entity_type
    * @param $id_key
+   * @param $context
    * @param array $files
    * @param $rev
    * @param array $revisions
-   * @param array $existing_users_names
    * @return mixed
    */
-  private function denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, array $files = [], $rev = null, array $revisions = [], array $existing_users_names = []) {
+  private function denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, array $files = [], $rev = null, array $revisions = []) {
     // Add the _rev field to the $translation array.
     if (isset($rev)) {
       $translation['_rev'] = [['value' => $rev]];
