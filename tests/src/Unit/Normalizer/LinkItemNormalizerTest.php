@@ -101,7 +101,7 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
           ['value' => 'entity_test_mulrev'],
         ],
         'created' => [
-          ['value' => $this->entity->created->value],
+          $this->formatExpectedTimestampItemValues($this->entity->created->value),
         ],
         'default_langcode' => [
           ['value' => TRUE],

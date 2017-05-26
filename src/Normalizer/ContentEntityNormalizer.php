@@ -5,6 +5,8 @@ namespace Drupal\replication\Normalizer;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -16,6 +18,7 @@ use Drupal\replication\Event\ReplicationDataEvents;
 use Drupal\replication\ProcessFileAttachment;
 use Drupal\file\FileInterface;
 use Drupal\replication\UsersMapping;
+use Drupal\serialization\Normalizer\FieldableEntityNormalizerTrait;
 use Drupal\serialization\Normalizer\NormalizerBase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
@@ -23,15 +26,12 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInterface {
 
+  use FieldableEntityNormalizerTrait;
+
   /**
    * @var string[]
    */
   protected $supportedInterfaceOrClass = ['Drupal\Core\Entity\ContentEntityInterface'];
-
-  /**
-   * @var \Drupal\Core\Entity\EntityManagerInterface
-   */
-  protected $entityManager;
 
   /**
    * @var \Drupal\multiversion\Entity\Index\MultiversionIndexFactory
@@ -314,18 +314,19 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     if ($entity_id) {
       if ($entity = $storage->load($entity_id) ?: $storage->loadDeleted($entity_id)) {
         if (!empty($translations[$entity->language()->getId()])) {
-          foreach ($translations[$entity->language()->getId()] as $name => $value) {
-            if ($name == 'default_langcode') {
-              continue;
-            }
-            $entity->{$name} = $value;
-          }
+          $translation = $translations[$entity->language()->getId()];
+          unset($translation['default_langcode']);
+          // Get rid of the bundle key. That is already known anyway. Also
+          // breaks field denormalization.
+          $this->extractBundleData($translation, $entity_type);
+          $this->denormalizeFieldData($translation, $entity, $format, $context);
         }
       }
       elseif (isset($translations[$default_langcode][$id_key])) {
         unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
         $entity_id = NULL;
-        $entity = $storage->create($translations[$default_langcode]);
+
+        $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
       }
 
       foreach ($site_languages as $site_language) {
@@ -339,7 +340,8 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       $entity = NULL;
       if (!empty($bundle_key) && !empty($translations[$default_langcode][$bundle_key])) {
         unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
-        $entity = $storage->create($translations[$default_langcode]);
+
+        $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
       }
       elseif ($entity_type_id === 'file' && !empty($translations[$default_langcode])) {
         if (isset($translations[$default_langcode][$id_key])) {
@@ -350,7 +352,8 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         }
         $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
         $translations[$default_langcode]['uid'][0]['target_id'] = $this->usersMapping->getUidFromConfig();
-        $entity = $storage->create($translations[$default_langcode]);
+
+        $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
       }
     }
 
@@ -399,7 +402,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
 
     if ($entity_id) {
       // @todo {@link https://www.drupal.org/node/2599938 Needs test.}
-      $translation[$id_key] = $entity_id;
+      $translation[$id_key] = ['value' => $entity_id];
     }
 
     $bundle_id = $entity_type_id;
@@ -560,6 +563,47 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     }
 
     return $translation;
+  }
+
+  /**
+   * Handles entity creation for fieldable and non-fieldable entities.
+   *
+   * This makes sure denormalization runs on field items.
+   *
+   * @param array $data
+   * @param EntityTypeInterface $entity_type
+   * @param $format
+   * @param array $context
+   *
+   * @return \Drupal\Core\Entity\EntityInterface
+   *
+   * @see \Drupal\serialization\Normalizer\FieldableEntityNormalizerTrait
+   */
+  private function createEntityInstance(array $data, EntityTypeInterface $entity_type, $format, array $context = []) {
+    // The bundle property will be required to denormalize a bundleable
+    // fieldable entity.
+    if ($entity_type->isSubclassOf(FieldableEntityInterface::class)) {
+      // Extract bundle data to pass into entity creation if the entity type uses
+      // bundles.
+      if ($entity_type->hasKey('bundle')) {
+        // Get an array containing the bundle only. This also remove the bundle
+        // key from the $data array.
+        $create_params = $this->extractBundleData($data, $entity_type);
+      }
+      else {
+        $create_params = [];
+      }
+
+      // Create the entity from bundle data only, then apply field values after.
+      $entity = $this->entityManager->getStorage($entity_type->id())->create($create_params);
+      $this->denormalizeFieldData($data, $entity, $format, $context);
+    }
+    else {
+      // Create the entity from all data.
+      $entity = $this->entityManager->getStorage($entity_type->id())->create($data);
+    }
+
+    return $entity;
   }
 
 }

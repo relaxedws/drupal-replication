@@ -67,7 +67,7 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
           ['value' => 'entity_test_mulrev'],
         ],
         'created' => [
-          ['value' => $entity->created->value],
+          $this->formatExpectedTimestampItemValues($entity->created->value),
         ],
         'default_langcode' => [
           ['value' => TRUE],
