@@ -2,10 +2,9 @@
 
 namespace Drupal\replication\Normalizer;
 
-use Drupal\serialization\Normalizer\NormalizerBase;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use \Drupal\serialization\Normalizer\FieldItemNormalizer;
 
-class CommentItemNormalizer extends NormalizerBase implements DenormalizerInterface {
+class CommentItemNormalizer extends FieldItemNormalizer  {
 
   /**
    * The interface or class that this Normalizer supports.
@@ -36,13 +35,6 @@ class CommentItemNormalizer extends NormalizerBase implements DenormalizerInterf
     }
 
     return $field_info;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function denormalize($data, $class, $format = NULL, array $context = []) {
-    return $data;
   }
 
 }

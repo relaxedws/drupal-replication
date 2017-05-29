@@ -6,10 +6,9 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
 use Drupal\multiversion\Entity\WorkspaceInterface;
-use Drupal\serialization\Normalizer\NormalizerBase;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Drupal\serialization\Normalizer\FieldItemNormalizer;
 
-class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface {
+class LinkItemNormalizer extends FieldItemNormalizer {
 
   /**
    * The interface or class that this Normalizer supports.
@@ -115,7 +114,8 @@ class LinkItemNormalizer extends NormalizerBase implements DenormalizerInterface
       // Set the correct value.
       $data['uri'] = 'entity:' . $entity->getEntityTypeId() . '/' . $entity->id();
     }
-    return $data;
+
+    return parent::denormalize($data, $class, $format, $context);
   }
 
   /**

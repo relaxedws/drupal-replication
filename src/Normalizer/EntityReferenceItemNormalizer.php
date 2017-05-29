@@ -3,10 +3,9 @@
 namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Entity\FieldableEntityStorageInterface;
-use Drupal\serialization\Normalizer\NormalizerBase;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Drupal\serialization\Normalizer\FieldItemNormalizer;
 
-class EntityReferenceItemNormalizer extends NormalizerBase implements DenormalizerInterface {
+class EntityReferenceItemNormalizer extends FieldItemNormalizer {
 
   /**
    * The interface or class that this Normalizer supports.
@@ -63,13 +62,6 @@ class EntityReferenceItemNormalizer extends NormalizerBase implements Denormaliz
     }
 
     return $field_info;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function denormalize($data, $class, $format = NULL, array $context = []) {
-    return $data;
   }
 
 }

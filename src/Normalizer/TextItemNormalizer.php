@@ -2,12 +2,12 @@
 
 namespace Drupal\replication\Normalizer;
 
-use Drupal\serialization\Normalizer\NormalizerBase;
+use Drupal\serialization\Normalizer\FieldItemNormalizer;
 
 /**
  * Converts TextItem fields to an array including computed values.
  */
-class TextItemNormalizer extends NormalizerBase {
+class TextItemNormalizer extends FieldItemNormalizer {
 
   /**
    * The interface or class that this Normalizer supports.

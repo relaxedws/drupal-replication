@@ -531,8 +531,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
               $link['uri'] = $target_entity;
               unset($link['entity_type_id']);
               unset($link['target_uuid']);
-              $translation[$field_name][$delta] = \Drupal::service('replication.normalizer.link_item')
-                ->denormalize($link, 'Drupal\link\Plugin\Field\FieldType\LinkItem', NULL, $context);
             }
             else {
               // Populate the data field.

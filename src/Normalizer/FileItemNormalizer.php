@@ -3,10 +3,9 @@
 namespace Drupal\replication\Normalizer;
 
 use Drupal\file\Entity\File;
-use Drupal\serialization\Normalizer\NormalizerBase;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Drupal\serialization\Normalizer\FieldItemNormalizer;
 
-class FileItemNormalizer extends NormalizerBase implements DenormalizerInterface {
+class FileItemNormalizer extends FieldItemNormalizer {
 
   /**
    * @var string[]
@@ -63,13 +62,6 @@ class FileItemNormalizer extends NormalizerBase implements DenormalizerInterface
     }
 
     return $result;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function denormalize($data, $class, $format = NULL, array $context = []) {
-    return $data;
   }
 
 }
