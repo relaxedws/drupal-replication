@@ -546,6 +546,15 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
 
+    // Unset the comment field item if CID is NULL.
+    if (!empty($translation['comment']) && is_array($translation['comment'])) {
+      foreach ($translation['comment'] as $delta => $item) {
+        if ($item['cid'] == NULL) {
+          unset($translation['comment'][$delta]);
+        }
+      }
+    }
+
     // Exclude "name" field (the user name) for comment entity type because
     // we'll change it during replication if it's a duplicate.
     if ($entity_type_id == 'comment' && isset($translation['name'])) {
