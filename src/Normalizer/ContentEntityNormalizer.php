@@ -493,7 +493,8 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             // Special handling for Entity Reference Revisions, it needs the
             // revision ID in addition to the primary entity ID.
             if ($type === 'entity_reference_revisions') {
-              $translation[$field_name][$delta]['target_revision_id'] = $target_entity->revision_id->value;
+              $revision_key = $target_entity->getEntityType()->getKey('revision');
+              $translation[$field_name][$delta]['target_revision_id'] = $target_entity->{$revision_key}->value;
             }
           }
           // If the target entity doesn't exist we need to create a stub entity
