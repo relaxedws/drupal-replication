@@ -87,8 +87,11 @@ abstract class NormalizerTestBase extends KernelTestBase {
    * @see \Drupal\serialization\Normalizer\TimestampItemNormalizer
    */
   protected function formatExpectedTimestampItemValues($timestamp) {
+    // Get the minor version only from the \Drupal::VERSION string.
+    $minor_version = substr(\Drupal::VERSION, 0, 3);
+
     // If the setting is enabled, just return the timestamp as-is now.
-    if ($this->config('serialization.settings')->get('bc_timestamp_normalizer_unix')) {
+    if (version_compare($minor_version, '8.4', '<') || $this->config('serialization.settings')->get('bc_timestamp_normalizer_unix')) {
       return ['value' => $timestamp];
     }
 
