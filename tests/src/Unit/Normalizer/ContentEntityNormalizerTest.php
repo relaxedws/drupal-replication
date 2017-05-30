@@ -35,6 +35,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
 
   public function testNormalizer() {
     // Test normalize.
+    list($i, $hash) = explode('-', $this->entity->_rev->value);
     $expected = [
       '@context' => [
         '_id' => '@id',
@@ -76,6 +77,10 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
       ],
       '_id' => $this->entity->uuid(),
       '_rev' => $this->entity->_rev->value,
+      '_revisions' => [
+        'start' => 1,
+        'ids' => [$hash],
+      ],
     ];
 
     $normalized = $this->serializer->normalize($this->entity);

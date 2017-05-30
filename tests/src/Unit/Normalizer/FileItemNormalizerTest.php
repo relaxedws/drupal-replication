@@ -150,6 +150,7 @@ class FileItemNormalizerTest extends NormalizerTestBase{
       $files_number++;
     }
 
+    list($i, $hash) = explode('-', $this->entity->_rev->value);
     $expected = [
       '@context' => [
         '_id' => '@id',
@@ -192,6 +193,10 @@ class FileItemNormalizerTest extends NormalizerTestBase{
       '_attachments' => $expected_attachments,
       '_id' => $entity->uuid(),
       '_rev' => $entity->_rev->value,
+      '_revisions' => [
+        'start' => 1,
+        'ids' => [$hash],
+      ],
     ];
 
     $normalized = $this->serializer->normalize($this->entity);

@@ -45,6 +45,7 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
     ]);
     $entity->save();
 
+    list($i, $hash) = explode('-', $entity->_rev->value);
     $expected = [
       '@context' => [
         '_id' => '@id',
@@ -87,6 +88,10 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
       ],
       '_id' => $entity->uuid(),
       '_rev' => $entity->_rev->value,
+      '_revisions' => [
+        'start' => 1,
+        'ids' => [$hash],
+      ],
     ];
 
     // Test normalize.
