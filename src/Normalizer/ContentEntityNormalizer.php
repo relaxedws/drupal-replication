@@ -142,25 +142,19 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         // Add data for each field (through the field's normalizer.
         $field_type = $field_definitions[$name]->getType();
         $items = $this->serializer->normalize($field, $format, $context);
+        if (empty($items) || $field_type == 'password') {
+          continue;
+        }
         // Add file and image field types into _attachments key.
         if ($field_type == 'file' || $field_type == 'image') {
-          if ($items !== NULL) {
-            if (!isset($data['_attachments']) && !empty($items)) {
-              $data['_attachments'] = [];
-            }
-            foreach ($items as $item) {
-              $data['_attachments'] = array_merge($data['_attachments'], $item);
-            }
+          if (!isset($data['_attachments']) && !empty($items)) {
+            $data['_attachments'] = [];
           }
-          continue;
+          foreach ($items as $item) {
+            $data['_attachments'] = array_merge($data['_attachments'], $item);
+          }
         }
-        if ($field_type == 'password') {
-          continue;
-        }
-
-        if ($items !== NULL) {
-          $data[$entity_language->getId()][$name] = $items;
-        }
+        $data[$entity_language->getId()][$name] = $items;
       }
       // Override the normalization for the _deleted special field, just so that we
       // follow the API spec.
