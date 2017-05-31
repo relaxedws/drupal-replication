@@ -153,6 +153,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           foreach ($items as $item) {
             $data['_attachments'] = array_merge($data['_attachments'], $item);
           }
+          continue;
         }
         $data[$entity_language->getId()][$name] = $items;
       }

@@ -113,7 +113,6 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
         '_rev' => [
           ['value' => $this->entity->_rev->value],
         ],
-        'non_rev_field' => [],
         'field_test_text' => [
           [
             'value' => $this->values['field_test_text']['value'],
