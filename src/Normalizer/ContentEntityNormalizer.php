@@ -275,6 +275,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           'target_id' => $file->id(),
           'entity' => $file,
         ];
+        if (!empty($value['alt'])) {
+          $files[$field_name][$delta]['alt'] = $value['alt'];
+        }
       }
     }
 

@@ -59,6 +59,10 @@ class FileItemNormalizer extends FieldItemNormalizer {
           'data' => $file_data,
         ],
       ];
+
+      if (!empty($values['alt'])) {
+        $result[$key]['alt'] = $values['alt'];
+      }
     }
 
     return $result;
