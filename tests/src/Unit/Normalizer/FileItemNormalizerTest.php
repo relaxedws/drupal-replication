@@ -118,7 +118,7 @@ class FileItemNormalizerTest extends NormalizerTestBase{
         'target_id' => $file3->id(),
         'display' => 1,
         'description' => $this->randomMachineName(),
-        'alt' => $this->randomMachineName(),
+        'alt' => 'alt ' . $file3->id() ,
         'title' => $this->randomMachineName(),
         'width' => 200,
         'height' => 100,
@@ -146,6 +146,9 @@ class FileItemNormalizerTest extends NormalizerTestBase{
           'data' => base64_encode($file_contents),
         ],
       ];
+      if ($files_number === 3) {
+        $attachments[$attachments_keys[$files_number]]['alt'] = 'alt ' . $$file->id();
+      };
       $expected_attachments = array_merge($expected_attachments, $attachments);
       $files_number++;
     }
