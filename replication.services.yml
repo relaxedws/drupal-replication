@@ -91,6 +91,11 @@ services:
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
       - { name: normalizer, priority: 30 }
+  replication.normalizer.taxonomy_term:
+    class: Drupal\replication\Normalizer\TaxonomyTermNormalizer
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
+    tags:
+      - { name: normalizer, priority: 30 }
   replication.normalizer.file_item:
     class: Drupal\replication\Normalizer\FileItemNormalizer
     tags:
