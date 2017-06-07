@@ -16,7 +16,7 @@ class TaxonomyTermNormalizer extends ContentEntityNormalizer {
    */
   public function normalize($entity, $format = NULL, array $context = []) {
     $storage = $this->entityManager->getStorage($entity->getEntityTypeId());
-    if (empty($entity->parent->target_id)) {
+    if (!isset($entity->parent->target_id)) {
       $parents = $storage->loadParents($entity->id());
       $parent = reset($parents);
       if ($parent instanceof TermInterface) {
