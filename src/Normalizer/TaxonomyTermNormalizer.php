@@ -22,6 +22,9 @@ class TaxonomyTermNormalizer extends ContentEntityNormalizer {
       if ($parent instanceof TermInterface) {
         $entity->parent->target_id = $parent->id();
       }
+      else {
+        $entity->parent->target_id = 0;
+      }
     }
 
     return parent::normalize($entity, $format, $context);
