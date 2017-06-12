@@ -83,6 +83,8 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
         '_rev' => [
           ['value' => $entity->_rev->value],
         ],
+        'non_rev_field' => [],
+        'field_test_text' => [],
       ],
       '_id' => $entity->uuid(),
       '_rev' => $entity->_rev->value,
