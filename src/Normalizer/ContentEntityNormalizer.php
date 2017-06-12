@@ -142,7 +142,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         // Add data for each field (through the field's normalizer.
         $field_type = $field_definitions[$name]->getType();
         $items = $this->serializer->normalize($field, $format, $context);
-        if (empty($items) || $field_type == 'password') {
+        if ($field_type == 'password') {
           continue;
         }
         // Add file and image field types into _attachments key.
