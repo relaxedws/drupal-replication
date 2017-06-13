@@ -24,6 +24,9 @@ class ChangesNormalizer extends NormalizerBase {
     if (isset($context['query']['parameters'])) {
       $changes->parameters($context['query']['parameters']);
     }
+    if (isset($context['query']['limit'])) {
+      $changes->setLimit($context['query']['limit']);
+    }
     $results = $changes->getNormal();
     $last_result = end($results);
     $last_seq = isset($last_result['seq']) ? $last_result['seq'] : 0;

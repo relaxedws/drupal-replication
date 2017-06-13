@@ -22,6 +22,14 @@ class ReplicationTask implements ReplicationTaskInterface {
   protected $parameters;
 
   /**
+   * Number of items to return.
+   *
+   * @var int
+   *   The limit of items.
+   */
+  protected $limit = 1000;
+
+  /**
    * {@inheritdoc}
    */
   public function setFilter($filter = NULL) {
@@ -44,6 +52,14 @@ class ReplicationTask implements ReplicationTaskInterface {
       $parameters = [];
     }
     $this->parameters = $parameters;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setLimit($limit) {
+    $this->limit = $limit;
     return $this;
   }
 
@@ -77,6 +93,13 @@ class ReplicationTask implements ReplicationTaskInterface {
    */
   public function getParameter($name) {
     return $this->parameters->get($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLimit() {
+    return $this->limit;
   }
 
 }

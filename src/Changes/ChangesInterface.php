@@ -58,6 +58,17 @@ interface ChangesInterface {
   public function lastSeq($seq);
 
   /**
+   * Set the limit of returned number of items.
+   *
+   * @param int $limit
+   *   The limit of returned items.
+   *
+   * @return \Drupal\replication\Changes\ChangesInterface
+   *   Returns $this.
+   */
+  public function setLimit($limit);
+
+  /**
    * Return the changes in a 'normal' way.
    */
   public function getNormal();
