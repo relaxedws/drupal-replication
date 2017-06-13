@@ -59,6 +59,17 @@ interface ReplicationTaskInterface {
   public function setParameter($name, $value);
 
   /**
+   * Set the limit of returned number of items.
+   *
+   * @param int $limit
+   *   The limit of returned items.
+   *
+   * @return \Drupal\replication\Changes\ChangesInterface
+   *   Returns $this.
+   */
+  public function setLimit($limit);
+
+  /**
    * Get the parameters for the filter plugin.
    *
    * @return array
@@ -87,5 +98,12 @@ interface ReplicationTaskInterface {
    *   If the parameter is not defined.
    */
   public function getParameter($name);
+
+  /**
+   * Returns the limit.
+   *
+   * @return int
+   */
+  public function getLimit();
 
 }

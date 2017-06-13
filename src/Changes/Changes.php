@@ -72,6 +72,14 @@ class Changes implements ChangesInterface {
   protected $lastSeq = 0;
 
   /**
+   * Number of items to return.
+   *
+   * @var int|NULL
+   *   The limit of items.
+   */
+  protected $limit = NULL;
+
+  /**
    * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $sequence_index
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -121,6 +129,14 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
+  public function setLimit($limit) {
+    $this->limit = $limit;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getNormal() {
     $sequences = $this->sequenceIndex
       ->useWorkspace($this->workspaceId)
@@ -140,6 +156,7 @@ class Changes implements ChangesInterface {
 
     // Format the result array.
     $changes = [];
+    $count = 0;
     foreach ($sequences as $sequence) {
       if (!empty($sequence['local']) || !empty($sequence['is_stub'])) {
         continue;
@@ -157,6 +174,13 @@ class Changes implements ChangesInterface {
       // Filter the document.
       if ($filter !== NULL && !$filter->filter($revision)) {
         continue;
+      }
+
+      if ($this->limit && $count >= $this->limit) {
+        break;
+      }
+      else {
+        $count++;
       }
 
       $uuid = $sequence['entity_uuid'];
