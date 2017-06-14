@@ -27,28 +27,16 @@ class ChangesNormalizer extends NormalizerBase {
     if (isset($context['query']['limit'])) {
       $changes->setLimit($context['query']['limit']);
     }
+    $since = (isset($context['query']['since']) && is_numeric($context['query']['since'])) ? $context['query']['since'] : 0;
+    $changes->setSince($since);
+
     $results = $changes->getNormal();
     $last_result = end($results);
     $last_seq = isset($last_result['seq']) ? $last_result['seq'] : 0;
 
-    // 'since' parameter is important for PouchDB replication.
-    $since = (isset($context['query']['since']) && is_numeric($context['query']['since'])) ? $context['query']['since'] : 0;
-
-    $filtered_results = [];
-    if ($since == 0) {
-      $filtered_results = $results;
-    }
-    else {
-      foreach ($results as $result) {
-        if ($result['seq'] > $since) {
-          $filtered_results[] = $result;
-        }
-      }
-    }
-
     return [
       'last_seq' => $last_seq,
-      'results' => $filtered_results,
+      'results' => $results,
     ];
   }
 
