@@ -50,12 +50,12 @@ interface ChangesInterface {
    * Sets from what sequence number to check for changes.
    *
    * @param int $seq
-   *   The sequence ID to start including changes from. Result includes $seq.
+   *   The sequence ID to start including changes from. Result includes last_seq.
    *
    * @return \Drupal\replication\Changes\ChangesInterface
    *   Returns $this.
    */
-  public function lastSeq($seq);
+  public function setSince($seq);
 
   /**
    * Set the limit of returned number of items.

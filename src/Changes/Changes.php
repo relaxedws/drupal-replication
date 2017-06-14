@@ -65,11 +65,11 @@ class Changes implements ChangesInterface {
   protected $includeDocs = FALSE;
 
   /**
-   * The sequence ID to start including changes from. Result includes $lastSeq.
+   * The sequence ID to start including changes from. Result includes last_seq.
    *
    * @var int
    */
-  protected $lastSeq = 0;
+  protected $since = 0;
 
   /**
    * Number of items to return.
@@ -121,8 +121,8 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
-  public function lastSeq($seq) {
-    $this->lastSeq = $seq;
+  public function setSince($seq) {
+    $this->since = $seq;
     return $this;
   }
 
@@ -140,7 +140,7 @@ class Changes implements ChangesInterface {
   public function getNormal() {
     $sequences = $this->sequenceIndex
       ->useWorkspace($this->workspaceId)
-      ->getRange($this->lastSeq, NULL);
+      ->getRange($this->since, NULL);
 
     // Setup filter plugin.
     $parameters = is_array($this->parameters) ? $this->parameters : [];
@@ -179,11 +179,11 @@ class Changes implements ChangesInterface {
       if ($this->limit && $count >= $this->limit) {
         break;
       }
-      else {
-        $count++;
-      }
 
       $uuid = $sequence['entity_uuid'];
+      if (!isset($changes[$uuid])) {
+        $count++;
+      }
       $changes[$uuid] = [
         'changes' => [
           ['rev' => $sequence['rev']],
@@ -219,7 +219,7 @@ class Changes implements ChangesInterface {
     do {
       $change = $this->sequenceIndex
         ->useWorkspace($this->workspaceId)
-        ->getRange($this->lastSeq, NULL);
+        ->getRange($this->since, NULL);
       $no_change = empty($change) ? TRUE : FALSE;
     } while ($no_change);
     return $change;
