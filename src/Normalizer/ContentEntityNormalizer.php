@@ -314,9 +314,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         if (!empty($translations[$entity->language()->getId()])) {
           $translation = $translations[$entity->language()->getId()];
           unset($translation['default_langcode']);
-          // Get rid of the bundle key. That is already known anyway. Also
-          // breaks field denormalization.
-          $this->extractBundleData($translation, $entity_type);
+          if ($entity_type->hasKey('bundle')) {
+            $this->extractBundleData($translation, $entity_type);
+          }
           $this->denormalizeFieldData($translation, $entity, $format, $context);
         }
       }
