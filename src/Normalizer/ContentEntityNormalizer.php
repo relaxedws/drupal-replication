@@ -146,16 +146,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         if ($field_type == 'password') {
           continue;
         }
-        // Add file and image field types into _attachments key.
-        if ($field_type == 'file' || $field_type == 'image') {
-          if (!isset($data['_attachments']) && !empty($items)) {
-            $data['_attachments'] = [];
-          }
-          foreach ($items as $item) {
-            $data['_attachments'] = array_merge($data['_attachments'], $item);
-          }
-          continue;
-        }
         $data[$entity_language->getId()][$name] = $items;
       }
       // Override the normalization for the _deleted special field, just so that we
