@@ -24,7 +24,7 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
    * @var string[]
    */
   protected $format = ['json'];
-  
+
   /**
    * @var \Drupal\replication\ProcessFileAttachment
    */
@@ -52,11 +52,6 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
     $normalized = parent::normalize($data, $format, $context);
     $file_system = \Drupal::service('file_system');
     $uri = $data->getFileUri();
-    $scheme = $file_system->uriScheme($uri);
-
-    if (!$target = file_uri_target($uri)) {
-      $target = $data->getFileName();
-    }
 
     $file_contents = file_get_contents($uri);
     if (in_array($file_system->uriScheme($uri), ['public', 'private']) == FALSE) {
@@ -69,8 +64,7 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
     // @todo {@link https://www.drupal.org/node/2600360 Add revpos and other missing properties to the result array.}
     $normalized['_attachment'] = [
       'uuid' => $data->uuid(),
-      'scheme' => $scheme,
-      'target' => $target,
+      'uri' => $uri,
       'content_type' => $data->getMimeType(),
       'digest' => 'md5-' . base64_encode(md5($file_contents)),
       'length' => $data->getSize(),

@@ -38,7 +38,7 @@ class ProcessFileAttachment {
    */
   public function process($data, $format, WorkspaceInterface $workspace = null) {
     $current_user_id = $this->current_user->id();
-    $uri = $data['scheme'] . '://' . $data['target'];
+    $uri = $data['uri'];
     $file_uuid = $data['uuid'];
     multiversion_prepare_file_destination($uri);
     // Check if exists a file entity with this uuid.
