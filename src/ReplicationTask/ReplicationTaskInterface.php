@@ -70,6 +70,17 @@ interface ReplicationTaskInterface {
   public function setLimit($limit);
 
   /**
+   * Set the limit of docs for BulkDocs per POST request.
+   *
+   * @param int $bulkDocsLimit
+   *   The limit of the items to send per request.
+   *
+   * @return \Drupal\replication\Changes\ChangesInterface
+   *   Returns $this.
+   */
+  public function setBulkDocsLimit($bulkDocsLimit);
+
+  /**
    * Get the parameters for the filter plugin.
    *
    * @return array
@@ -105,5 +116,12 @@ interface ReplicationTaskInterface {
    * @return int
    */
   public function getLimit();
+
+  /**
+   * Returns the BulkDocs limit.
+   *
+   * @return int
+   */
+  public function getBulkDocsLimit();
 
 }
