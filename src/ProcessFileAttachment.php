@@ -2,7 +2,6 @@
 
 namespace Drupal\replication;
 
-use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\file\FileInterface;
@@ -31,17 +30,16 @@ class ProcessFileAttachment {
    *
    * Returns the file object or NULL if it can't be created.
    *
-   * @param string $data
-   * @param string $key
+   * @param array $data
    * @param string $format
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    *
    * @return \Drupal\file\FileInterface|NULL
    */
-  public function process($data, $key, $format, WorkspaceInterface $workspace = null) {
+  public function process($data, $format, WorkspaceInterface $workspace = null) {
     $current_user_id = $this->current_user->id();
-    list(, , $file_uuid, $scheme, $target) = explode('/', $key, 5);
-    $uri = "$scheme://$target";
+    $uri = $data['scheme'] . '://' . $data['target'];
+    $file_uuid = $data['uuid'];
     multiversion_prepare_file_destination($uri);
     // Check if exists a file entity with this uuid.
     $uuid_index = $this->index_factory->get('multiversion.entity_index.uuid', $workspace);
@@ -62,7 +60,7 @@ class ProcessFileAttachment {
         }
         $file = \Drupal::getContainer()
           ->get('serializer')
-          ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
+          ->deserialize($data['data'], '\Drupal\file\FileInterface', $format, $file_context);
       }
       return $file;
     }
@@ -84,7 +82,7 @@ class ProcessFileAttachment {
     ];
     $file = \Drupal::getContainer()
       ->get('serializer')
-      ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
+      ->deserialize($data['data'], '\Drupal\file\FileInterface', $format, $file_context);
 
     return $file;
   }
