@@ -79,13 +79,9 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
   public function denormalize($data, $class, $format = NULL, array $context = []) {
     $file = NULL;
     if (!empty($data['_attachment'])) {
+      $workspace = isset($context['workspace']) ? $context['workspace'] : NULL;
       /** @var FileInterface $file */
-      if (isset($context['workspace'])) {
-        $file = $this->processFileAttachment->process($data['_attachment'], 'base64_stream', $context['workspace']);
-      }
-      else {
-        $file = $this->processFileAttachment->process($data['_attachment'], 'base64_stream');
-      }
+      $file = $this->processFileAttachment->process($data['_attachment'], 'base64_stream', $workspace);
     }
     return ($file instanceof FileInterface) ? $file : parent::denormalize($data, $class, $format, $context);
   }
