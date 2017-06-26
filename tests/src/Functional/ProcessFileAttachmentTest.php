@@ -4,7 +4,7 @@ namespace Drupal\Tests\replication\Functional;
 
 use Drupal\file\FileInterface;
 use Drupal\multiversion\Entity\Workspace;
-use Drupal\simpletest\BrowserTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Test the use of the ProcessFileAttachment service.
