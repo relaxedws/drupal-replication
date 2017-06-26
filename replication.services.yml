@@ -90,7 +90,7 @@ services:
     class: Drupal\replication\Normalizer\AttachmentNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
-      - { name: normalizer, priority: 30 }
+      - { name: normalizer, priority: 20 }
   replication.normalizer.file_entity:
     class: Drupal\replication\Normalizer\FileEntityNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher', '@replication.process_file_attachment']
