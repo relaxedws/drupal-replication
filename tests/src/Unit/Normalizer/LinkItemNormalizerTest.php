@@ -69,11 +69,11 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
       ],
       'field_test_link' => [
         [
-          'uri' => 'entity:entity_test_mulrev/' . $referenced_entity1->id(),
+          'uri' => 'entity:/entity_test_mulrev/' . $referenced_entity1->id(),
           'options' => [],
         ],
         [
-          'uri' => 'entity:entity_test_mulrev/' . $referenced_entity2->id(),
+          'uri' => 'internal:/entity_test_mulrev/' . $referenced_entity2->id(),
           'options' => [],
         ],
       ],
@@ -122,14 +122,16 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
         ],
         'field_test_link' => [
           [
-            'uri' => 'entity:entity_test_mulrev/' . $referenced_entity1->id(),
+            'uri' => 'entity:entity_test_mulrev/' . $referenced_entity1->uuid(),
             'title' => NULL,
             'options' => [],
+            'type' => 'entity_test_mulrev',
           ],
           [
-            'uri' => 'entity:entity_test_mulrev/' . $referenced_entity2->id(),
+            'uri' => 'internal:/entity_test_mulrev/' . $referenced_entity2->uuid(),
             'title' => NULL,
             'options' => [],
+            'type' => 'entity_test_mulrev',
           ],
         ],
       ],
@@ -159,34 +161,16 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
         'uri' => 'entity:entity_test_mulrev/' . $referenced_entity1->id(),
         'title' => NULL,
         'options' => [],
+        'type' => 'entity_test_mulrev',
       ],
       [
-        'uri' => 'entity:entity_test_mulrev/' . $referenced_entity2->id(),
+        'uri' => 'internal:/entity_test_mulrev/' . $referenced_entity2->id(),
         'title' => NULL,
         'options' => [],
+        'type' => 'entity_test_mulrev',
       ],
     ];
     foreach ($denormalized->get('field_test_link')->getValue() as $key => $item) {
-      $this->assertEquals($expected_link_field_values[$key], $item, "Field $key is normalized correctly.");
-    }
-
-    $normalized2 = $normalized;
-
-    // Test denormalize.
-    $denormalized2 = $this->serializer->denormalize($normalized2, $this->entityClass, 'json');
-    $expected_link_field_values = [
-      [
-        'uri' => 'entity:entity_test_mulrev/' . $referenced_entity1->id(),
-        'title' => NULL,
-        'options' => [],
-      ],
-      [
-        'uri' => 'entity:entity_test_mulrev/' . $referenced_entity2->id(),
-        'title' => NULL,
-        'options' => [],
-      ],
-    ];
-    foreach ($denormalized2->get('field_test_link')->getValue() as $key => $item) {
       $this->assertEquals($expected_link_field_values[$key], $item, "Field $key is normalized correctly.");
     }
   }

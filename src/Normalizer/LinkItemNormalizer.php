@@ -3,8 +3,9 @@
 namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\serialization\Normalizer\FieldItemNormalizer;
 
@@ -23,17 +24,17 @@ class LinkItemNormalizer extends FieldItemNormalizer {
   protected $entityTypeManager;
 
   /**
-   * @var \Drupal\multiversion\Entity\Index\MultiversionIndexFactory
+   * @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface|null
    */
-  protected $indexFactory;
+  private $selectionManager;
 
   /**
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   * @param \Drupal\multiversion\Entity\Index\MultiversionIndexFactory $index_factory
+   * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface|null $selection_manager
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, MultiversionIndexFactory $index_factory) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, SelectionPluginManagerInterface $selection_manager = NULL) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->indexFactory = $index_factory;
+    $this->selectionManager = $selection_manager;
   }
 
   /**
@@ -45,21 +46,36 @@ class LinkItemNormalizer extends FieldItemNormalizer {
       $attributes[$name] = $this->serializer->normalize($field, $format, $context);
     }
 
-    // Add the 'entity_type_id' and 'target_uuid' values if the uri has the
-    // 'entity' scheme. These entities will be used later to denormalize this
-    // field and set the uri to the correct entity.
+    // Use the entity UUID instead of ID in urls like internal:/node/1.
     if (isset($attributes['uri'])) {
       $scheme = parse_url($attributes['uri'], PHP_URL_SCHEME);
-      if ($scheme === 'entity') {
-        list($entity_type, $entity_id) = explode('/', substr($attributes['uri'], 7), 2);
-        if ($entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id)) {
-          $attributes['entity_type_id'] = $entity_type;
-          $attributes['target_uuid'] = $entity->uuid();
-          $bundle_key = $entity->getEntityType()->getKey('bundle');
-          $bundle = $entity->bundle();
-          if ($bundle_key && $bundle) {
-            $attributes[$bundle_key] = $bundle;
-          }
+      if (($scheme != 'internal' && $scheme != 'entity') ) {
+        return $attributes;
+      }
+      $path = parse_url($attributes['uri'], PHP_URL_PATH);
+      $path_arguments = explode('/', $path);
+      if (isset($path[0]) && $path[0] == '/' && isset($path_arguments[1]) && isset($path_arguments[2]) && is_numeric($path_arguments[2]) && empty($path_arguments[3])) {
+        $entity_type = $path_arguments[1];
+        $entity_id = $path_arguments[2];
+      }
+      elseif (isset($path[0]) && $path[0] != '/' && isset($path_arguments[0]) && isset($path_arguments[1]) && is_numeric($path_arguments[1]) && empty($path_arguments[2])) {
+        $entity_type = $path_arguments[0];
+        $entity_id = $path_arguments[1];
+      }
+      else {
+        return $attributes;
+      }
+      $entity_types = array_keys($this->entityTypeManager->getDefinitions());
+      if (!in_array($entity_type, $entity_types)) {
+        return $attributes;
+      }
+      $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
+      if ($entity instanceof EntityInterface) {
+        $attributes['uri'] = ($scheme == 'entity') ? "$scheme:$entity_type/" . $entity->uuid() : "$scheme:/$entity_type/" . $entity->uuid();
+        $bundle_key = $entity->getEntityType()->getKey('bundle');
+        $bundle = $entity->bundle();
+        if ($bundle_key && $bundle) {
+          $attributes[$bundle_key] = $bundle;
         }
       }
     }
@@ -70,49 +86,55 @@ class LinkItemNormalizer extends FieldItemNormalizer {
    * {@inheritdoc}
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
-    if ($this->hasNewEntity($data)) {
-      $entity = $data['uri'];
-      // As part of a bulk or replication operation there might be multiple
-      // parent entities wanting to auto-create the same reference. So at this
-      // point this entity might already be saved, so we look it up by UUID and
-      // map it correctly.
-      // @see \Drupal\relaxed\BulkDocs\BulkDocs::save()
-      if ($entity->isNew()) {
-        $uuid = $entity->uuid();
-        $workspace = isset($context['workspace']) && ($context['workspace'] instanceof WorkspaceInterface) ? $context['workspace'] : NULL;
-        $uuid_index = $this->indexFactory->get('multiversion.entity_index.uuid', $workspace);
-        if ($uuid && $record = $uuid_index->get($uuid)) {
-
-          $entity_type_id = $entity->getEntityTypeId();
-
-          // Now we have to decide what revision to use.
-          $id_key = $this->entityTypeManager
-            ->getDefinition($entity_type_id)
-            ->getKey('id');
-
-          // If the referenced entity is a stub, but an entity already was
-          // created, then load and use that entity instead without saving.
-          if ($entity->_rev->is_stub && is_numeric($record['entity_id'])) {
-            $entity = $this->entityTypeManager
-              ->getStorage($entity_type_id)
-              ->useWorkspace($workspace->id())
-              ->load($record['entity_id']);
+    if (isset($data['uri'])) {
+      $scheme = parse_url($data['uri'], PHP_URL_SCHEME);
+      if (($scheme != 'internal' && $scheme != 'entity') ) {
+        return parent::denormalize($data, $class, $format, $context);
+      }
+      $path = parse_url($data['uri'], PHP_URL_PATH);
+      $path_arguments = explode('/', $path);
+      if (isset($path[0]) && $path[0] == '/' && isset($path_arguments[1]) && isset($path_arguments[2]) && empty($path_arguments[3])) {
+        $entity_type = $path_arguments[1];
+        $entity_uuid = $path_arguments[2];
+      }
+      elseif (isset($path[0]) && $path[0] != '/' && isset($path_arguments[0]) && isset($path_arguments[1]) && empty($path_arguments[2])) {
+        $entity_type = $path_arguments[0];
+        $entity_uuid = $path_arguments[1];
+      }
+      else {
+        return parent::denormalize($data, $class, $format, $context);;
+      }
+      $entity_types = array_keys($this->entityTypeManager->getDefinitions());
+      if (!in_array($entity_type, $entity_types)) {
+        return parent::denormalize($data, $class, $format, $context);
+      }
+      $entities = $this->entityTypeManager->getStorage($entity_type)->loadByProperties(['uuid' => $entity_uuid]);
+      $entity = reset($entities);
+      if (!($entity instanceof EntityInterface)) {
+        $bundle_key = $this->entityTypeManager->getStorage($entity_type)->getEntityType()->getKey('bundle');
+        if (isset($data[$bundle_key])) {
+          /** @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionWithAutocreateInterface $selection_instance */
+          $selection_instance = $this->selectionManager->getInstance(['target_type' => $entity_type]);
+          // We use a temporary label and entity owner ID as this will be
+          // backfilled later anyhow, when the real entity comes around.
+          $entity = $selection_instance->createNewEntity($entity_type, $data[$bundle_key], rand(), 1);
+          // Set the target workspace if we have it in context.
+          if (isset($context['workspace'])
+            && ($context['workspace'] instanceof WorkspaceInterface)
+            && $entity->getEntityType()->get('workspace') !== FALSE) {
+            $entity->workspace->target_id = $context['workspace']->id();
           }
-          // If the referenced entity is not a stub then map it with the correct
-          // ID from the existing record and save it.
-          elseif (!$entity->_rev->is_stub) {
-            $entity->{$id_key}->value = $record['entity_id'];
-            $entity->enforceIsNew(FALSE);
-            $entity->save();
-          }
-        }
-        // Just save the entity if no previous record exists.
-        else{
+          // Set the UUID to what we received to ensure it gets updated when
+          // the full entity comes around later.
+          $entity->uuid->value = $entity_uuid;
+          // Indicate that this revision is a stub.
+          $entity->_rev->is_stub = TRUE;
           $entity->save();
         }
       }
-      // Set the correct value.
-      $data['uri'] = 'entity:' . $entity->getEntityTypeId() . '/' . $entity->id();
+      if ($entity instanceof EntityInterface) {
+        $data['uri'] = ($scheme == 'entity') ? "$scheme:$entity_type/" . $entity->id() : "$scheme:/$entity_type/" . $entity->id();
+      }
     }
 
     return parent::denormalize($data, $class, $format, $context);
