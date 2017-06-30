@@ -6,7 +6,6 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\serialization\Normalizer\FieldItemNormalizer;
 
@@ -25,23 +24,16 @@ class LinkItemNormalizer extends FieldItemNormalizer {
   protected $entityTypeManager;
 
   /**
-   * @var \Drupal\multiversion\Entity\Index\MultiversionIndexFactory
-   */
-  protected $indexFactory;
-
-  /**
    * @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface|null
    */
   private $selectionManager;
 
   /**
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   * @param \Drupal\multiversion\Entity\Index\MultiversionIndexFactory $index_factory
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface|null $selection_manager
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, MultiversionIndexFactory $index_factory, SelectionPluginManagerInterface $selection_manager = NULL) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, SelectionPluginManagerInterface $selection_manager = NULL) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->indexFactory = $index_factory;
     $this->selectionManager = $selection_manager;
   }
 
