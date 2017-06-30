@@ -54,11 +54,11 @@ class LinkItemNormalizer extends FieldItemNormalizer {
       }
       $path = parse_url($attributes['uri'], PHP_URL_PATH);
       $path_arguments = explode('/', $path);
-      if (isset($path[0]) && $path[0] == '/' && isset($path_arguments[1]) && isset($path_arguments[2]) && is_numeric($path_arguments[2])) {
+      if (isset($path[0]) && $path[0] == '/' && isset($path_arguments[1]) && isset($path_arguments[2]) && is_numeric($path_arguments[2]) && empty($path_arguments[3])) {
         $entity_type = $path_arguments[1];
         $entity_id = $path_arguments[2];
       }
-      elseif (isset($path[0]) && $path[0] != '/' && isset($path_arguments[0]) && isset($path_arguments[1]) && is_numeric($path_arguments[1])) {
+      elseif (isset($path[0]) && $path[0] != '/' && isset($path_arguments[0]) && isset($path_arguments[1]) && is_numeric($path_arguments[1]) && empty($path_arguments[2])) {
         $entity_type = $path_arguments[0];
         $entity_id = $path_arguments[1];
       }
@@ -93,11 +93,11 @@ class LinkItemNormalizer extends FieldItemNormalizer {
       }
       $path = parse_url($data['uri'], PHP_URL_PATH);
       $path_arguments = explode('/', $path);
-      if (isset($path[0]) && $path[0] == '/' && isset($path_arguments[1]) && isset($path_arguments[2])) {
+      if (isset($path[0]) && $path[0] == '/' && isset($path_arguments[1]) && isset($path_arguments[2]) && empty($path_arguments[3])) {
         $entity_type = $path_arguments[1];
         $entity_uuid = $path_arguments[2];
       }
-      elseif (isset($path[0]) && $path[0] != '/' && isset($path_arguments[0]) && isset($path_arguments[1])) {
+      elseif (isset($path[0]) && $path[0] != '/' && isset($path_arguments[0]) && isset($path_arguments[1]) && empty($path_arguments[2])) {
         $entity_type = $path_arguments[0];
         $entity_uuid = $path_arguments[1];
       }
