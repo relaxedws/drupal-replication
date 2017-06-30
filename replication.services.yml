@@ -38,9 +38,9 @@ services:
 #Normalizers
   replication.normalizer.link_item:
     class: Drupal\replication\Normalizer\LinkItemNormalizer
-    arguments: ['@entity_type.manager', '@multiversion.entity_index.factory']
+    arguments: ['@entity_type.manager', '@multiversion.entity_index.factory', '@plugin.manager.entity_reference_selection']
     tags:
-      - { name: normalizer, priority: 5 }
+      - { name: normalizer, priority: 10 }
   replication.normalizer.text_item:
     class: Drupal\replication\Normalizer\TextItemNormalizer
     tags:
