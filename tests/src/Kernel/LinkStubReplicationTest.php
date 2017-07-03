@@ -44,7 +44,7 @@ class LinkStubReplicationTest extends KernelTestBase {
     $this->installSchema('node', ['node_access']);
     $this->installConfig(['multiversion', 'replication']);
     $this->container->get('multiversion.manager')->enableEntityTypes();
-    $this->serializer = $this->container->get('serializer');
+    $this->serializer = $this->container->get('replication.serializer');
     Workspace::create(['machine_name' => 'live', 'label' => 'Live', 'type' => 'basic'])->save();
     NodeType::create(['type' => 'article_with_link', 'name' => 'article_with_link'])->save();
     NodeType::create(['type' => 'article', 'name' => 'article'])->save();

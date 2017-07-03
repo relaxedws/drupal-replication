@@ -2,14 +2,16 @@
 
 namespace Drupal\replication\Normalizer;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\WorkspaceType;
 use Drupal\multiversion\Entity\WorkspaceTypeInterface;
-use Drupal\serialization\Normalizer\EntityNormalizer;
+use Drupal\serialization\Normalizer\NormalizerBase;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 /**
- * @todo {@link https://www.drupal.org/node/2599920 Don't extend EntityNormalizer.}
+ * Workspace entity normalizer and denormalizer.
  */
-class WorkspaceNormalizer extends EntityNormalizer {
+class WorkspaceNormalizer extends NormalizerBase implements DenormalizerInterface {
 
   /**
    * @var string[]
@@ -17,21 +19,33 @@ class WorkspaceNormalizer extends EntityNormalizer {
   protected $supportedInterfaceOrClass = ['Drupal\multiversion\Entity\WorkspaceInterface'];
 
   /**
-   * @var string[]
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $format = ['json'];
+  protected $entityTypeManager;
+
+  /**
+   * Constructs an EntityNormalizer object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+    $this->entityTypeManager = $entity_type_manager;
+  }
 
   /**
    * {@inheritdoc}
    */
   public function normalize($entity, $format = NULL, array $context = []) {
     $context['entity_type'] = 'workspace';
-    $data = parent::normalize($entity, $format, $context);
 
     $return_data = [];
-    if (isset($data['machine_name'])) {
-      $return_data['db_name'] = (string) $entity->getMachineName();
+    if ($machine_name = (string) $entity->getMachineName()) {
+      $return_data['db_name'] = $machine_name;
     }
+
     if ($update_seq = $entity->getUpdateSeq()) {
       $return_data['update_seq'] = (int) $update_seq;
     }
@@ -39,8 +53,9 @@ class WorkspaceNormalizer extends EntityNormalizer {
       // Replicator expects update_seq to be always set.
       $return_data['update_seq'] = 0;
     }
-    if (isset($data['created'])) {
-      $return_data['instance_start_time'] = (string) $entity->getStartTime();
+
+    if ($created = (string) $entity->getStartTime()) {
+      $return_data['instance_start_time'] = $created;
     }
 
     return $return_data;
@@ -64,6 +79,6 @@ class WorkspaceNormalizer extends EntityNormalizer {
       throw new \Exception('Invalid workspace type.');
     }
     $data['type'] = $workspace_type->id();
-    return $this->entityManager->getStorage('workspace')->create($data);
+    return $this->entityTypeManager->getStorage('workspace')->create($data);
   }
 }

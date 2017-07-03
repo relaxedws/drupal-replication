@@ -61,7 +61,7 @@ class ProcessFileAttachment {
           $file_context['workspace'] = $workspace;
         }
         $file = \Drupal::getContainer()
-          ->get('serializer')
+          ->get('replication.serializer')
           ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
       }
       return $file;
@@ -83,7 +83,7 @@ class ProcessFileAttachment {
       'workspace' => $workspace,
     ];
     $file = \Drupal::getContainer()
-      ->get('serializer')
+      ->get('replication.serializer')
       ->deserialize($data, '\Drupal\file\FileInterface', $format, $file_context);
 
     return $file;

@@ -25,86 +25,135 @@ services:
     class: Drupal\replication\AllDocsFactory
     arguments: ['@entity_type.manager', '@multiversion.manager', '@multiversion.entity_index.id', '@serializer']
 
+#Serializers
+  replication.serializer:
+    class: Symfony\Component\Serializer\Serializer
+    arguments: [{  }, { }]
+
 #Encoders
+  replication.encoder.json:
+    class: Drupal\serialization\Encoder\JsonEncoder
+    tags:
+      - { name: replication_encoder, format: json }
   replication.encoder.stream:
     class: Drupal\replication\Encoder\StreamEncoder
     tags:
-      - { name: encoder, format: stream }
+      - { name: replication_encoder, format: stream }
   replication.encoder.base64_stream:
     class: Drupal\replication\Encoder\StreamEncoder
     tags:
-      - { name: encoder, format: base64_stream }
+      - { name: replication_encoder, format: base64_stream }
 
 #Normalizers
-  replication.normalizer.link_item:
-    class: Drupal\replication\Normalizer\LinkItemNormalizer
-    arguments: ['@entity_type.manager', '@plugin.manager.entity_reference_selection']
-    tags:
-      - { name: normalizer, priority: 10 }
-  replication.normalizer.text_item:
-    class: Drupal\replication\Normalizer\TextItemNormalizer
-    tags:
-      - { name: normalizer, priority: 5 }
-  replication.normalizer.content_entity:
-    class: Drupal\replication\Normalizer\ContentEntityNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
-    tags:
-      - { name: normalizer, priority: 10 }
-  replication.normalizer.replication_log:
-    class: Drupal\replication\Normalizer\ReplicationLogNormalizer
-    arguments: ['@entity_type.manager', '@multiversion.entity_index.uuid']
-    tags:
-      - { name: normalizer, priority: 20 }
-  replication.normalizer.bulk_docs:
-    class: Drupal\replication\Normalizer\BulkDocsNormalizer
-    tags:
-      - { name: normalizer, priority: 20 }
-  replication.normalizer.all_docs:
-    class: Drupal\replication\Normalizer\AllDocsNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.uuid']
-    tags:
-      - { name: normalizer, priority: 10 }
-  replication.normalizer.changes:
-    class: Drupal\replication\Normalizer\ChangesNormalizer
-    tags:
-      - { name: normalizer }
-  replication.normalizer.workspace:
-    class: Drupal\replication\Normalizer\WorkspaceNormalizer
-    tags:
-      - { name: normalizer, priority: 20 }
-    arguments: ['@entity.manager']
-  replication.normalizer.deleted_flag_item_list:
-    class: Drupal\replication\Normalizer\DeletedFlagItemListNormalizer
-    tags:
-      - { name: normalizer, priority: 10 }
-  replication.normalizer.revision_info_item_list:
-    class: Drupal\replication\Normalizer\RevisionInfoItemListNormalizer
-    tags:
-      - { name: normalizer, priority: 10 }
-  replication.normalizer.revs_diff:
-    class: Drupal\replication\Normalizer\RevsDiffNormalizer
-    arguments: ['@replication.revisiondiff_factory']
-    tags:
-      - { name: normalizer, priority: 30 }
   replication.normalizer.attachment:
     class: Drupal\replication\Normalizer\AttachmentNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
-      - { name: normalizer, priority: 30 }
+          - { name: replication_normalizer, priority: 60 }
+  replication.normalizer.workspace:
+    class: Drupal\replication\Normalizer\WorkspaceNormalizer
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: replication_normalizer, priority: 60 }
   replication.normalizer.taxonomy_term:
     class: Drupal\replication\Normalizer\TaxonomyTermNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
-      - { name: normalizer, priority: 30 }
+      - { name: replication_normalizer, priority: 60 }
+  replication.normalizer.replication_log:
+    class: Drupal\replication\Normalizer\ReplicationLogNormalizer
+    arguments: ['@entity_type.manager', '@multiversion.entity_index.uuid']
+    tags:
+      - { name: replication_normalizer, priority: 60 }
+  replication.normalizer.content_entity:
+    class: Drupal\replication\Normalizer\ContentEntityNormalizer
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
+    tags:
+      - { name: replication_normalizer, priority: 50 }
+  replication.normalizer.bulk_docs:
+    class: Drupal\replication\Normalizer\BulkDocsNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 50 }
+  replication.normalizer.all_docs:
+    class: Drupal\replication\Normalizer\AllDocsNormalizer
+    arguments: ['@entity.manager', '@multiversion.entity_index.uuid']
+    tags:
+      - { name: replication_normalizer, priority: 50 }
+  replication.normalizer.changes:
+    class: Drupal\replication\Normalizer\ChangesNormalizer
+    tags:
+      - { name: replication_normalizer }
+    arguments: ['@entity.manager']
+  replication.normalizer.revs_diff:
+    class: Drupal\replication\Normalizer\RevsDiffNormalizer
+    arguments: ['@replication.revisiondiff_factory']
+    tags:
+      - { name: replication_normalizer, priority: 50 }
+  replication.normalizer.link_item:
+    class: Drupal\replication\Normalizer\LinkItemNormalizer
+    arguments: ['@entity_type.manager', '@plugin.manager.entity_reference_selection']
+    tags:
+      - { name: replication_normalizer, priority: 40 }
+  replication.normalizer.text_item:
+    class: Drupal\replication\Normalizer\TextItemNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 30 }
+  replication.normalizer.deleted_flag_item_list:
+    class: Drupal\replication\Normalizer\DeletedFlagItemListNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 30 }
+  replication.normalizer.revision_info_item_list:
+    class: Drupal\replication\Normalizer\RevisionInfoItemListNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 30 }
   replication.normalizer.file_item:
     class: Drupal\replication\Normalizer\FileItemNormalizer
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: replication_normalizer, priority: 30 }
   replication.normalizer.entity_reference_item:
     class: Drupal\replication\Normalizer\EntityReferenceItemNormalizer
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: replication_normalizer, priority: 30 }
   replication.normalizer.comment_item:
     class: Drupal\replication\Normalizer\CommentItemNormalizer
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: replication_normalizer, priority: 30 }
+
+#Core Normalizers
+  replication.normalizer.timestamp_item:
+    class: Drupal\serialization\Normalizer\TimestampItemNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 20 }
+  replication.normalizer.complex_data:
+    class: Drupal\serialization\Normalizer\ComplexDataNormalizer
+    tags:
+      - { name: replication_normalizer }
+  replication.normalizer.field_item:
+    class: Drupal\serialization\Normalizer\FieldItemNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 10 }
+  replication.normalizer.field:
+    class: Drupal\serialization\Normalizer\FieldNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 10 }
+  replication.normalizer.list:
+    class: Drupal\serialization\Normalizer\ListNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 20 }
+  replication.normalizer.password_field_item:
+      class: Drupal\serialization\Normalizer\NullNormalizer
+      arguments: ['Drupal\Core\Field\Plugin\Field\FieldType\PasswordItem']
+      tags:
+        - { name: replication_normalizer, priority: 100 }
+  replication.normalizer.safe_string:
+      class: Drupal\serialization\Normalizer\MarkupNormalizer
+      tags:
+        - { name: replication_normalizer }
+  replication.normalizer.primitive_data:
+    class: Drupal\serialization\Normalizer\PrimitiveDataNormalizer
+    tags:
+      - { name: replication_normalizer, priority: 10 }
+  replication.normalizer.typed_data:
+    class: Drupal\serialization\Normalizer\TypedDataNormalizer
+    tags:
+      - { name: replication_normalizer }

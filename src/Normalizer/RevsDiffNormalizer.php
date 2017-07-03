@@ -14,11 +14,6 @@ class RevsDiffNormalizer extends NormalizerBase implements DenormalizerInterface
    */
   protected $supportedInterfaceOrClass = ['Drupal\replication\RevisionDiff\RevisionDiffInterface'];
 
-  /**
-   * @var string[]
-   */
-  protected $format = ['json'];
-
   /** @var  \Drupal\replication\RevisionDiffFactoryInterface */
   protected $revisionDiffFactory;
 

@@ -22,10 +22,8 @@ class ReplicationLogNormalizer extends NormalizerBase implements DenormalizerInt
   protected $uuidIndex;
 
   /**
-   * @var string[]
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $format = ['json'];
-
   protected $entityTypeManager;
 
   /**

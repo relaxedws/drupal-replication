@@ -13,11 +13,6 @@ class LocalSequenceItemListNormalizer extends NormalizerBase implements Denormal
   protected $supportedInterfaceOrClass = ['Drupal\multiversion\Plugin\Field\FieldType\LocalSequenceItemList'];
 
   /**
-   * @var string[]
-   */
-  protected $format = ['json'];
-
-  /**
    * {@inheritdoc}
    */
   public function normalize($field, $format = NULL, array $context = []) {

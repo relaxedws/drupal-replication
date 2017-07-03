@@ -9,11 +9,6 @@ class ChangesNormalizer extends NormalizerBase {
   protected $supportedInterfaceOrClass = ['Drupal\replication\Changes\ChangesInterface'];
 
   /**
-   * @var string
-   */
-  protected $format = ['json'];
-
-  /**
    * {@inheritdoc}
    */
   public function normalize($changes, $format = NULL, array $context = []) {

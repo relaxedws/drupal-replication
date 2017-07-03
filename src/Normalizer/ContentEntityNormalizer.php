@@ -64,11 +64,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   protected $dispatcher;
 
   /**
-   * @var string[]
-   */
-  protected $format = ['json'];
-
-  /**
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   private $moduleHandler;

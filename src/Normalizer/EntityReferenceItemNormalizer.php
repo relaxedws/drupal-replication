@@ -15,11 +15,6 @@ class EntityReferenceItemNormalizer extends FieldItemNormalizer {
   protected $supportedInterfaceOrClass = 'Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem';
 
   /**
-   * @var string[]
-   */
-  protected $format = ['json'];
-
-  /**
    * {@inheritdoc}
    */
   public function normalize($field, $format = NULL, array $context = []) {

@@ -56,7 +56,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           ['value' => 'entity_test_mulrev'],
         ],
         'created' => [
-          ['value' => $this->entity->created->value],
+          $this->formatExpectedTimestampItemValues($this->entity->created->value),
         ],
         'default_langcode' => [
           ['value' => TRUE],
@@ -72,6 +72,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           [
             'value' => $this->values['field_test_text']['value'],
             'format' => $this->values['field_test_text']['format'],
+            'processed' => '',
           ],
         ],
       ],

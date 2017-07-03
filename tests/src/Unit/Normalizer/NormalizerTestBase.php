@@ -63,7 +63,7 @@ abstract class NormalizerTestBase extends KernelTestBase {
       ],
     ])->save();
 
-    $this->serializer = $this->container->get('serializer');
+    $this->serializer = $this->container->get('replication.serializer');
     // Create default workspace.
     Workspace::create(['machine_name' => 'live', 'label' => 'Live', 'type' => 'basic'])->save();
   }
@@ -87,16 +87,6 @@ abstract class NormalizerTestBase extends KernelTestBase {
    * @see \Drupal\serialization\Normalizer\TimestampItemNormalizer
    */
   protected function formatExpectedTimestampItemValues($timestamp) {
-    // Get the minor version only from the \Drupal::VERSION string.
-    $minor_version = substr(\Drupal::VERSION, 0, 3);
-
-    // If the setting is enabled, just return the timestamp as-is now.
-    if (version_compare($minor_version, '8.4', '<') || $this->config('serialization.settings')->get('bc_timestamp_normalizer_unix')) {
-      return ['value' => $timestamp];
-    }
-
-    // Otherwise, format the date string to the same that
-    // \Drupal\serialization\Normalizer\TimestampItemNormalizer will produce.
     $date = new \DateTime();
     $date->setTimestamp($timestamp);
     $date->setTimezone(new \DateTimeZone('UTC'));

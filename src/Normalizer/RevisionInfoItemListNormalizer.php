@@ -12,11 +12,6 @@ class RevisionInfoItemListNormalizer extends ListNormalizer {
   protected $supportedInterfaceOrClass = ['Drupal\multiversion\Plugin\Field\FieldType\RevisionInfoItemList'];
 
   /**
-   * @var string[]
-   */
-  protected $format = ['json'];
-
-  /**
    * {@inheritdoc}
    */
   public function normalize($field, $format = NULL, array $context = []) {

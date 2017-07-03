@@ -14,11 +14,6 @@ class CommentItemNormalizer extends FieldItemNormalizer  {
   protected $supportedInterfaceOrClass = 'Drupal\comment\Plugin\Field\FieldType\CommentItem';
 
   /**
-   * @var string[]
-   */
-  protected $format = ['json'];
-
-  /**
    * {@inheritdoc}
    */
   public function normalize($field, $format = NULL, array $context = []) {

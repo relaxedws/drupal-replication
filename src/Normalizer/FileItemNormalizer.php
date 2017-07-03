@@ -16,11 +16,6 @@ class FileItemNormalizer extends FieldItemNormalizer {
   ];
 
   /**
-   * @var string
-   */
-  protected $format = ['json'];
-
-  /**
    * {@inheritdoc}
    */
   public function normalize($data, $format = NULL, array $context = []) {
