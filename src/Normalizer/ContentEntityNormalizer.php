@@ -11,6 +11,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\Event\ReplicationContentDataAlterEvent;
@@ -543,6 +544,11 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
 
+    // Denormalize parent field for menu_link_content entity type.
+    if ($entity_type_id == 'menu_link_content' && !empty($translation['parent'][0]['value'])) {
+      $translation['parent'][0]['value'] = $this->denormalizeMenuLinkParent($translation['parent'][0]['value'], $context);
+    }
+
     // Unset the comment field item if CID is NULL.
     if (!empty($translation['comment']) && is_array($translation['comment'])) {
       foreach ($translation['comment'] as $delta => $item) {
@@ -610,6 +616,42 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     }
 
     return $entity;
+  }
+
+  /**
+   * @param $data
+   * @param $context
+   * @return string
+   */
+  protected function denormalizeMenuLinkParent($data, $context) {
+    if (strpos($data, 'menu_link_content') === 0) {
+      list($type, $uuid, $id) = explode(':', $data);
+      if ($type === 'menu_link_content' && $uuid && is_numeric($id)) {
+        $storage = $this->entityManager->getStorage('menu_link_content');
+        $parent = $storage->loadByProperties(['uuid' => $uuid]);
+        $parent = reset($parent);
+        if ($parent instanceof MenuLinkContentInterface && $parent->id() && $parent->id() != $id) {
+          return $type . ':' . $uuid . ':' . $parent->id();
+        }
+        elseif (!$parent) {
+          // Create a new menu link as stub.
+          $parent = $storage->create([
+            'uuid' => $uuid,
+            'link' => 'internal:/',
+          ]);
+          // Set the target workspace if we have it in context.
+          if (isset($context['workspace'])
+            && ($context['workspace'] instanceof WorkspaceInterface)) {
+            $parent->workspace->target_id = $context['workspace']->id();
+          }
+          // Indicate that this revision is a stub.
+          $parent->_rev->is_stub = TRUE;
+          $parent->save();
+          return $type . ':' . $uuid . ':' . $parent->id();
+        }
+      }
+    }
+    return $data;
   }
 
 }
