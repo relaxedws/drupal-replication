@@ -65,11 +65,6 @@ services:
     arguments: ['@entity_type.manager', '@multiversion.entity_index.uuid']
     tags:
       - { name: replication_normalizer, priority: 60 }
-  replication.normalizer.menu_link_content:
-    class: Drupal\replication\Normalizer\MenuLinkContentNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
-    tags:
-      - { name: replication_normalizer, priority: 60 }
   replication.normalizer.content_entity:
     class: Drupal\replication\Normalizer\ContentEntityNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
