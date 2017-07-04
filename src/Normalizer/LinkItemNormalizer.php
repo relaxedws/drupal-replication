@@ -46,6 +46,14 @@ class LinkItemNormalizer extends FieldItemNormalizer {
       $attributes[$name] = $this->serializer->normalize($field, $format, $context);
     }
 
+    // For some reasons the options field is not normalized correctly if it
+    // has more information like attributes added by menu_attributes module.
+    // The field data will be empty after normalization, so we add missing data
+    // here.
+    if (!empty($object->getValue()['options']) && empty($attributes['options'])) {
+      $attributes['options'] = $object->getValue()['options'];
+    }
+
     // Use the entity UUID instead of ID in urls like internal:/node/1.
     if (isset($attributes['uri'])) {
       $scheme = parse_url($attributes['uri'], PHP_URL_SCHEME);
