@@ -14,7 +14,7 @@ services:
 #Factories
   replication.changes_factory:
     class: Drupal\replication\ChangesFactory
-    arguments: ['@multiversion.entity_index.sequence', '@entity.manager', '@serializer', '@plugin.manager.replication_filter']
+    arguments: ['@multiversion.entity_index.sequence', '@entity.manager', '@replication.serializer', '@plugin.manager.replication_filter']
   replication.revisiondiff_factory:
     class: Drupal\replication\RevisionDiffFactory
     arguments: ['@multiversion.entity_index.rev']
@@ -23,7 +23,7 @@ services:
     arguments: ['@workspace.manager', '@multiversion.entity_index.uuid', '@multiversion.entity_index.rev', '@entity_type.manager', '@lock', '@logger.factory', '@state']
   replication.alldocs_factory:
     class: Drupal\replication\AllDocsFactory
-    arguments: ['@entity_type.manager', '@multiversion.manager', '@multiversion.entity_index.id', '@serializer']
+    arguments: ['@entity_type.manager', '@multiversion.manager', '@multiversion.entity_index.id', '@replication.serializer']
 
 #Serializers
   replication.serializer:
