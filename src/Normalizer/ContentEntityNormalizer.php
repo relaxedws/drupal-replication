@@ -466,9 +466,11 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           }
 
           // Try to get real bundle.
-          $bundle_key = $this->entityManager->getStorage($item['entity_type_id'])->getEntityType()->getKey('bundle');
-          if (!empty($item[$bundle_key])) {
-            $target_bundle_id = $item[$bundle_key];
+          if (!empty($item['entity_type_id'])) {
+            $bundle_key = $this->entityManager->getStorage($item['entity_type_id'])->getEntityType()->getKey('bundle');
+            if (!empty($item[$bundle_key])) {
+              $target_bundle_id = $item[$bundle_key];
+            }
           }
 
           // This set the correct uri for link field if the target entity
