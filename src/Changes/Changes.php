@@ -65,11 +65,19 @@ class Changes implements ChangesInterface {
   protected $includeDocs = FALSE;
 
   /**
-   * The sequence ID to start including changes from. Result includes $lastSeq.
+   * The sequence ID to start including changes from. Result includes last_seq.
    *
    * @var int
    */
-  protected $lastSeq = 0;
+  protected $since = 0;
+
+  /**
+   * Number of items to return.
+   *
+   * @var int|NULL
+   *   The limit of items.
+   */
+  protected $limit = NULL;
 
   /**
    * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $sequence_index
@@ -113,8 +121,16 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
-  public function lastSeq($seq) {
-    $this->lastSeq = $seq;
+  public function setSince($seq) {
+    $this->since = $seq;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setLimit($limit) {
+    $this->limit = $limit;
     return $this;
   }
 
@@ -124,7 +140,13 @@ class Changes implements ChangesInterface {
   public function getNormal() {
     $sequences = $this->sequenceIndex
       ->useWorkspace($this->workspaceId)
-      ->getRange($this->lastSeq, NULL);
+      ->getRange($this->since, NULL);
+
+    // When we have the since parameter set, we should return values starting
+    // just after the since sequence (that is first in the $sequences array).
+    if ($this->since > 0) {
+      array_shift($sequences);
+    }
 
     // Setup filter plugin.
     $parameters = is_array($this->parameters) ? $this->parameters : [];
@@ -140,6 +162,7 @@ class Changes implements ChangesInterface {
 
     // Format the result array.
     $changes = [];
+    $count = 0;
     foreach ($sequences as $sequence) {
       if (!empty($sequence['local']) || !empty($sequence['is_stub'])) {
         continue;
@@ -159,7 +182,14 @@ class Changes implements ChangesInterface {
         continue;
       }
 
+      if ($this->limit && $count >= $this->limit) {
+        break;
+      }
+
       $uuid = $sequence['entity_uuid'];
+      if (!isset($changes[$uuid])) {
+        $count++;
+      }
       $changes[$uuid] = [
         'changes' => [
           ['rev' => $sequence['rev']],
@@ -195,7 +225,7 @@ class Changes implements ChangesInterface {
     do {
       $change = $this->sequenceIndex
         ->useWorkspace($this->workspaceId)
-        ->getRange($this->lastSeq, NULL);
+        ->getRange($this->since, NULL);
       $no_change = empty($change) ? TRUE : FALSE;
     } while ($no_change);
     return $change;
