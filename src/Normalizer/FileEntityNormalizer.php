@@ -18,7 +18,7 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = ['\Drupal\file\FileInterface', 'Drupal\Core\Entity\ContentEntityInterface'];
+  protected $supportedInterfaceOrClass = ['Drupal\file\FileInterface'];
 
   /**
    * @var string[]
@@ -50,9 +50,6 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
    */
   public function normalize($data, $format = NULL, array $context = []) {
     $normalized = parent::normalize($data, $format, $context);
-    if (!($data instanceof FileInterface)) {
-      return $normalized;
-    }
     $file_system = \Drupal::service('file_system');
     $uri = $data->getFileUri();
 
@@ -87,6 +84,18 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
       $file = $this->processFileAttachment->process($data['_attachment'], 'base64_stream', $workspace);
     }
     return ($file instanceof FileInterface) ? $file : parent::denormalize($data, $class, $format, $context);
+  }
+
+  public function supportsDenormalization($data, $type, $format = NULL) {
+    // We need to accept both FileInterface and ContentEntityInterface classes.
+    // File entities are treated as standard content entities.
+    if (in_array($type, ['Drupal\Core\Entity\ContentEntityInterface', 'Drupal\file\FileInterface'], true)) {
+      // If a document has _attachment then we assume it's a file entity.
+      if (!empty($data['_attachment'])) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
