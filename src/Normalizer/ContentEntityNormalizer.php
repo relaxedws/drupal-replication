@@ -524,7 +524,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     // Remove changed info, otherwise we can get validation errors when the
     // 'changed' value for existing entity is higher than for the new entity (revision).
     // @see \Drupal\Core\Entity\Plugin\Validation\Constraint\EntityChangedConstraintValidator::validate().
-    foreach (['@context', '@type', '_id', '_attachments', '_revisions', 'changed'] as $key) {
+    foreach (['@context', '@type', '_id', '_revisions', 'changed'] as $key) {
       if (isset($translation[$key])) {
         unset($translation[$key]);
       }
