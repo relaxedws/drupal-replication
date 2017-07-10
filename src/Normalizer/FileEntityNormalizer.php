@@ -18,7 +18,7 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
   /**
    * @var string[]
    */
-  protected $supportedInterfaceOrClass = ['\Drupal\file\FileInterface'];
+  protected $supportedInterfaceOrClass = ['\Drupal\file\FileInterface', 'Drupal\Core\Entity\ContentEntityInterface'];
 
   /**
    * @var string[]
@@ -50,6 +50,9 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
    */
   public function normalize($data, $format = NULL, array $context = []) {
     $normalized = parent::normalize($data, $format, $context);
+    if (!($data instanceof FileInterface)) {
+      return $normalized;
+    }
     $file_system = \Drupal::service('file_system');
     $uri = $data->getFileUri();
 
