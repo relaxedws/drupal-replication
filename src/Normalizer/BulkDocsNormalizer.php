@@ -59,7 +59,7 @@ class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface
           }
           // Check if the document is a valid Relaxed format.
           elseif (isset($doc['@context'])) {
-            $entity = \Drupal::service('replication.normalizer.content_entity')
+            $entity = \Drupal::service('replication.normalizer.file_entity')
               ->denormalize($doc, 'Drupal\Core\Entity\ContentEntityInterface', $format, $context);
           }
           if (!empty($entity)) {
