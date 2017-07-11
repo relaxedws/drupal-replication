@@ -4,13 +4,14 @@ namespace Drupal\Tests\replication\Unit\Plugin\ReplicationFilter;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\replication\Plugin\ReplicationFilter\EntityTypeFilter;
+use Drupal\Tests\UnitTestCase;
 
 /**
  * Tests that the entity type filter parses parameters correctly.
  *
  * @group replication
  */
-class EntityTypeFilterTest extends \PHPUnit_Framework_TestCase {
+class EntityTypeFilterTest extends UnitTestCase {
 
   /**
    * Test filtering entity types.
