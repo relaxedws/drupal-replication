@@ -100,7 +100,7 @@ class FileEntityNormalizerTest extends NormalizerTestBase{
           ['value' => $file->_rev->value],
         ],
       ],
-      '_attachment' => $expected_attachment,
+      '_attachments' => $expected_attachment,
       '_id' => $file->uuid(),
       '_rev' => $file->_rev->value,
       '_revisions' => [
