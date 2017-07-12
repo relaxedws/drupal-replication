@@ -62,7 +62,7 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
     }
 
     // @todo {@link https://www.drupal.org/node/2600360 Add revpos and other missing properties to the result array.}
-    $normalized['_attachments'] = [
+    $normalized['@attachment'] = [
       'uuid' => $data->uuid(),
       'uri' => $uri,
       'content_type' => $data->getMimeType(),
@@ -78,11 +78,11 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
     $file = NULL;
-    if (!empty($data['_attachments']['uuid'])) {
+    if (!empty($data['@attachment']['uuid'])) {
       $workspace = isset($context['workspace']) ? $context['workspace'] : NULL;
       /** @var FileInterface $file */
-      $file = $this->processFileAttachment->process($data['_attachments'], 'base64_stream', $workspace);
-      unset($data['_attachments']);
+      $file = $this->processFileAttachment->process($data['@attachment'], 'base64_stream', $workspace);
+      unset($data['@attachment']);
     }
     return ($file instanceof FileInterface) ? $file : parent::denormalize($data, $class, $format, $context);
   }
@@ -92,7 +92,7 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
     // File entities are treated as standard content entities.
     if (in_array($type, ['Drupal\Core\Entity\ContentEntityInterface', 'Drupal\file\FileInterface'], true)) {
       // If a document has _attachment then we assume it's a file entity.
-      if (!empty($data['_attachments'])) {
+      if (!empty($data['@attachment'])) {
         return true;
       }
     }
