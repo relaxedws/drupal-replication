@@ -53,12 +53,12 @@ class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface
             // replicating content from PouchDB.
             list($prefix, $entity_uuid) = explode('/', $doc['_id']);
             if ($prefix == '_local' && $entity_uuid) {
-              $entity = $this->serializer->deserialize($doc, 'Drupal\replication\Entity\ReplicationLog', $format, $context);
+              $entity = $this->serializer->denormalize($doc, 'Drupal\replication\Entity\ReplicationLog', $format, $context);
             }
           }
           // Check if the document is a valid Relaxed format.
           elseif (isset($doc['@context'])) {
-            $entity = $this->serializer->deserialize($doc, 'Drupal\Core\Entity\ContentEntityInterface', $format, $context);
+            $entity = $this->serializer->denormalize($doc, 'Drupal\Core\Entity\ContentEntityInterface', $format, $context);
           }
           if (!empty($entity)) {
             $entities[] = $entity;
