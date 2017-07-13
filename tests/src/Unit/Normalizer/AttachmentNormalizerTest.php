@@ -52,6 +52,18 @@ class AttachmentNormalizerTest extends NormalizerTestBase {
   public function testNormalizer() {
     // Test normalize.
     $normalized = $this->serializer->normalize($this->fileEntity);
+    $this->assertTrue(!is_resource($normalized), 'File entity was normalized to a file entity.');
+
+    // Test normalize.
+    $normalized = $this->serializer->normalize($this->fileEntity, 'json');
+    $this->assertTrue(!is_resource($normalized), 'File entity was normalized to a file entity.');
+
+    // Test normalize.
+    $normalized = $this->serializer->normalize($this->fileEntity, 'stream');
+    $this->assertTrue(is_resource($normalized), 'File entity was normalized to a file resource.');
+
+    // Test normalize.
+    $normalized = $this->serializer->normalize($this->fileEntity, 'base64_stream');
     $this->assertTrue(is_resource($normalized), 'File entity was normalized to a file resource.');
 
     // Test serialize.

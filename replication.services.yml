@@ -47,7 +47,7 @@ services:
 #Normalizers
   replication.normalizer.attachment:
     class: Drupal\replication\Normalizer\AttachmentNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
           - { name: replication_normalizer, priority: 60 }
   replication.normalizer.workspace:
@@ -57,7 +57,7 @@ services:
       - { name: replication_normalizer, priority: 60 }
   replication.normalizer.taxonomy_term:
     class: Drupal\replication\Normalizer\TaxonomyTermNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
       - { name: replication_normalizer, priority: 60 }
   replication.normalizer.replication_log:
@@ -67,7 +67,7 @@ services:
       - { name: replication_normalizer, priority: 60 }
   replication.normalizer.content_entity:
     class: Drupal\replication\Normalizer\ContentEntityNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.process_file_attachment', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
       - { name: replication_normalizer, priority: 50 }
   replication.normalizer.bulk_docs:

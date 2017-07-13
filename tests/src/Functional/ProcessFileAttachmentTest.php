@@ -4,7 +4,7 @@ namespace Drupal\Tests\replication\Functional;
 
 use Drupal\file\FileInterface;
 use Drupal\multiversion\Entity\Workspace;
-use Drupal\simpletest\BrowserTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Test the use of the ProcessFileAttachment service.
@@ -26,16 +26,19 @@ class ProcessFileAttachmentTest extends BrowserTestBase {
     $stage = Workspace::create(['type' => 'basic', 'machine_name' => 'stage', 'label' => 'Stage']);
     $stage->save();
 
-    $data = 'aGVsbG8gd29ybGQK';
-    $key = 'files/0/6f9e1f07-e713-4840-bf95-8326c8317800/public/file1.txt';
+    $data = [
+      'data' => 'aGVsbG8gd29ybGQK',
+      'uri' => 'public://file1.txt',
+      'uuid' => '6f9e1f07-e713-4840-bf95-8326c8317800',
+    ];
     /** @var FileInterface $file1 */
-    $file1 = \Drupal::service('replication.process_file_attachment')->process($data, $key, 'base64_stream');
+    $file1 = \Drupal::service('replication.process_file_attachment')->process($data, 'base64_stream');
     $file1->save();
     $this->assertEquals('6f9e1f07-e713-4840-bf95-8326c8317800', $file1->uuid(), 'The file has the expected UUID.');
     $this->assertEquals($live->id(), $file1->get('workspace')->entity->id(), 'Expected workspace');
 
     /** @var FileInterface $file2 */
-    $file2 = \Drupal::service('replication.process_file_attachment')->process($data, $key, 'base64_stream');
+    $file2 = \Drupal::service('replication.process_file_attachment')->process($data, 'base64_stream');
     $file2->save();
     $this->assertEquals('6f9e1f07-e713-4840-bf95-8326c8317800', $file2->uuid(), 'The file has the expected UUID.');
     $this->assertEquals($live->id(), $file2->get('workspace')->entity->id(), 'Expected workspace');
@@ -47,7 +50,7 @@ class ProcessFileAttachmentTest extends BrowserTestBase {
     $this->assertFalse(is_file($file1->getFileUri()));
 
     /** @var FileInterface $file3 */
-    $file3 = \Drupal::service('replication.process_file_attachment')->process($data, $key, 'base64_stream');
+    $file3 = \Drupal::service('replication.process_file_attachment')->process($data, 'base64_stream');
     $file3->save();
     $this->assertEquals('6f9e1f07-e713-4840-bf95-8326c8317800', $file3->uuid(), 'The file has the expected UUID.');
     $this->assertEquals($live->id(), $file3->get('workspace')->entity->id(), 'Expected workspace');
@@ -57,7 +60,7 @@ class ProcessFileAttachmentTest extends BrowserTestBase {
     $this->assertTrue(is_file($file3->getFileUri()));
 
     /** @var FileInterface $file4 */
-    $file4 = \Drupal::service('replication.process_file_attachment')->process($data, $key, 'base64_stream', $stage);
+    $file4 = \Drupal::service('replication.process_file_attachment')->process($data, 'base64_stream', $stage);
     $file4->save();
     $this->assertEquals('6f9e1f07-e713-4840-bf95-8326c8317800', $file4->uuid(), 'The file has the expected UUID.');
     $this->assertEquals($stage->id(), $file4->get('workspace')->entity->id(), 'Expected workspace');
