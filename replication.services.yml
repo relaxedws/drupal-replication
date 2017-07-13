@@ -65,6 +65,11 @@ services:
     arguments: ['@entity_type.manager', '@multiversion.entity_index.uuid']
     tags:
       - { name: replication_normalizer, priority: 60 }
+  replication.normalizer.file_entity:
+    class: Drupal\replication\Normalizer\FileEntityNormalizer
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher', '@replication.process_file_attachment']
+    tags:
+      - { name: normalizer, priority: 60 }
   replication.normalizer.content_entity:
     class: Drupal\replication\Normalizer\ContentEntityNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
@@ -104,10 +109,6 @@ services:
       - { name: replication_normalizer, priority: 30 }
   replication.normalizer.revision_info_item_list:
     class: Drupal\replication\Normalizer\RevisionInfoItemListNormalizer
-    tags:
-      - { name: replication_normalizer, priority: 30 }
-  replication.normalizer.file_item:
-    class: Drupal\replication\Normalizer\FileItemNormalizer
     tags:
       - { name: replication_normalizer, priority: 30 }
   replication.normalizer.entity_reference_item:
