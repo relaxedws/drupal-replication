@@ -16,8 +16,6 @@ use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\Event\ReplicationContentDataAlterEvent;
 use Drupal\replication\Event\ReplicationDataEvents;
-use Drupal\replication\ProcessFileAttachment;
-use Drupal\file\FileInterface;
 use Drupal\replication\UsersMapping;
 use Drupal\serialization\Normalizer\FieldableEntityNormalizerTrait;
 use Drupal\serialization\Normalizer\NormalizerBase;
@@ -43,11 +41,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */
   protected $languageManager;
-
-  /**
-   * @var \Drupal\replication\ProcessFileAttachment
-   */
-  protected $processFileAttachment;
 
   /**
    * @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface
@@ -78,17 +71,15 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @param \Drupal\multiversion\Entity\Index\MultiversionIndexFactory $index_factory
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
-   * @param \Drupal\replication\ProcessFileAttachment $process_file_attachment
    * @param \Drupal\replication\UsersMapping $users_mapping
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    */
-  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, ProcessFileAttachment $process_file_attachment, UsersMapping $users_mapping, ModuleHandlerInterface $module_handler, SelectionPluginManagerInterface $selection_manager = NULL, EventDispatcherInterface $event_dispatcher = NULL) {
+  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, UsersMapping $users_mapping, ModuleHandlerInterface $module_handler, SelectionPluginManagerInterface $selection_manager = NULL, EventDispatcherInterface $event_dispatcher = NULL) {
     $this->entityManager = $entity_manager;
     $this->indexFactory = $index_factory;
     $this->languageManager = $language_manager;
-    $this->processFileAttachment = $process_file_attachment;
     $this->usersMapping = $users_mapping;
     $this->moduleHandler = $module_handler;
     $this->selectionManager = $selection_manager;
@@ -144,16 +135,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         $field_type = $field_definitions[$name]->getType();
         $items = $this->serializer->normalize($field, $format, $context);
         if ($field_type == 'password') {
-          continue;
-        }
-        // Add file and image field types into _attachments key.
-        if ($field_type == 'file' || $field_type == 'image') {
-          if (!isset($data['_attachments']) && !empty($items)) {
-            $data['_attachments'] = [];
-          }
-          foreach ($items as $item) {
-            $data['_attachments'] = array_merge($data['_attachments'], $item);
-          }
           continue;
         }
         $data[$entity_language->getId()][$name] = $items;
@@ -260,28 +241,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     $revision_key = $entity_type->getKey('revision');
     $bundle_key = $entity_type->getKey('bundle');
 
-    // Denormalize File and Image field types.
-    $files = [];
-    if (isset($data['_attachments'])) {
-      foreach ($data['_attachments'] as $key => $value) {
-        /** @var FileInterface $file */
-        if (isset($context['workspace'])) {
-          $file = $this->processFileAttachment->process($value['data'], $key, 'base64_stream', $context['workspace']);
-        }
-        else {
-          $file = $this->processFileAttachment->process($value['data'], $key, 'base64_stream');
-        }
-        list($field_name, $delta, , , ) = explode('/', $key, 5);
-        $files[$field_name][$delta] = [
-          'target_id' => $file->id(),
-          'entity' => $file,
-        ];
-        if (!empty($value['alt'])) {
-          $files[$field_name][$delta]['alt'] = $value['alt'];
-        }
-      }
-    }
-
     $translations = [];
     foreach ($data as $key => $translation) {
       // Skip any keys that start with '_' or '@'.
@@ -293,13 +252,13 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       elseif (isset($site_languages[$key])
         || $key === LanguageInterface::LANGCODE_NOT_SPECIFIED
         || $key === LanguageInterface::LANGCODE_NOT_APPLICABLE) {
-        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
+        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $rev, $revisions);
       }
       // Configure the language, then do denormalization.
       elseif (is_array($translation) && $this->moduleHandler->moduleExists('language')) {
         $language = ConfigurableLanguage::createFromLangcode($key);
         $language->save();
-        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $files, $rev, $revisions);
+        $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $rev, $revisions);
       }
     }
 
@@ -376,12 +335,11 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param $entity_type
    * @param $id_key
    * @param $context
-   * @param array $files
    * @param $rev
    * @param array $revisions
    * @return mixed
    */
-  private function denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, array $files = [], $rev = null, array $revisions = []) {
+  private function denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $rev = null, array $revisions = []) {
     // Add the _rev field to the $translation array.
     if (isset($rev)) {
       $translation['_rev'] = [['value' => $rev]];
@@ -416,10 +374,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         $bundle_id = $translation[$bundle_key][0]['target_id'];
         $translation[$bundle_key] = $bundle_id;
       }
-    }
-
-    if (!empty($files)) {
-      $translation = array_merge($translation, $files);
     }
 
     // Denormalize entity reference fields.
@@ -570,7 +524,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     // Remove changed info, otherwise we can get validation errors when the
     // 'changed' value for existing entity is higher than for the new entity (revision).
     // @see \Drupal\Core\Entity\Plugin\Validation\Constraint\EntityChangedConstraintValidator::validate().
-    foreach (['@context', '@type', '_id', '_attachments', '_revisions', 'changed'] as $key) {
+    foreach (['@context', '@type', '_id', '_revisions', 'changed'] as $key) {
       if (isset($translation[$key])) {
         unset($translation[$key]);
       }
@@ -596,7 +550,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   private function createEntityInstance(array $data, EntityTypeInterface $entity_type, $format, array $context = []) {
     // The bundle property will be required to denormalize a bundleable
     // fieldable entity.
-    if ($entity_type->isSubclassOf(FieldableEntityInterface::class)) {
+    if ($entity_type->entityClassImplements(FieldableEntityInterface::class)) {
       // Extract bundle data to pass into entity creation if the entity type uses
       // bundles.
       if ($entity_type->hasKey('bundle')) {
