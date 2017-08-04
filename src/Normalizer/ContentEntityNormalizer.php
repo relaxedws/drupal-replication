@@ -508,7 +508,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     // Unset the comment field item if CID is NULL.
     if (!empty($translation['comment']) && is_array($translation['comment'])) {
       foreach ($translation['comment'] as $delta => $item) {
-        if ($item['cid'] == NULL) {
+        if (empty($item['cid'])) {
           unset($translation['comment'][$delta]);
         }
       }
