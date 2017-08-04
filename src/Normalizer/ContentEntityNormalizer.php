@@ -3,6 +3,7 @@
 namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -308,10 +309,12 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
 
-    foreach ($site_languages as $site_language) {
-      $langcode = $site_language->getId();
-      if ($entity->language()->getId() != $langcode && isset($translations[$langcode])) {
-        $entity->addTranslation($langcode, $translations[$langcode]);
+    if ($entity instanceof ContentEntityBase) {
+      foreach ($site_languages as $site_language) {
+        $langcode = $site_language->getId();
+        if ($entity->language()->getId() != $langcode && isset($translations[$langcode])) {
+          $entity->addTranslation($langcode, $translations[$langcode]);
+        }
       }
     }
 
