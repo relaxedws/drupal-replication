@@ -286,13 +286,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
 
         $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
       }
-
-      foreach ($site_languages as $site_language) {
-        $langcode = $site_language->getId();
-        if ($entity->language()->getId() != $langcode && isset($translations[$langcode])) {
-          $entity->addTranslation($langcode, $translations[$langcode]);
-        }
-      }
     }
     else {
       $entity = NULL;
@@ -312,6 +305,13 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         $translations[$default_langcode]['uid'][0]['target_id'] = $this->usersMapping->getUidFromConfig();
 
         $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
+      }
+    }
+
+    foreach ($site_languages as $site_language) {
+      $langcode = $site_language->getId();
+      if ($entity->language()->getId() != $langcode && isset($translations[$langcode])) {
+        $entity->addTranslation($langcode, $translations[$langcode]);
       }
     }
 
