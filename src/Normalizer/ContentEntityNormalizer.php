@@ -11,6 +11,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\TypedData\TranslationStatusInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
@@ -270,18 +271,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
 
     // @todo {@link https://www.drupal.org/node/2599926 Use the passed $class to instantiate the entity.}
 
+    $entity = NULL;
     if ($entity_id) {
-      if ($entity = $storage->load($entity_id) ?: $storage->loadDeleted($entity_id)) {
-        if (!empty($translations[$entity->language()->getId()])) {
-          $translation = $translations[$entity->language()->getId()];
-          unset($translation['default_langcode']);
-          if ($entity_type->hasKey('bundle')) {
-            $this->extractBundleData($translation, $entity_type);
-          }
-          $this->denormalizeFieldData($translation, $entity, $format, $context);
-        }
-      }
-      elseif (isset($translations[$default_langcode][$id_key])) {
+      if (isset($translations[$default_langcode][$id_key])) {
         unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
         $entity_id = NULL;
 
@@ -289,7 +281,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
     else {
-      $entity = NULL;
       if (!empty($bundle_key) && !empty($translations[$default_langcode][$bundle_key])) {
         unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
 
@@ -312,13 +303,13 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     if ($entity instanceof ContentEntityBase) {
       foreach ($site_languages as $site_language) {
         $langcode = $site_language->getId();
-        if ($entity->language()->getId() != $langcode && isset($translations[$langcode])) {
+        if ($entity->language()->getId() != $langcode && isset($translations[$langcode]) && !$entity->hasTranslation($langcode)) {
           $entity->addTranslation($langcode, $translations[$langcode]);
         }
       }
     }
 
-    if ($entity_id) {
+    if ($entity_id && $entity) {
       $entity->enforceIsNew(FALSE);
       $entity->setNewRevision(FALSE);
       $entity->_rev->is_stub = FALSE;
