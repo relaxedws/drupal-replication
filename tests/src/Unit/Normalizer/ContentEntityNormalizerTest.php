@@ -29,13 +29,28 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
     ];
     ConfigurableLanguage::createFromLangcode('ro')->save();
 
-    $this->entity = EntityTestMulRev::create($this->values);
-    $this->entity->save();
+    $entity = EntityTestMulRev::create($this->values);
+    $entity->save();
 
-    $this->romanian = $this->entity->addTranslation('ro');
-    $this->romanian->name->value = $this->entity->name->value . '_ro';
-    $this->romanian->field_test_text->value = $this->values['field_test_text']['value'] . '_ro';
-    $this->romanian->save();
+    // Save again.
+    $entity->save();
+
+    // Add Romanian translation.
+    $romanian = $entity->addTranslation('ro');
+    $romanian->name->value = $entity->name->value . '_ro';
+    $romanian->field_test_text->value = $this->values['field_test_text']['value'] . '_ro';
+    $romanian->save();
+
+    // Save again the original entity.
+    $entity = EntityTestMulRev::load($entity->id());
+    $entity->save();
+
+    // Load again romanian translation and save a new revision.
+    $romanian = $entity->getTranslation('ro');
+    $romanian->save();
+
+    $this->entity = EntityTestMulRev::load($entity->id());
+    $this->romanian = $entity->getTranslation('ro');
   }
 
   public function testNormalizer() {
@@ -103,7 +118,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           ['target_id' => $this->values['user_id']],
         ],
         '_rev' => [
-          ['value' => $this->romanian->_rev->value],
+          ['value' => $this->entity->_rev->value],
         ],
         'non_rev_field' => [],
         'field_test_text' => [
@@ -116,7 +131,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
       '_id' => $this->entity->uuid(),
       '_rev' => $this->entity->_rev->value,
       '_revisions' => [
-        'start' => 2,
+        'start' => count($revs),
         'ids' => $revs,
       ],
     ];
@@ -132,7 +147,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
     $revs = $this->entity->_rev->revisions;
     $expected['_revisions'] = [
       'ids' => $revs,
-      'start' => 2,
+      'start' => count($revs),
     ];
 
     $normalized = $this->serializer->normalize($this->entity, NULL, ['query' => ['revs' => TRUE]]);
