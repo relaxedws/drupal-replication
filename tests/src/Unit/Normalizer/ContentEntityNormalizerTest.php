@@ -132,7 +132,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
     $revs = $this->entity->_rev->revisions;
     $expected['_revisions'] = [
       'ids' => $revs,
-      'start' => 2,
+      'start' => 1,
     ];
 
     $normalized = $this->serializer->normalize($this->entity, NULL, ['query' => ['revs' => TRUE]]);
