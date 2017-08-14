@@ -118,7 +118,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           ['target_id' => $this->values['user_id']],
         ],
         '_rev' => [
-          ['value' => $this->entity->_rev->value],
+          ['value' => $this->romanian->_rev->value],
         ],
         'non_rev_field' => [],
         'field_test_text' => [
