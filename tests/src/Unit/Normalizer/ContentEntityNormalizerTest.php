@@ -116,7 +116,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
       '_id' => $this->entity->uuid(),
       '_rev' => $this->entity->_rev->value,
       '_revisions' => [
-        'start' => 1,
+        'start' => 2,
         'ids' => $revs,
       ],
     ];
