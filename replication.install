@@ -151,3 +151,13 @@ function replication_update_8101() {
     }
   }
 }
+
+/**
+ * Set new configuration for Replication module.
+ */
+function replication_update_8102() {
+  \Drupal::configFactory()->getEditable('replication.settings')
+    ->set('changes_limit', 100)
+    ->set('bulk_docs_limit', 100)
+    ->save();
+}

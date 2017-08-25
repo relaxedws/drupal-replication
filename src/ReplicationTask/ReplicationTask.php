@@ -27,7 +27,7 @@ class ReplicationTask implements ReplicationTaskInterface {
    * @var int
    *   The limit of items.
    */
-  protected $limit = 1000;
+  protected $limit = 100;
 
   /**
    * Number of items to send pe BulkDocs request.
