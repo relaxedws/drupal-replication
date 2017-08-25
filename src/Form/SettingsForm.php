@@ -61,6 +61,39 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
+    $form['changes_limit'] = [
+      '#type' => 'number',
+      '#title' => t('Changes limit'),
+      '#default_value' => $config->get('changes_limit'),
+      '#description' => $this->t("This is the limit of changes the 
+      replicator will GET per request, if the limit is a smaller number than 
+      the total changes, then it will do multiple requests to get all the 
+      changes. The bigger this number is, the slower will be the request, but at 
+      the same time - the smaller is the limit, the higher is the number of 
+      requests, so, there should be set an optimal limit, to not impact the 
+      performance. Values range 10 - 1000."),
+      '#required' => TRUE,
+      '#min' => 10,
+      '#max' => 1000,
+      '#step' => 10,
+    ];
+
+    $form['bulk_docs_limit'] = [
+      '#type' => 'number',
+      '#title' => t('Bulk docs limit'),
+      '#default_value' => $config->get('bulk_docs_limit'),
+      '#description' => $this->t("This is the limit of entities the 
+      replicator will POST per request, if the limit is a smaller number than 
+      the total number of entities that have to be transferred to the destination, 
+      then it will do multiple requests to transfer all the entities. The bigger 
+      this number is, the slower will be the request and the destination site will 
+      need more resources to process all the data, so, there should be set an 
+      optimal limit, to not impact the performance. Values range 10 - 1000."),
+      '#required' => TRUE,
+      '#min' => 10,
+      '#max' => 1000,
+      '#step' => 10,
+    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -105,8 +138,13 @@ class SettingsForm extends ConfigFormBase {
         $uid = NULL;
     }
 
+    $changes_limit = $form_state->getValue('changes_limit');
+    $bulk_docs_limit = $form_state->getValue('bulk_docs_limit');
+
     $config
       ->set('mapping_type', $mapping_type)
+      ->set('changes_limit', $changes_limit)
+      ->set('bulk_docs_limit', $bulk_docs_limit)
       ->set('uid', trim($uid))
       ->save();
   }
