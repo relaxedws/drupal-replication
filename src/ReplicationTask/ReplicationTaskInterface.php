@@ -89,6 +89,18 @@ interface ReplicationTaskInterface {
   public function getParameters();
 
   /**
+   * Set the update sequence to start with.
+   *
+   * @param int $sinceSeq
+   */
+  public function setSinceSeq($sinceSeq);
+
+  /**
+   * @param mixed $style
+   */
+  public function setStyle($style);
+
+  /**
    * Converts the parameter bag to an associative array and returns the array.
    *
    * @return string[string]
@@ -123,5 +135,55 @@ interface ReplicationTaskInterface {
    * @return int
    */
   public function getBulkDocsLimit();
+
+  /**
+   * @return int
+   */
+  public function getSinceSeq();
+
+  /**
+   * @return mixed
+   */
+  public function getStyle();
+
+  /**
+   * @return array
+   */
+  public function getDocIds();
+
+  /**
+   * @param array $docIds
+   */
+  public function setDocIds($docIds);
+
+  /**
+   * @return int
+   */
+  public function getHeartbeat();
+
+  /**
+   * @param int $heartbeat
+   */
+  public function setHeartbeat($heartbeat);
+
+  /**
+   * @return boolean
+   */
+  public function getCreateTarget();
+
+  /**
+   * @param boolean $createTarget
+   */
+  public function setCreateTarget($createTarget);
+
+  /**
+   * @return bool
+   */
+  public function getContinuous();
+
+  /**
+   * @param bool $continuous
+   */
+  public function setContinuous($continuous);
 
 }

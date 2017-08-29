@@ -2,6 +2,8 @@
 
 namespace Drupal\replication\ReplicationTask;
 
+use InvalidArgumentException;
+
 /**
  * {@inheritdoc}
  */
@@ -36,6 +38,39 @@ class ReplicationTask implements ReplicationTaskInterface {
    *   The limit of items.
    */
   private $bulkDocsLimit = 100;
+
+  /**
+   * @var string
+   */
+  protected $style = 'all_docs';
+
+  /**
+   * @var int
+   */
+  protected $heartbeat = 10000;
+
+  /**
+   * @var array
+   */
+  protected $docIds = NULL;
+
+  /**
+   * Start the results from the given update sequence.
+   *
+   * @var int
+   *   The update sequence to start with.
+   */
+  private $sinceSeq = 0;
+
+  /**
+   * @var bool
+   */
+  protected $createTarget = FALSE;
+
+  /**
+   * @var bool
+   */
+  protected $continuous = FALSE;
 
   /**
    * {@inheritdoc}
@@ -93,6 +128,21 @@ class ReplicationTask implements ReplicationTaskInterface {
   /**
    * {@inheritdoc}
    */
+  public function setSinceSeq($sinceSeq) {
+    $this->sinceSeq = $sinceSeq;
+    return $this;
+  }
+
+  /**
+   * @param mixed $style
+   */
+  public function setStyle($style) {
+    $this->style = $style;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getParameters() {
     return $this->parameters;
   }
@@ -123,6 +173,89 @@ class ReplicationTask implements ReplicationTaskInterface {
    */
   public function getBulkDocsLimit() {
     return $this->bulkDocsLimit;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSinceSeq() {
+    return $this->sinceSeq;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStyle() {
+    return $this->style;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDocIds() {
+    return $this->docIds;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setDocIds($docIds) {
+    if ($docIds != NULL) {
+      sort($docIds);
+      if ($this->filter === NULL) {
+        $this->filter = '_doc_ids';
+      }
+      elseif ($this->filter !== '_doc_ids') {
+        throw new InvalidArgumentException('If docIds is specified, the filter should be set as _doc_ids');
+      }
+    }
+    $this->docIds = $docIds;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHeartbeat() {
+    return $this->heartbeat;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHeartbeat($heartbeat) {
+    $this->heartbeat = $heartbeat;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCreateTarget() {
+    return $this->createTarget;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setCreateTarget($createTarget) {
+    $this->createTarget = $createTarget;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getContinuous() {
+    return $this->continuous;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setContinuous($continuous) {
+    $this->continuous = $continuous;
+    return $this;
   }
 
 }
