@@ -10,3 +10,9 @@ replication.settings:
     uid:
       type: integer
       label: 'UID'
+    changes_limit:
+      type: integer
+      label: 'Changes limit'
+    bulk_docs_limit:
+      type: integer
+      label: 'Bulk docs limit'
