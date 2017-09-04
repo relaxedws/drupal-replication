@@ -34,15 +34,11 @@ services:
   replication.encoder.json:
     class: Drupal\serialization\Encoder\JsonEncoder
     tags:
-      - { name: replication_encoder, format: json }
+      - { name: replication_encoder }
   replication.encoder.stream:
     class: Drupal\replication\Encoder\StreamEncoder
     tags:
-      - { name: replication_encoder, format: stream }
-  replication.encoder.base64_stream:
-    class: Drupal\replication\Encoder\StreamEncoder
-    tags:
-      - { name: replication_encoder, format: base64_stream }
+      - { name: replication_encoder }
 
 #Normalizers
   replication.normalizer.file_entity:
