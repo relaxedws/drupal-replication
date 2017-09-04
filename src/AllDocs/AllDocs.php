@@ -144,7 +144,7 @@ class AllDocs implements AllDocsInterface {
    * @todo {@link https://www.drupal.org/node/2599900 Move any logic around 'includeDocs' and the serialization format
    *   into the serializer to better separate concerns.}
    */
-  public function execute() {
+  public function execute($format = 'json') {
     $rows = [];
 
     $entity_types = $this->entityTypeManager->getDefinitions();
@@ -179,7 +179,7 @@ class AllDocs implements AllDocsInterface {
             if ($entity->_rev->is_stub) {
               continue;
             }
-            $rows[$entity->uuid()]['doc'] = $this->serializer->normalize($entity, 'json');
+            $rows[$entity->uuid()]['doc'] = $this->serializer->normalize($entity, $format);
           }
         }
       }

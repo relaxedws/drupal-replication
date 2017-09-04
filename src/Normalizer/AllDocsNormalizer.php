@@ -18,7 +18,7 @@ class AllDocsNormalizer extends NormalizerBase {
     ];
 
     /** @var \Drupal\replication\AllDocs\AllDocsInterface $all_docs */
-    $rows = $all_docs->execute();
+    $rows = $all_docs->execute($format);
 
     foreach ($rows as $key => $value) {
       $data['rows'][] = [
