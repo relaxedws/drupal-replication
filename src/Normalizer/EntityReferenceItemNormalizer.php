@@ -55,6 +55,12 @@ class EntityReferenceItemNormalizer extends FieldItemNormalizer {
       $field_info['username'] = $username;
     }
 
+    if ($target_type === 'file') {
+      $file_info = $value;
+      unset($file_info['target_id']);
+      $field_info += $file_info;
+    }
+
     $bundle_key = $referenced_entity->getEntityType()->getKey('bundle');
     $bundle = $referenced_entity->bundle();
     if ($bundle_key && $bundle) {
