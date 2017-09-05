@@ -471,16 +471,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             // Indicate that this revision is a stub.
             $target_entity->_rev->is_stub = TRUE;
 
-            // Set for the uri value the target entity. This entity will be
-            // replaced with the uri in \Drupal\multiversion\LinkItem::preSve().
-            if ($type == 'link') {
-              $translation[$field_name][$delta]['uri'] = $target_entity;
-            }
-            else {
-              // Populate the data field.
-              $translation[$field_name][$delta]['target_id'] = NULL;
-              $translation[$field_name][$delta]['entity'] = $target_entity;
-            }
+            // Populate the data field.
+            $translation[$field_name][$delta]['target_id'] = NULL;
+            $translation[$field_name][$delta]['entity'] = $target_entity;
           }
           unset($translation[$field_name][$delta]['entity_type_id']);
           unset($translation[$field_name][$delta]['target_uuid']);
