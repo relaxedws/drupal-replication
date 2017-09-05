@@ -28,13 +28,11 @@ class AllDocsFactory implements BulkDocsFactoryInterface {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager
    * @param \Drupal\multiversion\Entity\Index\EntityIndexInterface $entity_index
-   * @param \Symfony\Component\Serializer\SerializerInterface $serializer
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, MultiversionManagerInterface $multiversion_manager, EntityIndexInterface $entity_index, SerializerInterface $serializer) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, MultiversionManagerInterface $multiversion_manager, EntityIndexInterface $entity_index) {
     $this->entityTypeManager = $entity_type_manager;
     $this->multiversionManager = $multiversion_manager;
     $this->entityIndex = $entity_index;
-    $this->serializer = $serializer;
   }
 
   /**
@@ -46,8 +44,7 @@ class AllDocsFactory implements BulkDocsFactoryInterface {
         $this->entityTypeManager,
         $this->multiversionManager,
         $workspace,
-        $this->entityIndex,
-        $this->serializer
+        $this->entityIndex
       );
     }
     return $this->instances[$workspace->id()];

@@ -50,10 +50,8 @@ interface AllDocsInterface {
   public function inclusiveEnd($inclusive_end);
 
   /**
-   * @param string $format
-   *
    * @return array
    */
-  public function execute($format = 'json');
+  public function execute();
 
 }

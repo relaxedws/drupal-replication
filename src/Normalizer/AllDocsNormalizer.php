@@ -18,13 +18,13 @@ class AllDocsNormalizer extends NormalizerBase {
     ];
 
     /** @var \Drupal\replication\AllDocs\AllDocsInterface $all_docs */
-    $rows = $all_docs->execute($format);
+    $rows = $all_docs->execute();
 
     foreach ($rows as $key => $value) {
       $data['rows'][] = [
         'id' => $key,
         'key' => $key,
-        'value' => $value
+        'value' => $this->serializer->normalize($value, $format),
       ];
     }
 
