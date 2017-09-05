@@ -378,6 +378,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
       foreach ($field_info as $delta => $item) {
         if (isset($item['target_uuid'])) {
+          $translation[$field_name][$delta] = $item;
           $fields = $this->entityManager->getFieldDefinitions($entity_type_id, $bundle_id);
           // Figure out what bundle we should use when creating the stub.
           $settings = $fields[$field_name]->getSettings();
@@ -430,16 +431,11 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           // This set the correct uri for link field if the target entity
           // already exists.
           if ($type == 'link' && $target_entity) {
-            unset($item['entity_type_id']);
-            unset($item['target_uuid']);
-            $translation[$field_name][$delta] = $item;
             $id = $target_entity->id();
             $translation[$field_name][$delta]['uri'] = "entity:$target_entity_type_id/$id";
           }
           elseif ($target_entity) {
-            $translation[$field_name][$delta] = [
-              'target_id' => $target_entity->id(),
-            ];
+            $translation[$field_name][$delta]['target_id'] = $target_entity->id();
             // Special handling for Entity Reference Revisions, it needs the
             // revision ID in addition to the primary entity ID.
             if ($type === 'entity_reference_revisions') {
@@ -478,19 +474,16 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             // Set for the uri value the target entity. This entity will be
             // replaced with the uri in \Drupal\multiversion\LinkItem::preSve().
             if ($type == 'link') {
-              $link = $translation[$field_name][$delta];
-              $link['uri'] = $target_entity;
-              unset($link['entity_type_id']);
-              unset($link['target_uuid']);
+              $translation[$field_name][$delta]['uri'] = $target_entity;
             }
             else {
               // Populate the data field.
-              $translation[$field_name][$delta] = [
-                'target_id' => NULL,
-                'entity' => $target_entity,
-              ];
+              $translation[$field_name][$delta]['target_id'] = NULL;
+              $translation[$field_name][$delta]['entity'] = $target_entity;
             }
           }
+          unset($translation[$field_name][$delta]['entity_type_id']);
+          unset($translation[$field_name][$delta]['target_uuid']);
         }
       }
     }
