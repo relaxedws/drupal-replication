@@ -475,8 +475,12 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $translation[$field_name][$delta]['target_id'] = NULL;
             $translation[$field_name][$delta]['entity'] = $target_entity;
           }
-          unset($translation[$field_name][$delta]['entity_type_id']);
-          unset($translation[$field_name][$delta]['target_uuid']);
+          if (isset($translation[$field_name][$delta]['entity_type_id'])) {
+            unset($translation[$field_name][$delta]['entity_type_id']);
+          }
+          if (isset($translation[$field_name][$delta]['target_uuid'])) {
+            unset($translation[$field_name][$delta]['target_uuid']);
+          }
         }
       }
     }
