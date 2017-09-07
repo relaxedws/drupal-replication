@@ -7,7 +7,6 @@ use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\Changes\Changes;
 use Drupal\replication\Plugin\ReplicationFilterManagerInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class ChangesFactory implements ChangesFactoryInterface {
 
@@ -22,11 +21,6 @@ class ChangesFactory implements ChangesFactoryInterface {
   protected $entityTypeManager;
 
   /**
-   * @var \Symfony\Component\Serializer\SerializerInterface
-   */
-  protected $serializer;
-
-  /**
    * @var \Drupal\replication\Plugin\ReplicationFilterManagerInterface
    */
   protected $filterManager;
@@ -39,13 +33,11 @@ class ChangesFactory implements ChangesFactoryInterface {
   /**
    * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $sequence_index
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   * @param \Symfony\Component\Serializer\SerializerInterface $serializer
    * @param \Drupal\replication\Plugin\ReplicationFilterManagerInterface $filter_manager
    */
-  public function __construct(SequenceIndexInterface $sequence_index, EntityTypeManagerInterface $entity_type_manager, SerializerInterface $serializer, ReplicationFilterManagerInterface $filter_manager) {
+  public function __construct(SequenceIndexInterface $sequence_index, EntityTypeManagerInterface $entity_type_manager, ReplicationFilterManagerInterface $filter_manager) {
     $this->sequenceIndex = $sequence_index;
     $this->entityTypeManager = $entity_type_manager;
-    $this->serializer = $serializer;
     $this->filterManager = $filter_manager;
   }
 
@@ -58,7 +50,6 @@ class ChangesFactory implements ChangesFactoryInterface {
         $this->sequenceIndex,
         $workspace,
         $this->entityTypeManager,
-        $this->serializer,
         $this->filterManager
       );
     }
