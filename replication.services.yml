@@ -14,7 +14,7 @@ services:
 #Factories
   replication.changes_factory:
     class: Drupal\replication\ChangesFactory
-    arguments: ['@multiversion.entity_index.sequence', '@entity.manager', '@replication.serializer', '@plugin.manager.replication_filter']
+    arguments: ['@multiversion.entity_index.sequence', '@entity.manager',  '@plugin.manager.replication_filter']
   replication.revisiondiff_factory:
     class: Drupal\replication\RevisionDiffFactory
     arguments: ['@multiversion.entity_index.rev']

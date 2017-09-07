@@ -7,7 +7,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\Plugin\ReplicationFilterManagerInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * {@inheritdoc}
@@ -17,7 +16,7 @@ class Changes implements ChangesInterface {
 
   /**
    * The sequence index.
-   * 
+   *
    * @var \Drupal\multiversion\Entity\Index\SequenceIndexInterface
    */
   protected $sequenceIndex;
@@ -33,11 +32,6 @@ class Changes implements ChangesInterface {
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
-
-  /**
-   * @var \Symfony\Component\Serializer\SerializerInterface
-   */
-  protected $serializer;
 
   /**
    * @var \Drupal\replication\Plugin\ReplicationFilterManagerInterface
@@ -83,14 +77,12 @@ class Changes implements ChangesInterface {
    * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $sequence_index
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   * @param \Symfony\Component\Serializer\SerializerInterface $serializer
    * @param \Drupal\replication\Plugin\ReplicationFilterManagerInterface $filter_manager
    */
-  public function __construct(SequenceIndexInterface $sequence_index, WorkspaceInterface $workspace, EntityTypeManagerInterface $entity_type_manager, SerializerInterface $serializer, ReplicationFilterManagerInterface $filter_manager) {
+  public function __construct(SequenceIndexInterface $sequence_index, WorkspaceInterface $workspace, EntityTypeManagerInterface $entity_type_manager, ReplicationFilterManagerInterface $filter_manager) {
     $this->sequenceIndex = $sequence_index;
     $this->workspaceId = $workspace->id();
     $this->entityTypeManager = $entity_type_manager;
-    $this->serializer = $serializer;
     $this->filterManager = $filter_manager;
   }
 
@@ -203,7 +195,7 @@ class Changes implements ChangesInterface {
 
       // Include the document.
       if ($this->includeDocs == TRUE) {
-        $changes[$uuid]['doc'] = $this->serializer->normalize($revision);
+        $changes[$uuid]['doc'] = $revision;
       }
     }
 

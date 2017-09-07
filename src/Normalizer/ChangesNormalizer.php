@@ -25,7 +25,17 @@ class ChangesNormalizer extends NormalizerBase {
     $since = (isset($context['query']['since']) && is_numeric($context['query']['since'])) ? $context['query']['since'] : 0;
     $changes->setSince($since);
 
-    $results = $changes->getNormal();
+    $results = array_map(function ($result) use ($format, $context) {
+      // Normalize the doc if it's there. It would be easier to check if
+      // includeDocs is TRUE but there is no accessor for that property. Could
+      // add one.
+      if (isset($result['doc'])) {
+        $result['doc'] = $this->serializer->normalize($result['doc'], $format, $context);
+      }
+
+      return $result;
+    }, $changes->getNormal());
+
     $last_result = end($results);
     $last_seq = isset($last_result['seq']) ? $last_result['seq'] : 0;
 
