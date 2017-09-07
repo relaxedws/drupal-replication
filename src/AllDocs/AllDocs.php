@@ -12,6 +12,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 class AllDocs implements AllDocsInterface {
+
   use DependencySerializationTrait;
 
   /**
@@ -33,11 +34,6 @@ class AllDocs implements AllDocsInterface {
    * @var \Drupal\multiversion\Entity\Index\EntityIndexInterface
    */
   protected $entityIndex;
-
-  /**
-   * @var \Symfony\Component\Serializer\SerializerInterface
-   */
-  protected $serializer;
 
   /**
    * @var boolean
@@ -79,14 +75,12 @@ class AllDocs implements AllDocsInterface {
    * @param \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    * @param \Drupal\multiversion\Entity\Index\EntityIndexInterface
-   * @param \Symfony\Component\Serializer\SerializerInterface
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, MultiversionManagerInterface $multiversion_manager, WorkspaceInterface $workspace, EntityIndexInterface $entity_index, SerializerInterface $serializer) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, MultiversionManagerInterface $multiversion_manager, WorkspaceInterface $workspace, EntityIndexInterface $entity_index) {
     $this->entityTypeManager = $entity_type_manager;
     $this->multiversionManager = $multiversion_manager;
     $this->workspace = $workspace;
     $this->entityIndex = $entity_index;
-    $this->serializer = $serializer;
   }
 
   /**
@@ -140,23 +134,22 @@ class AllDocs implements AllDocsInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @todo {@link https://www.drupal.org/node/2599900 Move any logic around 'includeDocs' and the serialization format
-   *   into the serializer to better separate concerns.}
    */
   public function execute() {
     $rows = [];
-
     $entity_types = $this->entityTypeManager->getDefinitions();
+
     foreach ($entity_types as $entity_type_id => $entity_type) {
       if ($this->multiversionManager->isEnabledEntityType($entity_type) && !$entity_type->get('local')) {
         try {
           $query = $this->entityTypeManager
             ->getStorage($entity_type_id)
             ->getQuery();
+
           if ($entity_type->get('workspace') !== FALSE) {
             $query->condition('workspace', $this->workspace->id());
           }
+
           $ids = $query->execute();
         }
         catch (\Exception $e) {
@@ -165,9 +158,11 @@ class AllDocs implements AllDocsInterface {
         }
 
         $keys = [];
+
         foreach ($ids as $id) {
           $keys[] = $entity_type_id . ':' . $id;
         }
+
         $items = $this->entityIndex->getMultiple($keys);
         foreach ($items as $item) {
           $rows[$item['uuid']] = ['rev' => $item['rev']];
@@ -175,11 +170,13 @@ class AllDocs implements AllDocsInterface {
 
         if ($this->includeDocs) {
           $entities = $this->entityTypeManager->getStorage($entity_type_id)->loadMultiple($ids);
+
           foreach ($entities as $entity) {
             if ($entity->_rev->is_stub) {
               continue;
             }
-            $rows[$entity->uuid()]['doc'] = $this->serializer->normalize($entity, 'json');
+
+            $rows[$entity->uuid()]['doc'] = $entity;
           }
         }
       }

@@ -14,8 +14,6 @@ use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
 use Drupal\multiversion\Entity\WorkspaceInterface;
-use Drupal\replication\Event\ReplicationContentDataAlterEvent;
-use Drupal\replication\Event\ReplicationDataEvents;
 use Drupal\replication\UsersMapping;
 use Drupal\serialization\Normalizer\FieldableEntityNormalizerTrait;
 use Drupal\serialization\Normalizer\NormalizerBase;
@@ -53,11 +51,6 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   protected $usersMapping;
 
   /**
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
-   */
-  protected $dispatcher;
-
-  /**
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   private $moduleHandler;
@@ -69,16 +62,14 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
    * @param \Drupal\replication\UsersMapping $users_mapping
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    */
-  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, UsersMapping $users_mapping, ModuleHandlerInterface $module_handler, SelectionPluginManagerInterface $selection_manager = NULL, EventDispatcherInterface $event_dispatcher = NULL) {
+  public function __construct(EntityManagerInterface $entity_manager, MultiversionIndexFactory $index_factory, LanguageManagerInterface $language_manager, UsersMapping $users_mapping, ModuleHandlerInterface $module_handler, SelectionPluginManagerInterface $selection_manager = NULL) {
     $this->entityManager = $entity_manager;
     $this->indexFactory = $index_factory;
     $this->languageManager = $language_manager;
     $this->usersMapping = $users_mapping;
     $this->moduleHandler = $module_handler;
     $this->selectionManager = $selection_manager;
-    $this->dispatcher = $event_dispatcher;
   }
 
   /**
@@ -166,10 +157,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       unset($data[$langcode]['workspace'], $data[$langcode][$id_key], $data[$langcode][$revision_key], $data[$langcode][$uuid_key]);
     }
 
-    $event = new ReplicationContentDataAlterEvent($entity, $data, $format, $context);
-    $this->dispatcher->dispatch(ReplicationDataEvents::ALTER_CONTENT_DATA, $event);
-
-    return $event->getData();
+    return $data;
   }
 
   /**

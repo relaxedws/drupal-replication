@@ -22,28 +22,16 @@ class RegisterSerializerCompilerPass implements CompilerPassInterface {
   public function process(ContainerBuilder $container) {
     $definition = $container->getDefinition(static::SERIALIZER_SERVICE_NAME);
 
-    // Find all replication serialization formats known.
-    $formats = [];
-    $format_providers = [];
+    // Retrieve registered Encoders and Normalizers from the container.
+    foreach ($container->findTaggedServiceIds('replication_encoder') as $id => $attributes) {
+      $priority = isset($attributes[0]['priority']) ? $attributes[0]['priority'] : 0;
+      $encoders[$priority][] = new Reference($id);
+    }
 
-    // Retrieve registered Normalizers and Encoders from the container.
     foreach ($container->findTaggedServiceIds('replication_normalizer') as $id => $attributes) {
       $priority = isset($attributes[0]['priority']) ? $attributes[0]['priority'] : 0;
       $normalizers[$priority][] = new Reference($id);
       $normalizers_id[$priority][] = $id;
-    }
-
-    foreach ($container->findTaggedServiceIds('replication_encoder') as $id => $attributes) {
-      $priority = isset($attributes[0]['priority']) ? $attributes[0]['priority'] : 0;
-      $encoders[$priority][] = new Reference($id);
-
-      // Collect formats and providers.
-      $format = $attributes[0]['format'];
-      $formats[] = $format;
-
-      if ($provider_tag = $container->getDefinition($id)->getTag('_provider')) {
-        $format_providers[$format] = $provider_tag[0]['provider'];
-      }
     }
 
     // Add the registered Normalizers and Encoders to the Serializer.
@@ -54,9 +42,6 @@ class RegisterSerializerCompilerPass implements CompilerPassInterface {
     if (!empty($encoders)) {
       $definition->replaceArgument(1, static::flattenAndSort($encoders));
     }
-
-    $container->setParameter(sprintf('%s.formats', static::SERIALIZER_SERVICE_NAME), $formats);
-    $container->setParameter(sprintf('%s.format_providers', static::SERIALIZER_SERVICE_NAME), $format_providers);
   }
 
   /**

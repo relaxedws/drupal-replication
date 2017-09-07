@@ -23,7 +23,7 @@ services:
     arguments: ['@workspace.manager', '@multiversion.entity_index.uuid', '@multiversion.entity_index.rev', '@entity_type.manager', '@lock', '@logger.factory', '@state']
   replication.alldocs_factory:
     class: Drupal\replication\AllDocsFactory
-    arguments: ['@entity_type.manager', '@multiversion.manager', '@multiversion.entity_index.id', '@replication.serializer']
+    arguments: ['@entity_type.manager', '@multiversion.manager', '@multiversion.entity_index.id']
 
 #Serializers
   replication.serializer:
@@ -34,15 +34,11 @@ services:
   replication.encoder.json:
     class: Drupal\serialization\Encoder\JsonEncoder
     tags:
-      - { name: replication_encoder, format: json }
+      - { name: replication_encoder }
   replication.encoder.stream:
     class: Drupal\replication\Encoder\StreamEncoder
     tags:
-      - { name: replication_encoder, format: stream }
-  replication.encoder.base64_stream:
-    class: Drupal\replication\Encoder\StreamEncoder
-    tags:
-      - { name: replication_encoder, format: base64_stream }
+      - { name: replication_encoder }
 
 #Normalizers
   replication.normalizer.file_entity:
@@ -72,7 +68,7 @@ services:
       - { name: replication_normalizer, priority: 60 }
   replication.normalizer.content_entity:
     class: Drupal\replication\Normalizer\ContentEntityNormalizer
-    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection']
     tags:
       - { name: replication_normalizer, priority: 50 }
   replication.normalizer.bulk_docs:
