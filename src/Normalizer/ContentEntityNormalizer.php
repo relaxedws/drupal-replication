@@ -3,7 +3,7 @@
 namespace Drupal\replication\Normalizer;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -11,7 +11,6 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
-use Drupal\Core\TypedData\TranslationStatusInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
@@ -300,7 +299,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
 
-    if ($entity instanceof ContentEntityBase) {
+    if ($entity instanceof ContentEntityInterface) {
       foreach ($site_languages as $site_language) {
         $langcode = $site_language->getId();
         if ($entity->language()->getId() != $langcode && isset($translations[$langcode]) && !$entity->hasTranslation($langcode)) {
