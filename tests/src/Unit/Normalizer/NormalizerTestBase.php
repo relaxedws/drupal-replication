@@ -27,6 +27,8 @@ abstract class NormalizerTestBase extends KernelTestBase {
     'user',
     'link',
     'file',
+    'language',
+    'content_translation',
   ];
 
   /**
@@ -40,7 +42,7 @@ abstract class NormalizerTestBase extends KernelTestBase {
     $this->installEntitySchema('user');
     $this->installSchema('system', ['url_alias', 'router']);
     $this->installSchema('key_value', ['key_value_sorted']);
-    $this->installConfig(['multiversion', 'replication']);
+    $this->installConfig(['multiversion', 'replication', 'language']);
     \Drupal::service('multiversion.manager')->enableEntityTypes();
     \Drupal::service('router.builder')->rebuild();
 
@@ -50,7 +52,7 @@ abstract class NormalizerTestBase extends KernelTestBase {
       'field_name' => 'field_test_text',
       'type' => 'text',
       'cardinality' => 1,
-      'translatable' => FALSE,
+      'translatable' => TRUE,
     ])->save();
     FieldConfig::create([
       'entity_type' => 'entity_test_mulrev',

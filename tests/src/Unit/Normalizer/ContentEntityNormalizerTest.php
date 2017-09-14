@@ -4,6 +4,7 @@ namespace Drupal\Tests\replication\Unit\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
+use Drupal\language\Entity\ConfigurableLanguage;
 
 /**
  * Tests the content serialization format.
@@ -17,8 +18,6 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
   protected function setUp() {
     parent::setUp();
 
-    // @todo: {@link https://www.drupal.org/node/2600468 Attach a file field.}
-
     // Create a test entity to serialize.
     $this->values = [
       'name' => $this->randomMachineName(),
@@ -28,14 +27,35 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
         'format' => 'full_html',
       ],
     ];
+    ConfigurableLanguage::createFromLangcode('ro')->save();
 
-    $this->entity = EntityTestMulRev::create($this->values);
-    $this->entity->save();
+    $entity = EntityTestMulRev::create($this->values);
+    $entity->save();
+
+    // Save again.
+    $entity->save();
+
+    // Add Romanian translation.
+    $romanian = $entity->addTranslation('ro');
+    $romanian->name->value = $entity->name->value . '_ro';
+    $romanian->field_test_text->value = $this->values['field_test_text']['value'] . '_ro';
+    $romanian->save();
+
+    // Save again the original entity.
+    $entity = EntityTestMulRev::load($entity->id());
+    $entity->save();
+
+    // Load again romanian translation and save a new revision.
+    $romanian = $entity->getTranslation('ro');
+    $romanian->save();
+
+    $this->entity = EntityTestMulRev::load($entity->id());
+    $this->romanian = $entity->getTranslation('ro');
   }
 
   public function testNormalizer() {
+    $revs = EntityTestMulRev::load($this->entity->id())->_rev->revisions;
     // Test normalize.
-    list($i, $hash) = explode('-', $this->entity->_rev->value);
     $expected = [
       '@context' => [
         '_id' => '@id',
@@ -75,11 +95,44 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           ],
         ],
       ],
+      'ro' => [
+        '@context' => [
+          '@language' => 'ro',
+        ],
+        'langcode' => [
+          ['value' => 'ro'],
+        ],
+        'name' => [
+          ['value' => $this->values['name'] . '_ro'],
+        ],
+        'type' => [
+          ['value' => 'entity_test_mulrev'],
+        ],
+        'created' => [
+          ['value' => $this->romanian->created->value],
+        ],
+        'default_langcode' => [
+          ['value' => FALSE],
+        ],
+        'user_id' => [
+          ['target_id' => $this->values['user_id']],
+        ],
+        '_rev' => [
+          ['value' => $this->romanian->_rev->value],
+        ],
+        'non_rev_field' => [],
+        'field_test_text' => [
+          [
+            'value' => $this->values['field_test_text']['value'] . '_ro',
+            'format' => NULL,
+          ],
+        ],
+      ],
       '_id' => $this->entity->uuid(),
       '_rev' => $this->entity->_rev->value,
       '_revisions' => [
-        'start' => 1,
-        'ids' => [$hash],
+        'start' => count($revs),
+        'ids' => $revs,
       ],
     ];
 
@@ -91,10 +144,10 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
     $this->assertEquals(array_diff_key($normalized, $expected), [], 'No unexpected data is added to the normalized array.');
 
     // Test normalization when is set the revs query parameter.
-    $parts = explode('-', $this->entity->_rev->value);
+    $revs = $this->entity->_rev->revisions;
     $expected['_revisions'] = [
-      'ids' => [$parts[1]],
-      'start' => (int) $parts[0],
+      'ids' => $revs,
+      'start' => count($revs),
     ];
 
     $normalized = $this->serializer->normalize($this->entity, NULL, ['query' => ['revs' => TRUE]]);
