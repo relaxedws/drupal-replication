@@ -448,6 +448,12 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             // Indicate that this revision is a stub.
             $target_entity->_rev->is_stub = TRUE;
 
+            // This will ensure that stub poll_choice entities will not be saved
+            // in Drupal\poll\Entity\Poll:preSave()
+            if ($target_entity_type_id === 'poll_choice') {
+              $target_entity->needsSaving(FALSE);
+            }
+
             // Populate the data field.
             $translation[$field_name][$delta]['target_id'] = NULL;
             $translation[$field_name][$delta]['entity'] = $target_entity;
