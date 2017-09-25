@@ -263,40 +263,19 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       }
     }
 
-    // @todo {@link https://www.drupal.org/node/2599946 Move the below update
-    // logic to the resource plugin instead.}
-    $storage = $this->entityManager->getStorage($entity_type_id);
-
-
     // @todo {@link https://www.drupal.org/node/2599926 Use the passed $class to instantiate the entity.}
 
     $entity = NULL;
-    if ($entity_id) {
-      if (isset($translations[$default_langcode][$id_key])) {
-        unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
-        $entity_id = NULL;
+    if ($entity_type_id === 'file' && !empty($translations[$default_langcode])) {
+      unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
+      $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
+      $translations[$default_langcode]['uid'][0]['target_id'] = $this->usersMapping->getUidFromConfig();
 
-        $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
-      }
+      $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
     }
-    else {
-      if (!empty($bundle_key) && !empty($translations[$default_langcode][$bundle_key])) {
-        unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
-
-        $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
-      }
-      elseif ($entity_type_id === 'file' && !empty($translations[$default_langcode])) {
-        if (isset($translations[$default_langcode][$id_key])) {
-          unset($translations[$default_langcode][$id_key]);
-        }
-        if (isset($translations[$default_langcode][$revision_key])) {
-          unset($translations[$default_langcode][$revision_key]);
-        }
-        $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
-        $translations[$default_langcode]['uid'][0]['target_id'] = $this->usersMapping->getUidFromConfig();
-
-        $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
-      }
+    elseif (!empty($translations[$default_langcode])) {
+      unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
+      $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
     }
 
     if ($entity instanceof ContentEntityInterface) {
@@ -468,6 +447,12 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $target_entity->uuid->value = $target_entity_uuid;
             // Indicate that this revision is a stub.
             $target_entity->_rev->is_stub = TRUE;
+
+            // This will ensure that stub poll_choice entities will not be saved
+            // in Drupal\poll\Entity\Poll:preSave()
+            if ($target_entity_type_id === 'poll_choice') {
+              $target_entity->needsSaving(FALSE);
+            }
 
             // Populate the data field.
             $translation[$field_name][$delta]['target_id'] = NULL;
