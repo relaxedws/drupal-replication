@@ -24,7 +24,7 @@ class AllDocsNormalizer extends NormalizerBase {
       $data['rows'][] = [
         'id' => $key,
         'key' => $key,
-        'value' => $this->serializer->normalize($value, $format),
+        'value' => $this->serializer->normalize($value, $format, $context),
       ];
     }
 
