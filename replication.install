@@ -4,6 +4,20 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Database;
 
 /**
+ * implements hook_modules_installed().
+ */
+function replication_modules_installed($modules) {
+  if (in_array('replication', $modules)) {
+    $entity_type_id = 'replication_log';
+    $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
+    $entity_type = \Drupal::entityTypeManager()->getStorage($entity_type_id)->getEntityType();
+    if (in_array($entity_type_id, array_keys($entity_types))) {
+      \Drupal::service('multiversion.manager')->enableEntityTypes([$entity_type_id => $entity_type]);
+    }
+  }
+}
+
+/**
  * Create revisionable fields in the revision table for replication_log entity
  * type if they are missing.
  */
@@ -160,4 +174,17 @@ function replication_update_8102() {
     ->set('changes_limit', 100)
     ->set('bulk_docs_limit', 100)
     ->save();
+}
+
+/**
+ * Enable replication_log entity type for multiversion if it's not enabled.
+ */
+function replication_update_8103() {
+  $entity_type_id = 'replication_log';
+  $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
+  $entity_type = \Drupal::entityTypeManager()->getStorage($entity_type_id)->getEntityType();
+  $enabled = \Drupal::state()->get('multiversion.migration_done.' . $entity_type_id, FALSE);
+  if (in_array($entity_type_id, array_keys($entity_types)) && !$enabled) {
+    \Drupal::service('multiversion.manager')->enableEntityTypes([$entity_type_id => $entity_type]);
+  }
 }
