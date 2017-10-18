@@ -9,6 +9,7 @@ php:
 env:
   - MAKE_FILE=drupal-8.2.x.make.yml
   - MAKE_FILE=drupal-8.3.x.make.yml
+  - MAKE_FILE=drupal-8.4.x.make.yml
 
 matrix:
   allow_failures:
