@@ -68,6 +68,7 @@ function replication_update_8100() {
         if (in_array($table_revision, $tables)) {
           $table_revision_fields = $table_mapping->getFieldNames($table_revision);
           $entity_field_manager = \Drupal::service('entity_field.manager');
+          $entity_field_manager->clearCachedFieldDefinitions();
           $fields = $entity_field_manager->getBaseFieldDefinitions($entity_type_id);
           $new_field_storage_definitions = [];
           // Loop through all the fields, if the field exists in the new
@@ -147,7 +148,9 @@ function replication_update_8101() {
       }
 
       // Apply updates.
-      $storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id);
+      $entity_field_manager = \Drupal::service('entity_field.manager');
+      $entity_field_manager->clearCachedFieldDefinitions();
+      $storage_definitions = $entity_field_manager->getFieldStorageDefinitions($entity_type_id);
       if ($storage_definitions['history']) {
         $entity_definition_update_manager->updateFieldStorageDefinition($storage_definitions['history']);
       }
