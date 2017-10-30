@@ -101,6 +101,11 @@ services:
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
       - { name: normalizer, priority: 30 }
+  replication.normalizer.crop:
+    class: Drupal\replication\Normalizer\CropNormalizer
+    arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
+    tags:
+      - { name: normalizer, priority: 30 }
   replication.normalizer.entity_reference_item:
     class: Drupal\replication\Normalizer\EntityReferenceItemNormalizer
     tags:
