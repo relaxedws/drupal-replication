@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\replication\Unit\Normalizer;
+namespace Drupal\Tests\replication\Kernel\Normalizer;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -83,7 +83,7 @@ abstract class NormalizerTestBase extends KernelTestBase {
    * @param int $timestamp
    *   The timestamp value to format.
    *
-   * @return string|int
+   * @return array
    *   The formatted RFC3339 date string or UNIX timestamp.
    *
    * @see \Drupal\serialization\Normalizer\TimestampItemNormalizer

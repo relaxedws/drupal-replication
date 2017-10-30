@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\replication\Unit\Normalizer;
+namespace Drupal\Tests\replication\Kernel\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
