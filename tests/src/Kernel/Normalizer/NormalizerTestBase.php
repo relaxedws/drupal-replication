@@ -40,6 +40,7 @@ abstract class NormalizerTestBase extends KernelTestBase {
     parent::setUp();
     $this->installEntitySchema('entity_test_mulrev');
     $this->installEntitySchema('user');
+    $this->installEntitySchema('workspace');
     $this->installSchema('system', ['url_alias', 'router']);
     $this->installSchema('key_value', ['key_value_sorted']);
     $this->installConfig(['multiversion', 'replication', 'language']);
