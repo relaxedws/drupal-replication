@@ -39,6 +39,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
     $romanian = $entity->addTranslation('ro');
     $romanian->name->value = $entity->name->value . '_ro';
     $romanian->field_test_text->value = $this->values['field_test_text']['value'] . '_ro';
+    $romanian->field_test_text->format = 'full_html';
     $romanian->save();
 
     // Save again the original entity.
@@ -92,6 +93,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           [
             'value' => $this->values['field_test_text']['value'],
             'format' => $this->values['field_test_text']['format'],
+            'processed' => '',
           ],
         ],
       ],
@@ -124,7 +126,8 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
         'field_test_text' => [
           [
             'value' => $this->values['field_test_text']['value'] . '_ro',
-            'format' => NULL,
+            'format' => $this->values['field_test_text']['format'],
+            'processed' => '',
           ],
         ],
       ],
