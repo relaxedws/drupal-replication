@@ -43,7 +43,7 @@ abstract class NormalizerTestBase extends KernelTestBase {
     $this->installEntitySchema('workspace');
     $this->installSchema('system', ['url_alias', 'router']);
     $this->installSchema('key_value', ['key_value_sorted']);
-    $this->installConfig(['multiversion', 'replication', 'language']);
+    $this->installConfig(['multiversion', 'replication', 'language', 'field']);
     \Drupal::service('multiversion.manager')->enableEntityTypes();
     \Drupal::service('router.builder')->rebuild();
 
