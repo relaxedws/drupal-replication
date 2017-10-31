@@ -40,30 +40,30 @@ services:
     class: Drupal\replication\Normalizer\LinkItemNormalizer
     arguments: ['@entity_type.manager', '@plugin.manager.entity_reference_selection']
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: normalizer, priority: 40 }
   replication.normalizer.text_item:
     class: Drupal\replication\Normalizer\TextItemNormalizer
     tags:
-      - { name: normalizer, priority: 5 }
+      - { name: normalizer, priority: 35 }
   replication.normalizer.content_entity:
     class: Drupal\replication\Normalizer\ContentEntityNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: normalizer, priority: 40 }
   replication.normalizer.replication_log:
     class: Drupal\replication\Normalizer\ReplicationLogNormalizer
     arguments: ['@entity_type.manager', '@multiversion.entity_index.uuid']
     tags:
-      - { name: normalizer, priority: 20 }
+      - { name: normalizer, priority: 50 }
   replication.normalizer.bulk_docs:
     class: Drupal\replication\Normalizer\BulkDocsNormalizer
     tags:
-      - { name: normalizer, priority: 20 }
+      - { name: normalizer, priority: 50 }
   replication.normalizer.all_docs:
     class: Drupal\replication\Normalizer\AllDocsNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.uuid']
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: normalizer, priority: 40 }
   replication.normalizer.changes:
     class: Drupal\replication\Normalizer\ChangesNormalizer
     tags:
@@ -71,46 +71,46 @@ services:
   replication.normalizer.workspace:
     class: Drupal\replication\Normalizer\WorkspaceNormalizer
     tags:
-      - { name: normalizer, priority: 20 }
+      - { name: normalizer, priority: 50 }
     arguments: ['@entity.manager']
   replication.normalizer.deleted_flag_item_list:
     class: Drupal\replication\Normalizer\DeletedFlagItemListNormalizer
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: normalizer, priority: 40 }
   replication.normalizer.revision_info_item_list:
     class: Drupal\replication\Normalizer\RevisionInfoItemListNormalizer
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: normalizer, priority: 40 }
   replication.normalizer.revs_diff:
     class: Drupal\replication\Normalizer\RevsDiffNormalizer
     arguments: ['@replication.revisiondiff_factory']
     tags:
-      - { name: normalizer, priority: 30 }
+      - { name: normalizer, priority: 50 }
   replication.normalizer.attachment:
     class: Drupal\replication\Normalizer\AttachmentNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
-      - { name: normalizer, priority: 20 }
+      - { name: normalizer, priority: 50 }
   replication.normalizer.file_entity:
     class: Drupal\replication\Normalizer\FileEntityNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher', '@replication.process_file_attachment']
     tags:
-      - { name: normalizer, priority: 30 }
+      - { name: normalizer, priority: 60 }
   replication.normalizer.taxonomy_term:
     class: Drupal\replication\Normalizer\TaxonomyTermNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
-      - { name: normalizer, priority: 30 }
+      - { name: normalizer, priority: 60 }
   replication.normalizer.crop:
     class: Drupal\replication\Normalizer\CropNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
     tags:
-      - { name: normalizer, priority: 30 }
+      - { name: normalizer, priority: 60 }
   replication.normalizer.entity_reference_item:
     class: Drupal\replication\Normalizer\EntityReferenceItemNormalizer
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: normalizer, priority: 40 }
   replication.normalizer.comment_item:
     class: Drupal\replication\Normalizer\CommentItemNormalizer
     tags:
-      - { name: normalizer, priority: 10 }
+      - { name: normalizer, priority: 40 }
