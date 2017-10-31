@@ -44,6 +44,7 @@ abstract class NormalizerTestBase extends KernelTestBase {
     $this->installSchema('system', ['url_alias', 'router']);
     $this->installSchema('key_value', ['key_value_sorted']);
     $this->installConfig(['multiversion', 'replication', 'language', 'field']);
+    $this->container->get('multiversion.manager')->enableEntityTypes();
     $this->container->get('router.builder')->rebuild();
 
     // Auto-create a field for testing.
