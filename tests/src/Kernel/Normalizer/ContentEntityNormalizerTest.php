@@ -109,7 +109,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           ['value' => 'entity_test_mulrev'],
         ],
         'created' => [
-          ['value' => $this->romanian->created->value],
+          $this->formatExpectedTimestampItemValues($this->romanian->created->value),
         ],
         'default_langcode' => [
           ['value' => FALSE],
@@ -141,6 +141,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
 
     if (version_compare($minor_version, '8.4', '>=')) {
       $expected['en']['revision_translation_affected'] = [['value' => TRUE]];
+      $expected['ro']['revision_translation_affected'] = [['value' => TRUE]];
     }
 
     $normalized = $this->serializer->normalize($this->entity);
