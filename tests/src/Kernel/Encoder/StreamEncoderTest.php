@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\replication\Unit\Encoder;
+namespace Drupal\Tests\replication\Kernel\Encoder;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\replication\Encoder\StreamEncoder;

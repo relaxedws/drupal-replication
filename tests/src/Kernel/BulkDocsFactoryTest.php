@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\replication\Unit;
+namespace Drupal\Tests\replication\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\multiversion\Entity\Workspace;

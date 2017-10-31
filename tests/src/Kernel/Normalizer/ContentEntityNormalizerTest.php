@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\replication\Unit\Normalizer;
+namespace Drupal\Tests\replication\Kernel\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
@@ -76,7 +76,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           ['value' => 'entity_test_mulrev'],
         ],
         'created' => [
-          ['value' => $this->entity->created->value],
+          $this->formatExpectedTimestampItemValues($this->entity->created->value),
         ],
         'default_langcode' => [
           ['value' => TRUE],
@@ -109,7 +109,7 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           ['value' => 'entity_test_mulrev'],
         ],
         'created' => [
-          ['value' => $this->romanian->created->value],
+          $this->formatExpectedTimestampItemValues($this->romanian->created->value),
         ],
         'default_langcode' => [
           ['value' => FALSE],
@@ -135,6 +135,14 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
         'ids' => $revs,
       ],
     ];
+
+    // Get the minor version only from the \Drupal::VERSION string.
+    $minor_version = substr(\Drupal::VERSION, 0, 3);
+
+    if (version_compare($minor_version, '8.4', '>=')) {
+      $expected['en']['revision_translation_affected'] = [['value' => TRUE]];
+      $expected['ro']['revision_translation_affected'] = [['value' => TRUE]];
+    }
 
     $normalized = $this->serializer->normalize($this->entity);
 

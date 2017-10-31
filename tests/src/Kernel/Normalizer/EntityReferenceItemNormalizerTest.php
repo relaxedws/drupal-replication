@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\replication\Unit\Normalizer;
+namespace Drupal\Tests\replication\Kernel\Normalizer;
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
@@ -93,6 +93,13 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
         'ids' => [$hash],
       ],
     ];
+
+    // Get the minor version only from the \Drupal::VERSION string.
+    $minor_version = substr(\Drupal::VERSION, 0, 3);
+
+    if (version_compare($minor_version, '8.4', '>=')) {
+      $expected['en']['revision_translation_affected'] = [['value' => TRUE]];
+    }
 
     // Test normalize.
     $normalized = $this->serializer->normalize($entity);

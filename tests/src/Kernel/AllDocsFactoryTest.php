@@ -1,17 +1,17 @@
 <?php
 
-namespace Drupal\Tests\replication\Unit;
+namespace Drupal\Tests\replication\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\multiversion\Entity\Workspace;
-use Drupal\replication\Changes\ChangesInterface;
+use Drupal\replication\AllDocs\AllDocsInterface;
 
 /**
- * Tests the replication_log serialization format.
+ * Tests the AllDocsFactory
  *
  * @group replication
  */
-class ChangesFactoryTest extends KernelTestBase {
+class AllDocsFactoryTest extends KernelTestBase {
 
   public static $modules = [
     'node',
@@ -38,9 +38,9 @@ class ChangesFactoryTest extends KernelTestBase {
     $this->workspace->save();
   }
 
-  public function testChangesFactory() {
-    $changes = \Drupal::service('replication.changes_factory')->get($this->workspace);
-    $this->assertTrue(($changes instanceof ChangesInterface));
+  public function testAllDocsFactory() {
+    $all_docs = \Drupal::service('replication.alldocs_factory')->get($this->workspace);
+    $this->assertTrue(($all_docs instanceof AllDocsInterface));
   }
 
 }

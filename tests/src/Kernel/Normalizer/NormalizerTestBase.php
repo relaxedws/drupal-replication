@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\replication\Unit\Normalizer;
+namespace Drupal\Tests\replication\Kernel\Normalizer;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -40,11 +40,13 @@ abstract class NormalizerTestBase extends KernelTestBase {
     parent::setUp();
     $this->installEntitySchema('entity_test_mulrev');
     $this->installEntitySchema('user');
+    $this->installEntitySchema('workspace');
+    $this->installEntitySchema('file');
     $this->installSchema('system', ['url_alias', 'router']);
     $this->installSchema('key_value', ['key_value_sorted']);
-    $this->installConfig(['multiversion', 'replication', 'language']);
-    \Drupal::service('multiversion.manager')->enableEntityTypes();
-    \Drupal::service('router.builder')->rebuild();
+    $this->installConfig(['multiversion', 'replication', 'language', 'field']);
+    $this->container->get('multiversion.manager')->enableEntityTypes();
+    $this->container->get('router.builder')->rebuild();
 
     // Auto-create a field for testing.
     FieldStorageConfig::create([
@@ -83,7 +85,7 @@ abstract class NormalizerTestBase extends KernelTestBase {
    * @param int $timestamp
    *   The timestamp value to format.
    *
-   * @return string|int
+   * @return array
    *   The formatted RFC3339 date string or UNIX timestamp.
    *
    * @see \Drupal\serialization\Normalizer\TimestampItemNormalizer
