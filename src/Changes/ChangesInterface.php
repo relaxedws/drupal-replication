@@ -58,6 +58,17 @@ interface ChangesInterface {
   public function setSince($seq);
 
   /**
+   * Sets until what sequence number to check for changes.
+   *
+   * @param int $seq
+   *   The sequence ID to stop at.
+   *
+   * @return \Drupal\replication\Changes\ChangesInterface
+   *   Returns $this.
+   */
+  public function setStop($seq);
+
+  /**
    * Set the limit of returned number of items.
    *
    * @param int $limit

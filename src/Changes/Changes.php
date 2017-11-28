@@ -72,6 +72,13 @@ class Changes implements ChangesInterface {
   protected $since = 0;
 
   /**
+   * The sequence ID until to get changes. Result includes this sequence.
+   *
+   * @var int
+   */
+  protected $stop = NULL;
+
+  /**
    * Number of items to return.
    *
    * @var int|NULL
@@ -129,6 +136,14 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
+  public function setStop($seq) {
+    $this->stop = $seq;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function setLimit($limit) {
     $this->limit = $limit;
     return $this;
@@ -140,7 +155,7 @@ class Changes implements ChangesInterface {
   public function getNormal() {
     $sequences = $this->sequenceIndex
       ->useWorkspace($this->workspaceId)
-      ->getRange($this->since, NULL);
+      ->getRange($this->since, $this->stop);
 
     // When we have the since parameter set, we should return values starting
     // just after the since sequence (that is first in the $sequences array).
