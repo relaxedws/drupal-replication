@@ -193,7 +193,7 @@ class Changes implements ChangesInterface {
       }
 
       // Filter the document.
-      if ($filter !== NULL && !$filter->filter($revision)) {
+      if ($revision && $filter !== NULL && !$filter->filter($revision)) {
         continue;
       }
 
