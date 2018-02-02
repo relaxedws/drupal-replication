@@ -110,6 +110,18 @@ services:
     class: Drupal\replication\Normalizer\EntityReferenceItemNormalizer
     tags:
       - { name: normalizer, priority: 40 }
+  replication.normalizer.metatag_field:
+    class: Drupal\replication\Normalizer\MetatagFieldItemNormalizer
+    tags:
+      - { name: normalizer, priority: 40 }
+  replication.normalizer.metatag:
+    class: Drupal\replication\Normalizer\MetatagNormalizer
+    tags:
+      - { name: normalizer, priority: 40 }
+  replication.normalizer.path_field_item_list:
+    class: Drupal\replication\Normalizer\PathFieldItemListNormalizer
+    tags:
+      - { name: normalizer, priority: 40 }
   replication.normalizer.comment_item:
     class: Drupal\replication\Normalizer\CommentItemNormalizer
     tags:

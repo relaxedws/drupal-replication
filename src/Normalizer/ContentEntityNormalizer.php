@@ -354,6 +354,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
         continue;
       }
       foreach ($field_info as $delta => $item) {
+        if (!is_array($item)) {
+          continue;
+        }
         if (isset($item['target_uuid'])) {
           $translation[$field_name][$delta] = $item;
           $fields = $this->entityManager->getFieldDefinitions($entity_type_id, $bundle_id);
