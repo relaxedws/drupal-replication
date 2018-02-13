@@ -36,6 +36,9 @@ class PathFieldItemListNormalizer extends FieldNormalizer {
     if (isset($data[0]['source'])) {
       unset($data[0]['source']);
     }
+    if (isset($data[0]['workspace'])) {
+      unset($data[0]['workspace']);
+    }
     return parent::denormalize($data, $class, $format, $context);
   }
 
