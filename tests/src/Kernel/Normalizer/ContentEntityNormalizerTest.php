@@ -93,7 +93,6 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           [
             'value' => $this->values['field_test_text']['value'],
             'format' => $this->values['field_test_text']['format'],
-            'processed' => '',
           ],
         ],
       ],
@@ -127,7 +126,6 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
           [
             'value' => $this->values['field_test_text']['value'] . '_ro',
             'format' => $this->values['field_test_text']['format'],
-            'processed' => '',
           ],
         ],
       ],

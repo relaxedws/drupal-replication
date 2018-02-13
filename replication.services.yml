@@ -41,10 +41,6 @@ services:
     arguments: ['@entity_type.manager', '@plugin.manager.entity_reference_selection']
     tags:
       - { name: normalizer, priority: 40 }
-  replication.normalizer.text_item:
-    class: Drupal\replication\Normalizer\TextItemNormalizer
-    tags:
-      - { name: normalizer, priority: 35 }
   replication.normalizer.content_entity:
     class: Drupal\replication\Normalizer\ContentEntityNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
