@@ -7,13 +7,8 @@ php:
   - 7.0
 
 env:
-  - MAKE_FILE=drupal-8.3.x.make.yml
   - MAKE_FILE=drupal-8.4.x.make.yml
-
-matrix:
-  allow_failures:
-    - env: MAKE_FILE=drupal-8.2.x.make.yml
-  fast_finish: true
+  - MAKE_FILE=drupal-8.5.x.make.yml
 
 services:
   - mysql
@@ -40,4 +35,4 @@ install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/replication
 
 script:
-  - cd ~/www && php ./core/scripts/run-tests.sh --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 --module replication
+  - cd ~/www && php ./core/scripts/run-tests.sh --suppress-deprecations --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 --module replication
