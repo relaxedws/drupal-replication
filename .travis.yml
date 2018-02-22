@@ -36,3 +36,7 @@ install:
 
 script:
   - cd ~/www && php ./core/scripts/run-tests.sh --suppress-deprecations --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 --module replication
+
+after_script:
+  - find ~/www/sites/simpletest/browser_output -type f -exec cat {} \;
+  - cat /tmp/error.log
