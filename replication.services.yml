@@ -38,7 +38,7 @@ services:
 #Normalizers
   replication.normalizer.link_item:
     class: Drupal\replication\Normalizer\LinkItemNormalizer
-    arguments: ['@entity_type.manager', '@plugin.manager.entity_reference_selection']
+    arguments: ['@entity_type.manager', '@path.validator', '@path.alias_manager', '@plugin.manager.entity_reference_selection']
     tags:
       - { name: normalizer, priority: 40 }
   replication.normalizer.content_entity:
