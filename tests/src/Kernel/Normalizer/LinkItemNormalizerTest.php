@@ -69,11 +69,11 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
       ],
       'field_test_link' => [
         [
-          'uri' => 'entity:/entity_test_mulrev/' . $referenced_entity1->id(),
+          'uri' => 'entity:entity_test_mulrev/manage/' . $referenced_entity1->id(),
           'options' => [],
         ],
         [
-          'uri' => 'internal:/entity_test_mulrev/' . $referenced_entity2->id(),
+          'uri' => 'internal:/entity_test_mulrev/manage/' . $referenced_entity2->id(),
           'options' => [],
         ],
       ],
@@ -122,16 +122,21 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
         ],
         'field_test_link' => [
           [
-            'uri' => 'entity:entity_test_mulrev/' . $referenced_entity1->uuid(),
+            'uri' => 'entity:entity_test_mulrev/manage/' . $referenced_entity1->uuid(),
             'title' => NULL,
             'options' => [],
             'type' => 'entity_test_mulrev',
+            '_entity_uuid' => $referenced_entity1->uuid(),
+            '_entity_type' => $referenced_entity1->getEntityTypeId(),
+            $referenced_entity1->getEntityType()->getKey('bundle') => $referenced_entity1->bundle(),
           ],
           [
-            'uri' => 'internal:/entity_test_mulrev/' . $referenced_entity2->uuid(),
+            'uri' => 'internal:/entity_test_mulrev/manage/' . $referenced_entity2->uuid(),
             'title' => NULL,
             'options' => [],
-            'type' => 'entity_test_mulrev',
+            '_entity_uuid' => $referenced_entity2->uuid(),
+            '_entity_type' => $referenced_entity2->getEntityTypeId(),
+            $referenced_entity2->getEntityType()->getKey('bundle') => $referenced_entity2->bundle(),
           ],
         ],
       ],
@@ -158,23 +163,28 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
     $this->assertEquals(array_diff_key($normalized, $expected), [], 'No unexpected data is added to the normalized array.');
 
     // Test denormalize.
-    $denormalized = $this->serializer->denormalize($normalized, $this->entityClass, 'json');
+    $context = ['workspace' => $this->container->get('workspace.manager')->getActiveWorkspace()];
+    $denormalized = $this->serializer->denormalize($normalized, $this->entityClass, 'json', $context);
     $this->assertTrue($denormalized instanceof $this->entityClass, SafeMarkup::format('Denormalized entity is an instance of @class', ['@class' => $this->entityClass]));
     $this->assertSame($denormalized->getEntityTypeId(), $this->entity->getEntityTypeId(), 'Expected entity type found.');
     $this->assertSame($denormalized->bundle(), $this->entity->bundle(), 'Expected entity bundle found.');
     $this->assertSame($denormalized->uuid(), $this->entity->uuid(), 'Expected entity UUID found.');
     $expected_link_field_values = [
       [
-        'uri' => 'entity:entity_test_mulrev/' . $referenced_entity1->id(),
+        'uri' => 'entity:entity_test_mulrev/manage/' . $referenced_entity1->id(),
         'title' => NULL,
         'options' => [],
-        'type' => 'entity_test_mulrev',
+        '_entity_uuid' => $referenced_entity1->uuid(),
+        '_entity_type' => $referenced_entity1->getEntityTypeId(),
+        $referenced_entity1->getEntityType()->getKey('bundle') => $referenced_entity1->bundle(),
       ],
       [
-        'uri' => 'internal:/entity_test_mulrev/' . $referenced_entity2->id(),
+        'uri' => 'internal:/entity_test_mulrev/manage/' . $referenced_entity2->id(),
         'title' => NULL,
         'options' => [],
-        'type' => 'entity_test_mulrev',
+        '_entity_uuid' => $referenced_entity2->uuid(),
+        '_entity_type' => $referenced_entity2->getEntityTypeId(),
+        $referenced_entity2->getEntityType()->getKey('bundle') => $referenced_entity2->bundle(),
       ],
     ];
     foreach ($denormalized->get('field_test_link')->getValue() as $key => $item) {
