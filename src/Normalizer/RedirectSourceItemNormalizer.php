@@ -13,14 +13,14 @@ use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\serialization\Normalizer\FieldItemNormalizer;
 
-class LinkItemNormalizer extends FieldItemNormalizer {
+class RedirectSourceItemNormalizer extends FieldItemNormalizer {
 
   /**
    * The interface or class that this Normalizer supports.
    *
    * @var string
    */
-  protected $supportedInterfaceOrClass = 'Drupal\link\Plugin\Field\FieldType\LinkItem';
+  protected $supportedInterfaceOrClass = 'Drupal\redirect\Plugin\Field\FieldType\RedirectSourceItem';
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -64,21 +64,9 @@ class LinkItemNormalizer extends FieldItemNormalizer {
       $attributes[$name] = $this->serializer->normalize($field, $format, $context);
     }
 
-    // For some reasons the options field is not normalized correctly if it
-    // has more information like attributes added by menu_attributes module.
-    // The field data will be empty after normalization, so we add missing data
-    // here.
-    if (!empty($object->getValue()['options']) && empty($attributes['options'])) {
-      $attributes['options'] = $object->getValue()['options'];
-    }
-
-    // Use the entity UUID instead of ID in urls like internal:/node/1.
-    if (isset($attributes['uri'])) {
-      $scheme = parse_url($attributes['uri'], PHP_URL_SCHEME);
-      if (!in_array($scheme, ['internal', 'entity'])) {
-        return $attributes;
-      }
-      $path = parse_url($attributes['uri'], PHP_URL_PATH);
+    // Use the entity UUID instead of ID in urls like node/1.
+    if (isset($attributes['path'])) {
+      $path = parse_url($attributes['path'], PHP_URL_PATH);
       $url = $this->pathValidator->getUrlIfValidWithoutAccessCheck($path);
       if ($url instanceof Url) {
         $internal_path = ltrim($url->getInternalPath(), '/');
@@ -103,7 +91,7 @@ class LinkItemNormalizer extends FieldItemNormalizer {
       $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
       if ($entity instanceof EntityInterface) {
         $entity_uuid = $entity->uuid();
-        $attributes['uri'] = str_replace($entity_id, $entity_uuid, $attributes['uri']);
+        $attributes['path'] = str_replace($entity_id, $entity_uuid, $attributes['path']);
         $attributes['_entity_uuid'] = $entity_uuid;
         $attributes['_entity_type'] = $entity_type;
         $bundle_key = $entity->getEntityType()->getKey('bundle');
@@ -120,9 +108,8 @@ class LinkItemNormalizer extends FieldItemNormalizer {
    * {@inheritdoc}
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
-    if (isset($data['uri'])) {
-      $scheme = parse_url($data['uri'], PHP_URL_SCHEME);
-      if (!in_array($scheme, ['internal', 'entity']) || !isset($data['_entity_uuid']) || !isset($data['_entity_type'])) {
+    if (isset($data['path'])) {
+      if (!isset($data['_entity_uuid']) || !isset($data['_entity_type'])) {
         return parent::denormalize($data, $class, $format, $context);
       }
       $entity_uuid = $data['_entity_uuid'];
@@ -159,7 +146,7 @@ class LinkItemNormalizer extends FieldItemNormalizer {
         }
       }
       if ($entity instanceof EntityInterface) {
-        $data['uri'] = str_replace($entity_uuid, $entity->id(), $data['uri']);
+        $data['path'] = str_replace($entity_uuid, $entity->id(), $data['path']);
       }
     }
 
@@ -170,7 +157,7 @@ class LinkItemNormalizer extends FieldItemNormalizer {
    * {@inheritdoc}
    */
   public function supportsDenormalization($data, $type, $format = NULL) {
-    if (in_array($type, ['Drupal\link\Plugin\Field\FieldType\LinkItem'])) {
+    if (in_array($type, ['Drupal\redirect\Plugin\Field\FieldType\RedirectSourceItem'])) {
       return TRUE;
     }
     return FALSE;

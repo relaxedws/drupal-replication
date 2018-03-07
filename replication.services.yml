@@ -41,6 +41,11 @@ services:
     arguments: ['@entity_type.manager', '@path.validator', '@path.alias_manager', '@plugin.manager.entity_reference_selection']
     tags:
       - { name: normalizer, priority: 40 }
+  replication.normalizer.redirect_source_item:
+    class: Drupal\replication\Normalizer\RedirectSourceItemNormalizer
+    arguments: ['@entity_type.manager', '@path.validator', '@path.alias_manager', '@plugin.manager.entity_reference_selection']
+    tags:
+      - { name: normalizer, priority: 40 }
   replication.normalizer.content_entity:
     class: Drupal\replication\Normalizer\ContentEntityNormalizer
     arguments: ['@entity.manager', '@multiversion.entity_index.factory', '@language_manager', '@replication.users_mapping', '@module_handler', '@plugin.manager.entity_reference_selection', '@event_dispatcher']
