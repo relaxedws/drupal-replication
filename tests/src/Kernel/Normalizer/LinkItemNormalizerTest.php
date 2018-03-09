@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\replication\Kernel\Normalizer;
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -165,7 +165,7 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
     // Test denormalize.
     $context = ['workspace' => $this->container->get('workspace.manager')->getActiveWorkspace()];
     $denormalized = $this->serializer->denormalize($normalized, $this->entityClass, 'json', $context);
-    $this->assertTrue($denormalized instanceof $this->entityClass, SafeMarkup::format('Denormalized entity is an instance of @class', ['@class' => $this->entityClass]));
+    $this->assertTrue($denormalized instanceof $this->entityClass, new FormattableMarkup('Denormalized entity is an instance of @class', ['@class' => $this->entityClass]));
     $this->assertSame($denormalized->getEntityTypeId(), $this->entity->getEntityTypeId(), 'Expected entity type found.');
     $this->assertSame($denormalized->bundle(), $this->entity->bundle(), 'Expected entity bundle found.');
     $this->assertSame($denormalized->uuid(), $this->entity->uuid(), 'Expected entity UUID found.');

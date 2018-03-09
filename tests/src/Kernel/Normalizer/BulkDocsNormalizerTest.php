@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\replication\Kernel\Normalizer;
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
 use Drupal\replication\BulkDocs\BulkDocsInterface;
 
@@ -93,7 +93,7 @@ class BulkDocsNormalizerTest extends NormalizerTestBase {
     $this->assertTrue($bulk_docs instanceof BulkDocsInterface, 'Denormalized data is an instance of the correct interface.');
     foreach ($bulk_docs->getEntities() as $key => $entity) {
       $entity_number = $key+1;
-      $this->assertTrue($entity instanceof $this->entityClass, SafeMarkup::format("Denormalized entity number $entity_number is an instance of @class", ['@class' => $this->entityClass]));
+      $this->assertTrue($entity instanceof $this->entityClass, new FormattableMarkup("Denormalized entity number $entity_number is an instance of @class", ['@class' => $this->entityClass]));
       $this->assertSame($entity->getEntityTypeId(), $this->testEntities[$key]->getEntityTypeId(), "Expected entity type foundfor entity number $entity_number.");
       $this->assertSame($entity->bundle(), $this->testEntities[$key]->bundle(), "Expected entity bundle found for entity number $entity_number.");
       $this->assertSame($entity->uuid(), $this->testEntities[$key]->uuid(), "Expected entity UUID found for entity number $entity_number.");

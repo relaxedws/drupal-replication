@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\replication\Kernel\Normalizer;
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\file\Entity\File;
 
 /**
@@ -117,7 +117,7 @@ class FileEntityNormalizerTest extends NormalizerTestBase{
 
     // Test denormalize.
     $denormalized = $this->serializer->denormalize($normalized, $this->entityClass, 'json');
-    $this->assertTrue($denormalized instanceof $this->entityClass, SafeMarkup::format('Denormalized entity is an instance of @class', ['@class' => $this->entityClass]));
+    $this->assertTrue($denormalized instanceof $this->entityClass, new FormattableMarkup('Denormalized entity is an instance of @class', ['@class' => $this->entityClass]));
     $this->assertSame($denormalized->getEntityTypeId(), $file->getEntityTypeId(), 'Expected entity type found.');
     $this->assertSame($denormalized->bundle(), $file->bundle(), 'Expected entity bundle found.');
     $this->assertSame($denormalized->uuid(), $file->uuid(), 'Expected entity UUID found.');

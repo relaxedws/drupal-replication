@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\replication\Kernel\Normalizer;
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\file\Entity\File;
 
 /**
@@ -72,7 +72,7 @@ class AttachmentNormalizerTest extends NormalizerTestBase {
 
     // Test denormalize.
     $denormalized = $this->serializer->denormalize($this->fileHandle, $this->entityClass, 'stream');
-    $this->assertTrue($denormalized instanceof $this->entityClass, SafeMarkup::format('Denormalized entity is an instance of @class', ['@class' => $this->entityClass]));
+    $this->assertTrue($denormalized instanceof $this->entityClass, new FormattableMarkup('Denormalized entity is an instance of @class', ['@class' => $this->entityClass]));
     $this->assertSame($this->fileEntity->getEntityTypeId(), $denormalized->getEntityTypeId(), 'Expected entity type found.');
   }
 
