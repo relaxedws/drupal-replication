@@ -101,6 +101,11 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
       $expected['en']['revision_translation_affected'] = [['value' => TRUE]];
     }
 
+    if (version_compare($minor_version, '8.5', '>=')) {
+      $expected['en']['non_mul_field'] = [];
+      $expected['en']['revision_default'] = [['value' => TRUE]];
+    }
+
     // Test normalize.
     $normalized = $this->serializer->normalize($entity);
     foreach (array_keys($expected) as $key) {

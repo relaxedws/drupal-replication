@@ -109,7 +109,16 @@ class FileEntityNormalizerTest extends NormalizerTestBase{
       ],
     ];
 
+
     $normalized = $this->serializer->normalize($file);
+
+    // Get the minor version only from the \Drupal::VERSION string.
+    $minor_version = substr(\Drupal::VERSION, 0, 3);
+    if (version_compare($minor_version, '8.5', '>=')) {
+      $expected['en']['revision_default'] = [['value' => TRUE]];
+      unset($normalized['en']['uri'][0]['url']);
+    }
+
     foreach (array_keys($expected) as $key) {
       $this->assertEquals($expected[$key], $normalized[$key], "Field $key is normalized correctly.");
     }
