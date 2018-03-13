@@ -145,6 +145,15 @@ class ContentEntityNormalizerTest extends NormalizerTestBase {
       $expected['ro']['revision_translation_affected'] = [['value' => TRUE]];
     }
 
+    if (version_compare($minor_version, '8.5', '>=')) {
+      $expected['en']['non_mul_field'] = [];
+      $expected['en']['revision_default'] = [['value' => TRUE]];
+      $expected['en']['field_test_text'][0]['processed'] = '';
+      $expected['ro']['non_mul_field'] = [];
+      $expected['ro']['revision_default'] = [['value' => TRUE]];
+      $expected['ro']['field_test_text'][0]['processed'] = '';
+    }
+
     $normalized = $this->serializer->normalize($this->entity);
 
     foreach (array_keys($expected) as $key) {
