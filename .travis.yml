@@ -23,13 +23,16 @@ cache:
   - $HOME/.drush/cache/download
 
 before_install:
+  - composer self-update
   - cp $TRAVIS_BUILD_DIR/.travis/php.ini ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/
   - cp $TRAVIS_BUILD_DIR/.travis/php-fpm.conf ~/.phpenv/versions/$(phpenv version-name)/etc/
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
   - nginx -c $TRAVIS_BUILD_DIR/.travis/nginx.conf
-  - wget -P ~/ https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar && chmod +x ~/drush.phar
+  - wget -P ~/ https://github.com/drush-ops/drush/releases/download/8.1.16/drush.phar && chmod +x ~/drush.phar
   - php ~/drush.phar make $TRAVIS_BUILD_DIR/.travis/$MAKE_FILE $HOME/www
   - php ~/drush.phar --root=$HOME/www --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
+  - cd ~/www
+  = composer update
 
 install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/replication
