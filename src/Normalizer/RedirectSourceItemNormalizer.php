@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Path\AliasManagerInterface;
-use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\serialization\Normalizer\FieldItemNormalizer;
@@ -33,25 +32,18 @@ class RedirectSourceItemNormalizer extends FieldItemNormalizer {
   private $selectionManager;
 
   /**
-   * @var \Drupal\Core\Path\PathValidatorInterface
-   */
-  private $pathValidator;
-
-  /**
    * @var \Drupal\Core\Path\AliasManagerInterface
    */
   private $aliasManager;
 
   /**
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   * @param \Drupal\Core\Path\PathValidatorInterface $path_validator
    * @param \Drupal\Core\Path\AliasManagerInterface $alias_manager
    * @param \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface|null $selection_manager
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, PathValidatorInterface $path_validator, AliasManagerInterface $alias_manager, SelectionPluginManagerInterface $selection_manager = NULL) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, AliasManagerInterface $alias_manager, SelectionPluginManagerInterface $selection_manager = NULL) {
     $this->entityTypeManager = $entity_type_manager;
     $this->selectionManager = $selection_manager;
-    $this->pathValidator = $path_validator;
     $this->aliasManager = $alias_manager;
   }
 
@@ -67,7 +59,9 @@ class RedirectSourceItemNormalizer extends FieldItemNormalizer {
     // Use the entity UUID instead of ID in urls like node/1.
     if (isset($attributes['path'])) {
       $path = parse_url($attributes['path'], PHP_URL_PATH);
-      $url = $this->pathValidator->getUrlIfValidWithoutAccessCheck($path);
+      // This service is not injected to avoid circular reference error when
+      // installing page_manager contrib module.
+      $url = \Drupal::service('path.validator')->getUrlIfValidWithoutAccessCheck($path);
       if ($url instanceof Url) {
         $internal_path = ltrim($url->getInternalPath(), '/');
         $path = ltrim($path, '/');
