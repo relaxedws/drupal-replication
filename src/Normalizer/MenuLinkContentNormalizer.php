@@ -38,6 +38,9 @@ class MenuLinkContentNormalizer extends ContentEntityNormalizer implements Denor
       list($type, $uuid,) = explode(':', $parent);
       if ($type === 'menu_link_content' && $uuid) {
         $storage = $this->entityManager->getStorage($entity_type_id);
+        if (!empty($context['workspace'])) {
+          $storage->useWorkspace($context['workspace']->id());
+        }
         $parent = $storage->loadByProperties(['uuid' => $uuid]);
         $parent = reset($parent);
         if ($parent instanceof MenuLinkContentInterface && $parent->id()) {
@@ -50,8 +53,11 @@ class MenuLinkContentNormalizer extends ContentEntityNormalizer implements Denor
           // Indicate that this revision is a stub.
           $parent->_rev->is_stub = TRUE;
           $parent->uuid->value = $uuid;
-          $parent->link->value = 'internal:/';
-          $parent->menu->value = $denormalized->getMenuName();
+          $parent->link->uri = 'internal:/';
+          if (!empty($context['workspace'])) {
+            $parent->workspace->entity = $context['workspace'];
+          }
+          $parent->menu_name->value = $denormalized->getMenuName();
           $parent->save();
           $denormalized->parent->value = $type . ':' . $uuid . ':' . $parent->id();
         }
