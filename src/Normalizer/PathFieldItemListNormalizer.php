@@ -12,7 +12,10 @@ class PathFieldItemListNormalizer extends FieldNormalizer {
   /**
    * {@inheritdoc}
    */
-  protected $supportedInterfaceOrClass = 'Drupal\path\Plugin\Field\FieldType\PathFieldItemList';
+  protected $supportedInterfaceOrClass = [
+    'Drupal\path\Plugin\Field\FieldType\PathFieldItemList',
+    'Drupal\pathauto\PathautoFieldItemList',
+  ];
 
   /**
    * @var string[]
@@ -46,7 +49,7 @@ class PathFieldItemListNormalizer extends FieldNormalizer {
    * {@inheritdoc}
    */
   public function supportsDenormalization($data, $type, $format = NULL) {
-    if (in_array($type, ['Drupal\path\Plugin\Field\FieldType\PathFieldItemList'])) {
+    if (in_array($type, ['Drupal\path\Plugin\Field\FieldType\PathFieldItemList', 'Drupal\pathauto\PathautoFieldItemList'])) {
       return TRUE;
     }
     return FALSE;
