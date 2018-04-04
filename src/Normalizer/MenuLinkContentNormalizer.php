@@ -69,7 +69,7 @@ class MenuLinkContentNormalizer extends ContentEntityNormalizer implements Denor
 
   public function supportsDenormalization($data, $type, $format = NULL) {
     if (in_array($type, ['Drupal\menu_link_content\MenuLinkContentInterface', 'Drupal\Core\Entity\ContentEntityInterface'], true)) {
-      if ($data['@type'] == 'menu_link_content') {
+      if (isset($data['@type']) && $data['@type'] == 'menu_link_content') {
         return TRUE;
       }
     }
