@@ -2,10 +2,12 @@
 
 namespace Drupal\replication\BulkDocs;
 
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\Utility\Error;
 use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 use Drupal\multiversion\Entity\Index\UuidIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
@@ -74,17 +76,26 @@ class BulkDocs implements BulkDocsInterface {
   protected $state;
 
   /**
+   * The replication settings config.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected $config;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    * @param \Drupal\multiversion\Entity\Index\UuidIndexInterface $uuid_index
    * @param \Drupal\multiversion\Entity\Index\RevisionIndexInterface $rev_index
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\Core\Lock\LockBackendInterface $lock
    * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
    * @param \Drupal\Core\State\StateInterface $state
+   * @param \Drupal\Core\Config\ImmutableConfig $config
    */
-  public function __construct(WorkspaceManagerInterface $workspace_manager, WorkspaceInterface $workspace, UuidIndexInterface $uuid_index, RevisionIndexInterface $rev_index, EntityTypeManagerInterface $entity_type_manager, LockBackendInterface $lock, LoggerChannelInterface $logger, StateInterface $state) {
+  public function __construct(WorkspaceManagerInterface $workspace_manager, WorkspaceInterface $workspace, UuidIndexInterface $uuid_index, RevisionIndexInterface $rev_index, EntityTypeManagerInterface $entity_type_manager, LockBackendInterface $lock, LoggerChannelInterface $logger, StateInterface $state, ImmutableConfig $config) {
     $this->workspaceManager = $workspace_manager;
     $this->workspace = $workspace;
     $this->uuidIndex = $uuid_index;
@@ -93,6 +104,7 @@ class BulkDocs implements BulkDocsInterface {
     $this->lock = $lock;
     $this->logger = $logger;
     $this->state = $state;
+    $this->config = $config;
   }
 
   /**
@@ -182,7 +194,9 @@ class BulkDocs implements BulkDocsInterface {
         $entity->workspace->target_id = $this->workspace->id();
         $entity->_rev->new_edit = $this->newEdits;
         $this->entityTypeManager->getStorage($entity->getEntityTypeId())->useWorkspace($this->workspace->id());
-        $entity->save();
+        if ($entity->save() && $this->config->get('verbose_logging')) {
+          $this->logger->info($entity_type->getLabel() . ' ' . $entity->label() . ' saved in ' . $this->workspace->label());
+        }
 
         $id = ($entity_type->id() === 'replication_log') ? "_local/$uuid" : $uuid;
         $this->result[] = [
@@ -191,7 +205,7 @@ class BulkDocs implements BulkDocsInterface {
           'rev' => $entity->_rev->value,
         ];
       }
-      catch (\Exception $e) {
+      catch (\Throwable $e) {
         $message = $e->getMessage();
         $entity_type_id = $entity->getEntityTypeId();
         $id = ($entity_type_id === 'replication_log') ? "_local/$uuid" : $uuid;
@@ -201,7 +215,8 @@ class BulkDocs implements BulkDocsInterface {
           'id' => $id,
           'rev' => $entity->_rev->value,
         ];
-        $this->logger->critical($message);
+        $this->logger->error('%type: @message in %function (line %line of %file).', Error::decodeException($e));
+        break;
       }
     }
 

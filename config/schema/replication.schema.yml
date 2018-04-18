@@ -16,3 +16,6 @@ replication.settings:
     bulk_docs_limit:
       type: integer
       label: 'Bulk docs limit'
+    verbose_logging:
+      type: boolean
+      label: 'Verbose logging'
