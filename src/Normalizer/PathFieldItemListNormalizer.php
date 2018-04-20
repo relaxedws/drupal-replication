@@ -14,7 +14,7 @@ class PathFieldItemListNormalizer extends FieldNormalizer {
    */
   protected $supportedInterfaceOrClass = [
     'Drupal\path\Plugin\Field\FieldType\PathFieldItemList',
-    'Drupal\pathauto\PathautoFieldItemList',
+    'Drupal\multiversion\MultiversionFieldItemList',
   ];
 
   /**
@@ -26,7 +26,14 @@ class PathFieldItemListNormalizer extends FieldNormalizer {
    * {@inheritdoc}
    */
   public function normalize($field_item, $format = NULL, array $context = []) {
-    return $field_item->getValue();
+    $value = $field_item->getValue();
+    $entity = $field_item->getEntity();
+
+    if (isset($entity->path->pathauto)) {
+      $value[0]['pathauto'] = $entity->path->pathauto;
+    }
+
+    return $value;
   }
 
   /**
@@ -49,7 +56,7 @@ class PathFieldItemListNormalizer extends FieldNormalizer {
    * {@inheritdoc}
    */
   public function supportsDenormalization($data, $type, $format = NULL) {
-    if (in_array($type, ['Drupal\path\Plugin\Field\FieldType\PathFieldItemList', 'Drupal\pathauto\PathautoFieldItemList'])) {
+    if (in_array($type, ['Drupal\path\Plugin\Field\FieldType\PathFieldItemList', 'Drupal\multiversion\MultiversionFieldItemList'])) {
       return TRUE;
     }
     return FALSE;
