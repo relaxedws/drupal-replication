@@ -53,6 +53,10 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
     $file_system = \Drupal::service('file_system');
     $uri = $data->getFileUri();
 
+    if (empty($uri)) {
+      return $normalized;
+    }
+
     $file_contents = file_get_contents($uri);
     if (in_array($file_system->uriScheme($uri), ['public', 'private']) == FALSE) {
       $file_data = '';
