@@ -14,6 +14,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
+use Drupal\multiversion\Entity\Storage\Sql\ContentEntityStorage;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\Event\ReplicationContentDataAlterEvent;
 use Drupal\replication\Event\ReplicationDataEvents;
@@ -439,27 +440,29 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $target_entity = $selection_instance
               ->createNewEntity($target_entity_type_id, $target_bundle_id, rand(), 1);
 
-            // Set the target workspace if we have it in context.
-            if (isset($context['workspace'])
-              && ($context['workspace'] instanceof WorkspaceInterface)
-              && $target_entity->getEntityType()->get('workspace') !== FALSE) {
-              $target_entity->workspace->target_id = $context['workspace']->id();
-            }
-            // Set the UUID to what we received to ensure it gets updated when
-            // the full entity comes around later.
-            $target_entity->uuid->value = $target_entity_uuid;
-            // Indicate that this revision is a stub.
-            $target_entity->_rev->is_stub = TRUE;
+            if ($target_entity->getEntityType()->getStorageClass() instanceof ContentEntityStorage) {
+              // Set the target workspace if we have it in context.
+              if (isset($context['workspace'])
+                && ($context['workspace'] instanceof WorkspaceInterface)
+                && $target_entity->getEntityType()->get('workspace') !== FALSE) {
+                $target_entity->workspace->target_id = $context['workspace']->id();
+              }
+              // Set the UUID to what we received to ensure it gets updated when
+              // the full entity comes around later.
+              $target_entity->uuid->value = $target_entity_uuid;
+              // Indicate that this revision is a stub.
+              $target_entity->_rev->is_stub = TRUE;
 
-            // This will ensure that stub poll_choice entities will not be saved
-            // in Drupal\poll\Entity\Poll:preSave()
-            if ($target_entity_type_id === 'poll_choice') {
-              $target_entity->needsSaving(FALSE);
-            }
+              // This will ensure that stub poll_choice entities will not be saved
+              // in Drupal\poll\Entity\Poll:preSave()
+              if ($target_entity_type_id === 'poll_choice') {
+                $target_entity->needsSaving(FALSE);
+              }
 
-            // Populate the data field.
-            $translation[$field_name][$delta]['target_id'] = NULL;
-            $translation[$field_name][$delta]['entity'] = $target_entity;
+              // Populate the data field.
+              $translation[$field_name][$delta]['target_id'] = NULL;
+              $translation[$field_name][$delta]['entity'] = $target_entity;
+            }
           }
           if (isset($translation[$field_name][$delta]['entity_type_id'])) {
             unset($translation[$field_name][$delta]['entity_type_id']);
