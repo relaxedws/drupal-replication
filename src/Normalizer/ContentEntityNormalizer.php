@@ -14,6 +14,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\replication\Event\ReplicationContentDataAlterEvent;
 use Drupal\replication\Event\ReplicationDataEvents;
@@ -439,7 +440,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
             $target_entity = $selection_instance
               ->createNewEntity($target_entity_type_id, $target_bundle_id, rand(), 1);
 
-            if (is_subclass_of($target_entity->getEntityType()->getStorageClass(), 'Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface')) {
+            if (is_subclass_of($target_entity->getEntityType()->getStorageClass(), ContentEntityStorageInterface::class)) {
               // Set the target workspace if we have it in context.
               if (isset($context['workspace'])
                 && ($context['workspace'] instanceof WorkspaceInterface)
