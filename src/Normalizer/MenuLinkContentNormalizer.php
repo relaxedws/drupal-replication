@@ -61,6 +61,7 @@ class MenuLinkContentNormalizer extends ContentEntityNormalizer implements Denor
           $parent->save();
           $denormalized->parent->value = $type . ':' . $uuid . ':' . $parent->id();
         }
+        $storage->useWorkspace(NULL);
       }
     }
 

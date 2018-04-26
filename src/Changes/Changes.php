@@ -184,6 +184,7 @@ class Changes implements ChangesInterface {
         $storage = $this->entityTypeManager->getStorage($sequence['entity_type_id']);
         $storage->useWorkspace($this->workspaceId);
         $revision = $storage->loadRevision($sequence['revision_id']);
+        $storage->useWorkspace(NULL);
       }
 
       // Filter the document.
