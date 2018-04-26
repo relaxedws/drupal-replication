@@ -155,7 +155,13 @@ class Changes implements ChangesInterface {
   public function getNormal() {
     $sequences = $this->sequenceIndex
       ->useWorkspace($this->workspaceId)
-      ->getRange($this->since, $this->stop, FALSE);
+      ->getRange($this->since, $this->stop);
+
+    // When we have the since parameter set, we should return values starting
+    // just after the since sequence (that is first in the $sequences array).
+    if ($this->since > 0) {
+      array_shift($sequences);
+    }
 
     // Setup filter plugin.
     $parameters = is_array($this->parameters) ? $this->parameters : [];
