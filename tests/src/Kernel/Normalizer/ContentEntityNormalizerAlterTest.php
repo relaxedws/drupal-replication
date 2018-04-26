@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\replication\Kernel\Normalizer;
 
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\entity_test\Entity\EntityTest;
 use Drupal\entity_test\Entity\EntityTestMulRev;
 

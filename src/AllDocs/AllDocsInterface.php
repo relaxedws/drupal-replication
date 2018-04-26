@@ -2,9 +2,6 @@
 
 namespace Drupal\replication\AllDocs;
 
-use Drupal\multiversion\Entity\WorkspaceInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
 interface AllDocsInterface {
 
   /**

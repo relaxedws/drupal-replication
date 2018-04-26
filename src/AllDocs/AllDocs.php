@@ -2,12 +2,10 @@
 
 namespace Drupal\replication\AllDocs;
 
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\multiversion\Entity\Index\EntityIndexInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\multiversion\MultiversionManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
