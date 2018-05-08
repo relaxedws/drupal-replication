@@ -2,6 +2,7 @@
 
 namespace Drupal\replication\Normalizer;
 
+use Drupal\filter\FilterProcessResult;
 use Drupal\taxonomy\TermInterface;
 
 class TaxonomyTermNormalizer extends ContentEntityNormalizer {
@@ -25,6 +26,9 @@ class TaxonomyTermNormalizer extends ContentEntityNormalizer {
       else {
         $entity->parent->target_id = 0;
       }
+    }
+    if (isset($entity->description) && empty($entity->description->value)  || $entity->description->value === '') {
+      $entity->description->processed = new FilterProcessResult('');
     }
 
     return parent::normalize($entity, $format, $context);
