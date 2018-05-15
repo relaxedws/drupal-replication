@@ -94,13 +94,13 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
   public function supportsDenormalization($data, $type, $format = NULL) {
     // We need to accept both FileInterface and ContentEntityInterface classes.
     // File entities are treated as standard content entities.
-    if (in_array($type, ['Drupal\Core\Entity\ContentEntityInterface', 'Drupal\file\FileInterface'], true)) {
+    if (in_array($type, ['Drupal\Core\Entity\ContentEntityInterface', 'Drupal\file\FileInterface'], TRUE)) {
       // If a document has _attachment then we assume it's a file entity.
       if (!empty($data['@attachment'])) {
-        return true;
+        return TRUE;
       }
     }
-    return false;
+    return FALSE;
   }
 
 }
