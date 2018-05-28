@@ -157,12 +157,6 @@ class Changes implements ChangesInterface {
       ->useWorkspace($this->workspaceId)
       ->getRange($this->since, $this->stop);
 
-    // When we have the since parameter set, we should return values starting
-    // just after the since sequence (that is first in the $sequences array).
-    if ($this->since > 0) {
-      array_shift($sequences);
-    }
-
     // Setup filter plugin.
     $parameters = is_array($this->parameters) ? $this->parameters : [];
     $filter = NULL;
@@ -181,6 +175,12 @@ class Changes implements ChangesInterface {
     foreach ($sequences as $sequence) {
       if (!empty($sequence['local']) || !empty($sequence['is_stub'])) {
         continue;
+      }
+
+      // When we have the since parameter set, we should exclude the value with
+      // that sequence from the results.
+      if ($this->since > 0 && $sequence['seq'] == $this->since) {
+       continue;
       }
 
       // Get the document.
