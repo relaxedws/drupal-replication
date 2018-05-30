@@ -57,23 +57,24 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
       return $normalized;
     }
 
-    $file_contents = file_get_contents($uri);
-    if (in_array($file_system->uriScheme($uri), ['public', 'private']) == FALSE) {
-      $file_data = '';
-    }
-    else {
-      $file_data = base64_encode($file_contents);
-    }
+    if ($file_contents = @file_get_contents($uri)) {
+      if (in_array($file_system->uriScheme($uri), ['public', 'private']) == FALSE) {
+        $file_data = '';
+      }
+      else {
+        $file_data = base64_encode($file_contents);
+      }
 
-    // @todo {@link https://www.drupal.org/node/2600360 Add revpos and other missing properties to the result array.}
-    $normalized['@attachment'] = [
-      'uuid' => $data->uuid(),
-      'uri' => $uri,
-      'content_type' => $data->getMimeType(),
-      'digest' => 'md5-' . base64_encode(md5($file_contents)),
-      'length' => $data->getSize(),
-      'data' => $file_data,
-    ];
+      // @todo {@link https://www.drupal.org/node/2600360 Add revpos and other missing properties to the result array.}
+      $normalized['@attachment'] = [
+        'uuid' => $data->uuid(),
+        'uri' => $uri,
+        'content_type' => $data->getMimeType(),
+        'digest' => 'md5-' . base64_encode(md5($file_contents)),
+        'length' => $data->getSize(),
+        'data' => $file_data,
+      ];
+    }
     return $normalized;
   }
 

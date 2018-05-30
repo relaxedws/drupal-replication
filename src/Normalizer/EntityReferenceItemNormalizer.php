@@ -2,7 +2,9 @@
 
 namespace Drupal\replication\Normalizer;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\FieldableEntityStorageInterface;
+use Drupal\file\FileInterface;
 use Drupal\serialization\Normalizer\FieldItemNormalizer;
 
 class EntityReferenceItemNormalizer extends FieldItemNormalizer {
@@ -41,7 +43,7 @@ class EntityReferenceItemNormalizer extends FieldItemNormalizer {
     }
 
     $referenced_entity = $storage->load($taget_id);
-    if (!$referenced_entity) {
+    if (!$referenced_entity instanceof ContentEntityInterface) {
       return $value;
     }
 
@@ -55,10 +57,14 @@ class EntityReferenceItemNormalizer extends FieldItemNormalizer {
       $field_info['username'] = $username;
     }
 
-    if ($target_type === 'file') {
+    if ($referenced_entity instanceof FileInterface) {
       $file_info = $value;
       unset($file_info['target_id']);
       $field_info += $file_info;
+      $field_info['uri'] = $referenced_entity->getFileUri();
+      $field_info['filename'] = $referenced_entity->getFilename();
+      $field_info['filesize'] = $referenced_entity->getSize();
+      $field_info['filemime'] = $referenced_entity->getMimeType();
     }
 
     $bundle_key = $referenced_entity->getEntityType()->getKey('bundle');

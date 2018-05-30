@@ -11,6 +11,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\file\FileInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\multiversion\Entity\Index\MultiversionIndexFactory;
@@ -452,6 +453,23 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
               $target_entity->uuid->value = $target_entity_uuid;
               // Indicate that this revision is a stub.
               $target_entity->_rev->is_stub = TRUE;
+
+              // Populate uri and filename fields if we have the info for them
+              // in the field item.
+              if ($target_entity instanceof FileInterface) {
+                if (isset($item['uri'])) {
+                  $target_entity->setFileUri($item['uri']);
+                }
+                if (isset($item['filename'])) {
+                  $target_entity->setFilename($item['filename']);
+                }
+                if (isset($item['filesize'])) {
+                  $target_entity->setSize($item['filesize']);
+                }
+                if (isset($item['filemime'])) {
+                  $target_entity->setMimeType($item['filemime']);
+                }
+              }
 
               // This will ensure that stub poll_choice entities will not be saved
               // in Drupal\poll\Entity\Poll:preSave()
