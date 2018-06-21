@@ -168,6 +168,9 @@ class AllDocs implements AllDocsInterface {
         }
         $items = $this->entityIndex->getMultiple($keys);
         foreach ($items as $item) {
+          if ($item['is_stub'] == TRUE) {
+            continue;
+          }
           $rows[$item['uuid']] = ['rev' => $item['rev']];
         }
 
