@@ -196,7 +196,7 @@ class BulkDocs implements BulkDocsInterface {
         $this->entityTypeManager->getStorage($entity->getEntityTypeId())->useWorkspace($this->workspace->id());
         if ($entity->save()) {
           $this->result[] = [
-            'id' => $entity->uuid(),
+            'id' => $uuid,
             'ok' => TRUE,
             'rev' => $entity->_rev->value,
           ];
@@ -210,7 +210,7 @@ class BulkDocs implements BulkDocsInterface {
         $this->result[] = [
           'error' => $message,
           'reason' => 'Exception',
-          'id' => $entity->uuid(),
+          'id' => $uuid,
           'rev' => $entity->_rev->value,
         ];
         $this->logger->error('%type: @message in %function (line %line of %file).', Error::decodeException($e));
