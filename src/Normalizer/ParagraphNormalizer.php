@@ -79,7 +79,7 @@ class ParagraphNormalizer extends ContentEntityNormalizer implements Denormalize
 
   public function supportsDenormalization($data, $type, $format = NULL) {
     if (in_array($type, ['Drupal\paragraphs\Entity\Paragraph', 'Drupal\Core\Entity\ContentEntityInterface'])) {
-      if ($data['@type'] == 'paragraph') {
+      if (isset($data['@type']) && $data['@type'] == 'paragraph') {
         return TRUE;
       }
     }

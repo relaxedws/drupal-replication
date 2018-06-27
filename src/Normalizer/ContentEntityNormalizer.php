@@ -268,7 +268,10 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
     // @todo {@link https://www.drupal.org/node/2599926 Use the passed $class to instantiate the entity.}
 
     $entity = NULL;
-    if ($entity_type_id === 'file' && !empty($translations[$default_langcode])) {
+    if ($entity_id && $entity_type_id != 'file' && !empty($translations[$default_langcode])) {
+      $entity = $this->createEntityInstance($translations[$default_langcode], $entity_type, $format, $context);
+    }
+    elseif ($entity_type_id == 'file' && !empty($translations[$default_langcode])) {
       unset($translations[$default_langcode][$id_key], $translations[$default_langcode][$revision_key]);
       $translations[$default_langcode]['status'][0]['value'] = FILE_STATUS_PERMANENT;
       $translations[$default_langcode]['uid'][0]['target_id'] = $this->usersMapping->getUidFromConfig();
