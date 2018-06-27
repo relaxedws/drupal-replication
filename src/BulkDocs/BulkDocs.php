@@ -201,7 +201,7 @@ class BulkDocs implements BulkDocsInterface {
             'rev' => $entity->_rev->value,
           ];
           if ($this->config->get('verbose_logging')) {
-            $this->logger->info($entity_type->getLabel() . ' ' . $entity->label() . ' saved in ' . $this->workspace->label());
+            $this->logger->info($entity_type->getLabel() . ' ' . $entity->label() . ' saved in workspace s' . $this->workspace->label());
           }
         }
       }
@@ -213,8 +213,8 @@ class BulkDocs implements BulkDocsInterface {
           'id' => $uuid,
           'rev' => $entity->_rev->value,
         ];
-        $this->logger->error('%type: @message in %function (line %line of %file).', Error::decodeException($e));
-        break;
+        $arguments = Error::decodeException($e) + ['%uuid' => $uuid];
+        $this->logger->error('%type: @message in %function (line %line of %file). The error occurred while saving the entity with the UUID: %uuid', $arguments);
       }
     }
 
