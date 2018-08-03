@@ -137,3 +137,7 @@ services:
     class: Drupal\replication\Normalizer\CommentItemNormalizer
     tags:
       - { name: normalizer, priority: 40 }
+  replication.normalizer.entity_reference_quantity_item:
+    class: Drupal\replication\Normalizer\EntityReferenceQuantityItemNormalizer
+    tags:
+    - { name: normalizer, priority: 60 }
