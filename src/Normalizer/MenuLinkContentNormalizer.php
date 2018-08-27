@@ -53,6 +53,7 @@ class MenuLinkContentNormalizer extends ContentEntityNormalizer implements Denor
           // Indicate that this revision is a stub.
           $parent->_rev->is_stub = TRUE;
           $parent->uuid->value = $uuid;
+          $parent->langcode->value = $data['@context']['@language'];
           $parent->link->uri = 'internal:/';
           if (!empty($context['workspace'])) {
             $parent->workspace->entity = $context['workspace'];

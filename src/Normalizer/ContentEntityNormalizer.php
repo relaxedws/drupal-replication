@@ -456,7 +456,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
               $target_entity->uuid->value = $target_entity_uuid;
               // Indicate that this revision is a stub.
               $target_entity->_rev->is_stub = TRUE;
-
+              $target_entity->langcode->value = $translation['@context']['@language'];
               // Populate uri and filename fields if we have the info for them
               // in the field item.
               if ($target_entity instanceof FileInterface) {
@@ -497,7 +497,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
 
     // Denormalize parent field for menu_link_content entity type.
     if ($entity_type_id == 'menu_link_content' && !empty($translation['parent'][0]['value'])) {
-      $translation['parent'][0]['value'] = $this->denormalizeMenuLinkParent($translation['parent'][0]['value'], $context);
+      $translation['parent'][0]['value'] = $this->denormalizeMenuLinkParent($translation['parent'][0]['value'], $context, $translation['@context']['@language']);
     }
 
     // Unset the comment field item if CID is NULL.
@@ -572,9 +572,10 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
   /**
    * @param $data
    * @param $context
+   * @param $langcode
    * @return string
    */
-  protected function denormalizeMenuLinkParent($data, $context) {
+  protected function denormalizeMenuLinkParent($data, $context, $langcode) {
     if (strpos($data, 'menu_link_content') === 0) {
       list($type, $uuid, $id) = explode(':', $data);
       if ($type === 'menu_link_content' && $uuid && is_numeric($id)) {
@@ -589,7 +590,9 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
           $parent = $storage->create([
             'uuid' => $uuid,
             'link' => 'internal:/',
+            'langcode' => $langcode,
           ]);
+
           // Set the target workspace if we have it in context.
           if (isset($context['workspace'])
             && ($context['workspace'] instanceof WorkspaceInterface)) {

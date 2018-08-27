@@ -65,6 +65,7 @@ class ParagraphNormalizer extends ContentEntityNormalizer implements Denormalize
         $parent = $selection_instance->createNewEntity($entity_type_id, $bundle, rand(), 1);
         // Indicate that this revision is a stub.
         $parent->_rev->is_stub = TRUE;
+        $parent->langcode->value = $language;
         $parent->uuid->value = $target_uuid;
         if (!empty($context['workspace'])) {
           $parent->workspace->entity = $context['workspace'];
