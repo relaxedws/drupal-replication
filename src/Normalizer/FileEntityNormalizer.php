@@ -86,7 +86,12 @@ class FileEntityNormalizer extends ContentEntityNormalizer implements Denormaliz
     if (!empty($data['@attachment']['uuid'])) {
       $workspace = isset($context['workspace']) ? $context['workspace'] : NULL;
       /** @var FileInterface $file */
-      $this->processFileAttachment->process($data['@attachment'], 'base64_stream', $workspace);
+      if ($file = $this->processFileAttachment->process($data['@attachment'], 'base64_stream', $workspace)) {
+        // Update the data, because file name could change.
+        $language_code = $file->language()->getId();
+        $data[$language_code]['filename'][0]['value'] = $file->get('filename')->value;
+        $data[$language_code]['uri'][0]['value'] = $file->get('uri')->value;
+      }
       unset($data['@attachment']);
     }
     return parent::denormalize($data, $class, $format, $context);
