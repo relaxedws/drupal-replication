@@ -2,6 +2,7 @@
 
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
  * implements hook_modules_installed().
@@ -177,4 +178,19 @@ function replication_update_8102() {
     ->set('changes_limit', 100)
     ->set('bulk_docs_limit', 100)
     ->save();
+}
+
+/**
+ * Add the fail_info field.
+ */
+function replication_update_8104() {
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  // Add the replication status field to the replication entity type.
+  $replication_fail_info = BaseFieldDefinition::create('string_long')
+    ->setLabel(t('Replication fail info'))
+    ->setDescription(t('When a replication fails, it contains the info about the cause of the fail.'))
+    ->setRequired(FALSE)
+    ->setDefaultValue('')
+    ->setInitialValue('');
+  $definition_update_manager->installFieldStorageDefinition('fail_info', 'replication_log', 'replication', $replication_fail_info);
 }
