@@ -2,6 +2,7 @@
 
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
  * implements hook_modules_installed().
