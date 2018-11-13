@@ -255,12 +255,14 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
       elseif (isset($site_languages[$key])
         || $key === LanguageInterface::LANGCODE_NOT_SPECIFIED
         || $key === LanguageInterface::LANGCODE_NOT_APPLICABLE) {
+        $context['language'] = $key;
         $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $rev, $revisions);
       }
       // Configure the language, then do denormalization.
       elseif (is_array($translation) && $this->moduleHandler->moduleExists('language')) {
         $language = ConfigurableLanguage::createFromLangcode($key);
         $language->save();
+        $context['language'] = $key;
         $translations[$key] = $this->denormalizeTranslation($translation, $entity_id, $entity_uuid, $entity_type_id, $bundle_key, $entity_type, $id_key, $context, $rev, $revisions);
       }
     }
@@ -456,7 +458,7 @@ class ContentEntityNormalizer extends NormalizerBase implements DenormalizerInte
               $target_entity->uuid->value = $target_entity_uuid;
               // Indicate that this revision is a stub.
               $target_entity->_rev->is_stub = TRUE;
-              $target_entity->langcode->value = $translation['@context']['@language'];
+              $target_entity->langcode->value = $context['language'];
               // Populate uri and filename fields if we have the info for them
               // in the field item.
               if ($target_entity instanceof FileInterface) {
