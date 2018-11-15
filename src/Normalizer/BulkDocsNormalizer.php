@@ -2,9 +2,8 @@
 
 namespace Drupal\replication\Normalizer;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\serialization\Normalizer\NormalizerBase;
-use Masterminds\HTML5\Exception;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\Exception\LogicException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -47,6 +46,9 @@ class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface
       if (isset($data['docs'])) {
         foreach ($data['docs'] as $doc) {
           if (!empty($doc)) {
+            if (is_string($doc)) {
+              $doc = Json::decode($doc);
+            }
             // @todo {@link https://www.drupal.org/node/2599934 Find a more generic way to denormalize.}
             if (!empty($doc['_id']) && strpos($doc['_id'], 'local') !== FALSE) {
               // Denormalize replication_log entities. This is used when the
