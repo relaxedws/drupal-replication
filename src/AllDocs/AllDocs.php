@@ -91,7 +91,7 @@ class AllDocs implements AllDocsInterface {
    * {@inheritdoc}
    */
   public function includeDocs($include_docs) {
-    $this->includeDocs = $include_docs;
+    $this->includeDocs = (bool) $include_docs;
   }
 
   /**

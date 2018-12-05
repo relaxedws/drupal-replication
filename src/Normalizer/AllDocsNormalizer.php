@@ -18,6 +18,9 @@ class AllDocsNormalizer extends NormalizerBase {
     ];
 
     /** @var \Drupal\replication\AllDocs\AllDocsInterface $all_docs */
+    if (!empty($context['query']['include_docs'])) {
+      $all_docs->includeDocs(TRUE);
+    }
     $rows = $all_docs->execute();
 
     foreach ($rows as $key => $value) {
