@@ -46,11 +46,6 @@ class BulkDocsFactory implements BulkDocsFactoryInterface {
   protected $logger;
 
   /**
-   * @var \Drupal\replication\BulkDocs\BulkDocs[]
-   */
-  protected $instances = [];
-
-  /**
    * The state service.
    *
    * @var \Drupal\Core\State\StateInterface
@@ -91,20 +86,17 @@ class BulkDocsFactory implements BulkDocsFactoryInterface {
    * @inheritDoc
    */
   public function get(WorkspaceInterface $workspace) {
-    if (!isset($this->instances[$workspace->id()])) {
-      $this->instances[$workspace->id()] = new BulkDocs(
-        $this->workspaceManager,
-        $workspace,
-        $this->uuidIndex,
-        $this->revIndex,
-        $this->entityTypeManager,
-        $this->lock,
-        $this->logger,
-        $this->state,
-        $this->config
-      );
-    }
-    return $this->instances[$workspace->id()];
+    return new BulkDocs(
+      $this->workspaceManager,
+      $workspace,
+      $this->uuidIndex,
+      $this->revIndex,
+      $this->entityTypeManager,
+      $this->lock,
+      $this->logger,
+      $this->state,
+      $this->config
+    );
   }
 
 }
