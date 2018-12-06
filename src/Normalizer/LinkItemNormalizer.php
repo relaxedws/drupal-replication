@@ -189,4 +189,16 @@ class LinkItemNormalizer extends FieldItemNormalizer {
     return FALSE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function checkFormat($format = NULL) {
+    // Don't support HAL normalization because that expects a different format.
+    // @see \Drupal\hal\Normalizer\FieldItemNormalizer::normalize()
+    if ($format == 'hal_json') {
+      return FALSE;
+    }
+    return parent::checkFormat($format);
+  }
+
 }
