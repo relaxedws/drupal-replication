@@ -3,8 +3,10 @@
 namespace Drupal\replication\Normalizer;
 
 use Drupal\serialization\Normalizer\NormalizerBase;
+use Symfony\Component\Serializer\Exception\LogicException;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
-class ChangesNormalizer extends NormalizerBase {
+class ChangesNormalizer extends NormalizerBase implements DenormalizerInterface {
 
   protected $supportedInterfaceOrClass = ['Drupal\replication\Changes\ChangesInterface'];
 
@@ -38,6 +40,23 @@ class ChangesNormalizer extends NormalizerBase {
       'last_seq' => $last_seq,
       'results' => $results,
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function denormalize($data, $class, $format = NULL, array $context = []) {
+    if (!isset($context['workspace'])) {
+      throw new LogicException('A \'workspace\' context is required to denormalize Changes data.');
+    }
+
+    $doc_ids = [];
+    if (!empty($data['doc_ids'])) {
+      $doc_ids = $data['doc_ids'];
+    }
+
+    // The service is not injected to avoid circular reference.
+    return \Drupal::service('replication.changes_factory')->get($context['workspace'])->parameters(['uuids' => $doc_ids]);
   }
 
 }
