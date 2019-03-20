@@ -180,7 +180,7 @@ class Changes implements ChangesInterface {
       // When we have the since parameter set, we should exclude the value with
       // that sequence from the results.
       if ($this->since > 0 && $sequence['seq'] == $this->since) {
-       continue;
+        continue;
       }
 
       // Get the document.

@@ -3,7 +3,6 @@
 namespace Drupal\replication\Plugin\ReplicationFilter;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\replication\Plugin\ReplicationFilter\ReplicationFilterBase;
 
 /**
  * Provides filtering by UUID.

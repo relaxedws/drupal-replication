@@ -50,13 +50,27 @@ class ChangesNormalizer extends NormalizerBase implements DenormalizerInterface 
       throw new LogicException('A \'workspace\' context is required to denormalize Changes data.');
     }
 
-    $doc_ids = [];
+    // The service is not injected to avoid circular reference.
+    /** @var \Drupal\replication\Changes\ChangesInterface $changes */
+    $changes = \Drupal::service('replication.changes_factory')->get($context['workspace']);
+
+    if (isset($context['query']['filter'])) {
+      $changes->filter($context['query']['filter']);
+    }
+    if (isset($data['limit'])) {
+      $changes->setLimit($data['limit']);
+    }
+    $since = (isset($data['since']) && is_numeric($data['since'])) ? $data['since'] : 0;
+    $changes->setSince($since);
+    $parameters = [];
+    if (isset($data['parameters'])) {
+      $parameters = $data['parameters'];
+    }
     if (!empty($data['doc_ids'])) {
-      $doc_ids = $data['doc_ids'];
+      $parameters['doc_ids'] = $data['doc_ids'];
     }
 
-    // The service is not injected to avoid circular reference.
-    return \Drupal::service('replication.changes_factory')->get($context['workspace'])->parameters(['uuids' => $doc_ids]);
+    return $changes->parameters($parameters);
   }
 
 }
