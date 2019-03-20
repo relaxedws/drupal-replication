@@ -163,6 +163,11 @@ class Changes implements ChangesInterface {
     if (is_string($this->filter) && $this->filter) {
       $filter = $this->filterManager->createInstance($this->filter, $parameters);
     }
+    // If doc_ids are sent as a parameter, but no filter is set, automatically
+    // select the "_doc_ids" filter.
+    elseif (isset($parameters['doc_ids'])) {
+      $filter = $this->filterManager->createInstance('_doc_ids', $parameters);
+    }
     // If UUIDs are sent as a parameter, but no filter is set, automatically
     // select the "uuid" filter.
     elseif (isset($parameters['uuids'])) {
