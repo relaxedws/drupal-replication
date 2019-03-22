@@ -58,6 +58,13 @@ interface ChangesInterface {
   public function setSince($seq);
 
   /**
+   * Get the since value.
+   *
+   * @return int
+   */
+  public function getSince();
+
+  /**
    * Sets until what sequence number to check for changes.
    *
    * @param int $seq

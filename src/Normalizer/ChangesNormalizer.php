@@ -30,7 +30,11 @@ class ChangesNormalizer extends NormalizerBase implements DenormalizerInterface 
       $changes->setLimit($context['query']['limit']);
     }
     $since = (isset($context['query']['since']) && is_numeric($context['query']['since'])) ? $context['query']['since'] : 0;
-    $changes->setSince($since);
+    // Set since if it is not already set. It could be set if there was a POST
+    // request.
+    if (!$changes->getSince()) {
+      $changes->setSince($since);
+    }
 
     $results = $changes->getNormal();
     $last_result = end($results);

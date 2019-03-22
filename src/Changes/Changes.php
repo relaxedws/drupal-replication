@@ -136,6 +136,13 @@ class Changes implements ChangesInterface {
   /**
    * {@inheritdoc}
    */
+  public function getSince() {
+    return $this->since;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function setStop($seq) {
     $this->stop = $seq;
     return $this;
