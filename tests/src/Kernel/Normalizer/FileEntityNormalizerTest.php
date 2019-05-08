@@ -10,7 +10,7 @@ use Drupal\file\Entity\File;
  *
  * @group replication
  */
-class FileEntityNormalizerTest extends NormalizerTestBase{
+class FileEntityNormalizerTest extends NormalizerTestBase {
 
   public static $modules = [
     'serialization',
@@ -29,12 +29,6 @@ class FileEntityNormalizerTest extends NormalizerTestBase{
   ];
 
   protected $entityClass = 'Drupal\file\Entity\File';
-
-  protected function setUp() {
-    parent::setUp();
-    $this->installEntitySchema('file');
-    $this->installSchema('file', ['file_usage']);
-  }
 
   /**
    * Tests using entity fields of the file field type.
