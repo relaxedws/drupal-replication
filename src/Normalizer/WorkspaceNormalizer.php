@@ -64,6 +64,6 @@ class WorkspaceNormalizer extends EntityNormalizer {
       throw new \Exception('Invalid workspace type.');
     }
     $data['type'] = $workspace_type->id();
-    return $this->entityManager->getStorage('workspace')->create($data);
+    return \Drupal::entityTypeManager()->getStorage('workspace')->create($data);
   }
 }

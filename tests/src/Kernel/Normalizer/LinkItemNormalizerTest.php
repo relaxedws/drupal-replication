@@ -6,6 +6,7 @@ use Drupal\Component\Render\FormattableMarkup;
 use Drupal\entity_test\Entity\EntityTestMulRev;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Tests\user\Traits\UserCreationTrait;
 
 /**
  * Tests the link serialization format.
@@ -14,10 +15,20 @@ use Drupal\field\Entity\FieldStorageConfig;
  */
 class LinkItemNormalizerTest extends NormalizerTestBase {
 
+  use UserCreationTrait;
+
   protected $entityClass = 'Drupal\entity_test\Entity\EntityTest';
+
+  /**
+   * @var \Drupal\user\UserInterface
+   */
+  protected $user;
 
   protected function setUp() {
     parent::setUp();
+
+    $this->user = $this->createUser();
+    $this->setCurrentUser($this->user);
 
     // Create a Link field for testing.
     FieldStorageConfig::create([
@@ -108,7 +119,11 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
           ['value' => TRUE],
         ],
         'user_id' => [
-          ['target_id' => $this->values['user_id']],
+          [
+            'entity_type_id' => 'user',
+            'target_uuid' => $this->user->uuid(),
+            'username' => $this->user->getAccountName(),
+          ],
         ],
         '_rev' => [
           ['value' => $this->entity->_rev->value],
@@ -180,17 +195,11 @@ class LinkItemNormalizerTest extends NormalizerTestBase {
         'uri' => 'entity:entity_test_mulrev/manage/' . $referenced_entity1->id(),
         'title' => NULL,
         'options' => [],
-        '_entity_uuid' => $referenced_entity1->uuid(),
-        '_entity_type' => $referenced_entity1->getEntityTypeId(),
-        $referenced_entity1->getEntityType()->getKey('bundle') => $referenced_entity1->bundle(),
       ],
       [
         'uri' => 'internal:/entity_test_mulrev/manage/' . $referenced_entity2->id(),
         'title' => NULL,
         'options' => [],
-        '_entity_uuid' => $referenced_entity2->uuid(),
-        '_entity_type' => $referenced_entity2->getEntityTypeId(),
-        $referenced_entity2->getEntityType()->getKey('bundle') => $referenced_entity2->bundle(),
       ],
     ];
     foreach ($denormalized->get('field_test_link')->getValue() as $key => $item) {

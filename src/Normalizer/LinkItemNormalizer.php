@@ -154,6 +154,13 @@ class LinkItemNormalizer extends FieldItemNormalizer {
       }
       if ($entity instanceof EntityInterface) {
         $data['uri'] = str_replace($entity_uuid, $entity->id(), $data['uri']);
+        unset($data['_entity_uuid']);
+        unset($data['_entity_type']);
+        $bundle_key = $entity->getEntityType()->getKey('bundle');
+        $bundle = $entity->bundle();
+        if ($bundle_key && $bundle) {
+          unset($data[$bundle_key]);
+        }
       }
     }
 

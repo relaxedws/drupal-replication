@@ -16,14 +16,6 @@ class EntityReferenceItemNormalizerTest extends NormalizerTestBase {
   protected $entityClass = 'Drupal\entity_test\Entity\EntityTest';
 
   /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
-    parent::setUp();
-    $this->installSchema('system', ['sequences']);
-  }
-
-  /**
    * Tests normalization of entity reference fields that reference users.
    *
    * @todo Write a test of user ID mapping using normalization.

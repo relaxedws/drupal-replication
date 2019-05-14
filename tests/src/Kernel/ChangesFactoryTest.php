@@ -30,6 +30,8 @@ class ChangesFactoryTest extends KernelTestBase {
     parent::setUp();
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
+    $this->installEntitySchema('replication_log');
+    $this->installEntitySchema('workspace');
     $this->installSchema('key_value', ['key_value_sorted']);
     $this->installConfig(['multiversion']);
     \Drupal::service('multiversion.manager')->enableEntityTypes();
