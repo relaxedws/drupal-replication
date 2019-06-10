@@ -63,6 +63,12 @@ class BulkDocsNormalizer extends NormalizerBase implements DenormalizerInterface
             elseif (isset($doc['@context'])) {
               $entity = $this->serializer->denormalize($doc, 'Drupal\Core\Entity\ContentEntityInterface', $format, $context);
             }
+            // Ensure a deleted doc really is marked as deleted. This may be
+            // necessary when an entity is to be deleted only on certain
+            // replication targets; e.g., due to filtered replication.
+            if (!empty($doc['deleted']) && !empty($entity)) {
+              $entity->_deleted->value = TRUE;
+            }
             if (!empty($entity)) {
               $entities[] = $entity;
             }
