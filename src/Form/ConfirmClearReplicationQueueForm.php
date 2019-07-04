@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Class ClearReplicationQueueForm.
+ * Class ConfirmClearReplicationQueueForm.
  *
  * @package Drupal\replication\Form
  */
@@ -24,9 +24,16 @@ class ConfirmClearReplicationQueueForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // @todo Implement the queue clearing here.
+    $this->clearReplicationQueue();
     $form_state->setRedirectUrl($this->getCancelUrl());
     $this->messenger()->addMessage($this->t('All the queued deployments have been marked as failed and have been removed from the replication queue.'));
+  }
+
+  /**
+   * Clears the replication queue.
+   */
+  public function clearReplicationQueue() {
+    // @todo Implement the queue clearing here.
   }
 
   /**

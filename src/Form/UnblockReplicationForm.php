@@ -4,6 +4,8 @@ namespace Drupal\replication\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\State\StateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class UnblockReplicationForm.
@@ -11,6 +13,30 @@ use Drupal\Core\Form\FormStateInterface;
  * @package Drupal\replication\Form
  */
 class UnblockReplicationForm extends FormBase {
+
+  /**
+   * Stores the state storage service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
+   * UnblockReplicationForm constructor.
+   *
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state key value store.
+   */
+  public function __construct(StateInterface $state) {
+    $this->state = $state;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('state'));
+  }
 
   /**
    * {@inheritdoc}
@@ -23,7 +49,7 @@ class UnblockReplicationForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $last_replication_failed = \Drupal::state()->get('workspace.last_replication_failed', FALSE);
+    $last_replication_failed = $this->state->get('workspace.last_replication_failed', FALSE);
     $form['unblock'] = array(
       '#type' => 'fieldset',
       '#title' => $this->t('Unblock replication (when it\'s blocked)'),
@@ -44,7 +70,7 @@ class UnblockReplicationForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    \Drupal::state()->set('workspace.last_replication_failed', FALSE);
+    $this->state->set('workspace.last_replication_failed', FALSE);
     $this->messenger()->addMessage($this->t('Replication blocker has been reset you can now create and run deployments.'));
   }
 
