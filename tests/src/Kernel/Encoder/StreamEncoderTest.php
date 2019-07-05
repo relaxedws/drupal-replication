@@ -12,8 +12,6 @@ use Drupal\replication\Encoder\StreamEncoder;
  */
 class StreamEncoderTest extends KernelTestBase {
 
-  protected $strictConfigSchema = FALSE;
-
   /**
    * @var \Drupal\replication\Encoder\StreamEncoder
    */

@@ -14,11 +14,6 @@ class ReplicationSettingsTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $strictConfigSchema = FALSE;
-
-  /**
-   * {@inheritdoc}
-   */
   public static $modules = [
     'user',
     'serialization',
