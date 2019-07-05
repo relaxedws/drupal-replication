@@ -13,6 +13,13 @@ use Drupal\replication\Encoder\StreamEncoder;
 class StreamEncoderTest extends KernelTestBase {
 
   /**
+   * {@inheritdoc}
+   */
+  public static $modules = [
+    'system',
+  ];
+
+  /**
    * @var \Drupal\replication\Encoder\StreamEncoder
    */
   protected $encoder;

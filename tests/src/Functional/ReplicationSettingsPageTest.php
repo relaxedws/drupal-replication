@@ -16,7 +16,6 @@ class ReplicationSettingsPageTest extends BrowserTestBase {
    */
   public static $modules = [
     'multiversion',
-    'node',
     'user',
     'replication',
   ];
