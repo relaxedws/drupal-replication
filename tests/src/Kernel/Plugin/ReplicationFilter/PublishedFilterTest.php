@@ -16,11 +16,6 @@ class PublishedFilterTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $strictConfigSchema = FALSE;
-
-  /**
-   * {@inheritdoc}
-   */
   public static $modules = [
     'block',
     'block_content',

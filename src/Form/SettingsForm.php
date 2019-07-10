@@ -40,7 +40,12 @@ class SettingsForm extends ConfigFormBase {
       'uid_1' => $this->t('Map to UID 1'),
     ];
 
-    $form['mapping_type'] = [
+    $form['config'] = array(
+      '#type' => 'fieldset',
+      '#title' => $this->t('Replication configuration'),
+    );
+
+    $form['config']['mapping_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Users mapping type'),
       '#default_value' => $config->get('mapping_type'),
@@ -48,7 +53,7 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t("Select how users will be mapped when they can't be mapped by username or email."),
     ];
 
-    $form['uid'] = [
+    $form['config']['uid'] = [
       '#type' => 'textfield',
       '#title' => $this->t('UID'),
       '#default_value' => $config->get('mapping_type') === 'uid' ? $config->get('uid') : '',
@@ -61,7 +66,7 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $form['changes_limit'] = [
+    $form['config']['changes_limit'] = [
       '#type' => 'number',
       '#title' => t('Changes limit'),
       '#default_value' => $config->get('changes_limit'),
@@ -78,7 +83,7 @@ class SettingsForm extends ConfigFormBase {
       '#step' => 10,
     ];
 
-    $form['bulk_docs_limit'] = [
+    $form['config']['bulk_docs_limit'] = [
       '#type' => 'number',
       '#title' => t('Bulk docs limit'),
       '#default_value' => $config->get('bulk_docs_limit'),
@@ -95,7 +100,38 @@ class SettingsForm extends ConfigFormBase {
       '#step' => 10,
     ];
 
-    return parent::buildForm($form, $form_state);
+    $form['config']['replication_execution_limit'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Replication execution limit'),
+      '#default_value' => $config->get('replication_execution_limit'),
+      '#options' => [
+        1 => $this->t('1 hour'),
+        2 => $this->t('2 hours'),
+        4 => $this->t('4 hours'),
+        8 => $this->t('8 hours'),
+      ],
+      '#description' => $this->t("The maximum time a replication can run, if it exceeds this time then the replication is marked as failed."),
+      '#required' => TRUE,
+    ];
+
+    $form['config']['verbose_logging'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Verbose logging'),
+      '#default_value' => (int) $config->get('verbose_logging'),
+      '#description' => $this->t('This will enable extensive replication verbose logging.'),
+    ];
+
+    $form['config']['actions']['#type'] = 'actions';
+    $form['config']['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Save configuration'),
+      '#button_type' => 'primary',
+    ];
+
+    // By default, render the form using system-config-form.html.twig.
+    $form['#theme'] = 'system_config_form';
+
+    return $form;
   }
 
   /**
@@ -140,11 +176,15 @@ class SettingsForm extends ConfigFormBase {
 
     $changes_limit = $form_state->getValue('changes_limit');
     $bulk_docs_limit = $form_state->getValue('bulk_docs_limit');
+    $replication_execution_limit = $form_state->getValue('replication_execution_limit');
+    $verbose_logging = (bool) $form_state->getValue('verbose_logging');
 
     $config
       ->set('mapping_type', $mapping_type)
       ->set('changes_limit', $changes_limit)
       ->set('bulk_docs_limit', $bulk_docs_limit)
+      ->set('replication_execution_limit', $replication_execution_limit)
+      ->set('verbose_logging', $verbose_logging)
       ->set('uid', trim($uid))
       ->save();
   }

@@ -179,3 +179,11 @@ function replication_update_8102() {
     ->set('bulk_docs_limit', 100)
     ->save();
 }
+
+/**
+ * Set the default value for the new replication_execution_limit setting.
+ */
+function replication_update_8103() {
+  $replication_settings = \Drupal::configFactory()->getEditable('replication.settings');
+  $replication_settings->set('replication_execution_limit', 1)->save(TRUE);
+}

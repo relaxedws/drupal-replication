@@ -12,7 +12,12 @@ use Drupal\replication\Encoder\StreamEncoder;
  */
 class StreamEncoderTest extends KernelTestBase {
 
-  protected $strictConfigSchema = FALSE;
+  /**
+   * {@inheritdoc}
+   */
+  public static $modules = [
+    'system',
+  ];
 
   /**
    * @var \Drupal\replication\Encoder\StreamEncoder

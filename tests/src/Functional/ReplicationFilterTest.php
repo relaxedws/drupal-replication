@@ -16,11 +16,6 @@ class ReplicationFilterTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $strictConfigSchema = FALSE;
-
-  /**
-   * {@inheritdoc}
-   */
   public static $modules = [
     'multiversion',
     'node',

@@ -13,8 +13,6 @@ use Drupal\replication\Entity\ReplicationLog;
  */
 class ReplicationLogTest extends KernelTestBase {
 
-  protected $strictConfigSchema = FALSE;
-
   public static $modules = ['user', 'serialization', 'key_value', 'multiversion', 'replication'];
 
   public function testOperations() {
