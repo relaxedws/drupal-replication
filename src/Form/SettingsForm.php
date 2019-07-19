@@ -118,7 +118,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => t('Verbose logging'),
       '#default_value' => (int) $config->get('verbose_logging'),
-      '#description' => $this->t('This will enable extensive replication verbose logging.'),
+      '#description' => $this->t('This will enable verbose replication logging.'),
     ];
 
     $form['config']['actions']['#type'] = 'actions';
