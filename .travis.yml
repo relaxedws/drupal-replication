@@ -7,14 +7,14 @@ php:
   - 7.3
 
 env:
-  - MAKE_FILE=drupal-8.5.x.make.yml
   - MAKE_FILE=drupal-8.6.x.make.yml
   - MAKE_FILE=drupal-8.7.x.make.yml
+  - MAKE_FILE=drupal-8.8.x.make.yml
 
 matrix:
   allow_failures:
-    - php: 7.3
-      env: MAKE_FILE=drupal-8.5.x.make.yml
+    # This should fail because of https://www.drupal.org/project/multiversion/issues/3090566.
+    - env: MAKE_FILE=drupal-8.8.x.make.yml
   fast_finish: true
 
 services:
@@ -38,7 +38,7 @@ before_install:
   - wget -P ~/ https://github.com/drush-ops/drush/releases/download/8.2.3/drush.phar && chmod +x ~/drush.phar
   - php ~/drush.phar make $TRAVIS_BUILD_DIR/.travis/$MAKE_FILE $HOME/www
   - php ~/drush.phar --root=$HOME/www --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
-  - composer --working-dir=$HOME/www run-script drupal-phpunit-upgrade
+  - if [ $MAKE_FILE != drupal-8.8.x.make.yml ]; then composer --working-dir=$HOME/www run-script drupal-phpunit-upgrade; fi
 
 install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/replication
